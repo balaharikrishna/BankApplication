@@ -1,6 +1,6 @@
-﻿namespace BankApplicationHelperMethods
+﻿namespace BankApplication
 {
-    internal class ManagerHelperMethod
+    internal class ManagerHelper
     {
         public static void SelectedOption(short Option, string managerBankId, string managerBranchId)
         {

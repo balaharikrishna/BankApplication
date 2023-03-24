@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplicationModels.Enums
 {
-    internal enum StaffOptions
+    public enum StaffOptions
     {
         OpenCustomerAccount = 1, //wokring
         UpdateCustomerAccount = 2, // wokring

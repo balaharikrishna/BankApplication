@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BankApplication.Models.Exceptions
+namespace BankApplication.Exceptions
 {
     internal class InvalidUser : Exception
     {

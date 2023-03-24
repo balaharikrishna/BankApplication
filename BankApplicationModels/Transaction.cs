@@ -4,7 +4,7 @@ using TransactionStatus = BankApplicationModels.Enums.TransactionStatus;
 
 namespace BankApplicationModels
 {
-    public class CustomerTransaction
+    public class Transaction
     {
         public string FromCustomerBankId { get; set; }
         public string ToCustomerBankId { get; set; }

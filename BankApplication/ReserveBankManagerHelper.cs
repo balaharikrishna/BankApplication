@@ -1,6 +1,6 @@
-﻿namespace BankApplicationHelperMethods
+﻿namespace BankApplication
 {
-    internal class ReserveBankManagerHelperMethod
+    internal class ReserveBankManagerHelper
     {
         public static void SelectedOption(ushort Option)
         {

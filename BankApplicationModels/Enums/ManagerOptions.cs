@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplicationModels.Enums
 {
-    internal enum ManagerOptions
+    public enum ManagerOptions
     {
         OpenStaffAccount = 1,
         AddTransactionCharges = 2,

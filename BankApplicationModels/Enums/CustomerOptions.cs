@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplicationModels.Enums
 {
-    internal enum CustomerOptions
+    public enum CustomerOptions
     {
         CheckAccountBalance = 1,
         ViewTransactionHistory = 2,

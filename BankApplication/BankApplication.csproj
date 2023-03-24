@@ -15,4 +15,10 @@
     <WarningLevel>9999</WarningLevel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BankApplicationHelperMethods\BankApplicationHelperMethods.csproj" />
+    <ProjectReference Include="..\BankApplicationModels\BankApplicationModels.csproj" />
+    <ProjectReference Include="..\BankApplicationServices\BankApplicationServices.csproj" />
+  </ItemGroup>
+
 </Project>

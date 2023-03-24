@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BankApplication.Models.Exceptions
+namespace BankApplication.Exceptions
 {
     internal class InvalidBankName : Exception
     {
         public string BankName { get; }
-        public InvalidBankName(string input):base($"Entered '{input}'is Invalid., Only Charecters are Allowed ex:Name")
+        public InvalidBankName(string input) : base($"Entered '{input}'is Invalid., Only Charecters are Allowed ex:Name")
         {
-            this.BankName = input;
+            BankName = input;
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using BankApplicationModels;
-namespace BankApplicationServices.Interfaces
+
+namespace BankApplicationServices.IServices
 {
     public interface IFileService
     {
+        List<Bank> GetData();
         string ReadFile();
         void WriteFile(List<Bank> banks);
-        List<Bank> GetData();
     }
 }

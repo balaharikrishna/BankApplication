@@ -1,19 +1,19 @@
 ﻿using BankApplicationModels;
-using BankApplicationServices.Interfaces;
+using BankApplicationServices.IServices;
 
-namespace BankApplicationHelperMethods
+namespace BankApplication
 {
-    public class CustomerHelperMethods
+    public class CustomerHelper 
     {
-        IBranchCustomerService _branchCustomerService;
+        ICustomerService _CustomerService;
         IBankService _bankService;
         IBranchService _branchService;
-        public CustomerHelperMethods(IBranchCustomerService branchCustomerService, IBankService bankService
+        public CustomerHelper(ICustomerService branchCustomerService, IBankService bankService
             , IBranchService branchService)
         {
-            this._branchCustomerService = branchCustomerService;
-            this._bankService = bankService;
-            this._branchService = branchService;
+            _CustomerService = branchCustomerService;
+            _bankService = bankService;
+            _branchService = branchService;
         }
         Message message = new Message();
         public void SelectedOption(ushort Option, string bankId, string branchId)
@@ -25,7 +25,7 @@ namespace BankApplicationHelperMethods
                     bool case1Pending = true;
                     while (case1Pending)
                     {
-                        Message isBalanceFetchSuccesful = _branchCustomerService.CheckAccountBalance();
+                        Message isBalanceFetchSuccesful = _CustomerService.CheckAccountBalance();
                         if (isBalanceFetchSuccesful.Result)
                         {
                             Console.WriteLine(isBalanceFetchSuccesful.ResultMessage);
@@ -132,19 +132,19 @@ namespace BankApplicationHelperMethods
                     bool case6Pending = true;
                     while (case6Pending)
                     {
-                        int transferMethod = CommonHelperMethods.ValidateTransferMethod();
-                        decimal amount = CommonHelperMethods.ValidateAmount();
+                        int transferMethod = CommonHelper.ValidateTransferMethod();
+                        decimal amount = CommonHelper.ValidateAmount();
 
                         bool isInvalidToCustomer = true;
                         while (isInvalidToCustomer)
                         {
-                            string toCustomerBankId = CommonHelperMethods.GetBankId(Miscellaneous.toCustomer);
-                            string toCustomerBranchId = CommonHelperMethods.GetBranchId(Miscellaneous.toCustomer);
-                            string toCustomerAccountId = CommonHelperMethods.GetAccountId(Miscellaneous.toCustomer);
-                            bool isToCustomerAccountExist = branchCustomerService.ValidateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
-                            if (isToCustomerAccountExist)
+                            string toCustomerBankId = CommonHelper.GetBankId(Miscellaneous.toCustomer);
+                            string toCustomerBranchId = CommonHelper.GetBranchId(Miscellaneous.toCustomer);
+                            string toCustomerAccountId = CommonHelper.GetAccountId(Miscellaneous.toCustomer);
+                            bool isToCustomerAccountExist = _branchCustomerService.ValidateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                            if (isToCustomerAccountExist)   
                             {
-                                Message isTransferSuccessful = branchCustomerService.TransferAmount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
+                                Message isTransferSuccessful = _branchCustomerService.TransferAmount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
                                 if (isTransferSuccessful.Result)
                                 {
                                     Console.WriteLine(isTransferSuccessful.ResultMessage);

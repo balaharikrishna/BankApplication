@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplicationModels.Enums
 {
-
-    internal enum MainPageOptions
+    public enum MainPageOptions
     {
         Customer_Login = 1,
         Staff_Login = 2,

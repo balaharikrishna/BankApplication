@@ -1,12 +1,26 @@
-﻿using BankApplication.Models.Enums;
+﻿using BankApplicationHelperMethods;
+using BankApplicationModels;
+using BankApplicationModels.Enums;
+using BankApplicationServices.IServices;
+using BankApplicationServices.Services;
 
 namespace BankApplication
 {
-    internal static class CommonHelperMethods
+    internal class CommonHelper
     {
-        private static string bankId = string.Empty;
-        private static string branchId = string.Empty;
+        private IBankService _bankService;
+        private IBranchService _branchService;
+        public CommonHelper(IBankService bankService,IBranchService branchService)
+        {
+            this._bankService = bankService;
+            this._branchService = branchService;
+        }
+        Message message = new Message();
 
+        private  string bankId = string.Empty;
+        private  string branchId = string.Empty;
+
+        //It takes the menu options and Process It To and Fro.
         public static ushort GetOption(string position)
         {
             ushort result = 0;
@@ -150,18 +164,29 @@ namespace BankApplication
             return result;
         }
 
-        public static string GetBankId(string position)
+        //Takes BankId Input and Validates It.
+        public string GetBankId(string position)
         {
             bool isInvalidBank = true;
             while (isInvalidBank)
             {
                 Console.WriteLine($"Please Enter {position} BankId:");
-                bankId = Console.ReadLine().ToUpper();
-                Message isValidbankId = ValidateInputs.ValidateBankId(bankId);
+                bankId = Console.ReadLine() ?? string.Empty.ToUpper();
+                Message isValidbankId = ValidateInputs.ValidateBankIdFormat(bankId);
                 if (isValidbankId.Result)
                 {
-                    isInvalidBank = false;
-                    break;
+                    message = _bankService.AuthenticateBankId(bankId);
+                    if (message.Result)
+                    {
+                        isInvalidBank = false;
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        continue;
+                    }
+
                 }
                 else
                 {
@@ -172,19 +197,30 @@ namespace BankApplication
             return bankId;
         }
 
-        public static string GetBranchId(string position)
+        //Takes BranchId Input and Validates It.
+        public string GetBranchId(string position)
         {
             bool isInvalidBranchId = true;
             while (isInvalidBranchId)
             {
 
                 Console.WriteLine($"Please Enter {position} BranchId:");
-                branchId = Console.ReadLine().ToUpper();
-                Message isValidBranchId = ValidateInputs.ValidateBranchId(bankId, branchId);
+                branchId = Console.ReadLine() ?? string.Empty.ToUpper();
+                Message isValidBranchId = ValidateInputs.ValidateBranchIdFormat(branchId);
                 if (isValidBranchId.Result)
                 {
-                    isInvalidBranchId = false;
-                    break;
+                    message = _branchService.AuthenticateBranchId(bankId, branchId);
+                    if (message.Result)
+                    {
+                        isInvalidBranchId = false;
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        continue;
+                    }
+                    
 
                 }
                 else
@@ -198,14 +234,14 @@ namespace BankApplication
         }
 
         //Validate  AccountId
-        public static string GetAccountId(string position)
+        public string GetAccountId(string position)
         {
             string accountId = string.Empty;
             bool isAccountIdPending = true;
             while (isAccountIdPending)
             {
                 Console.WriteLine($"Enter {position} AccountId:");
-                accountId = Console.ReadLine().ToUpper();
+                accountId = Console.ReadLine() ?? string.Empty.ToUpper();
                 Message isValidAccount = ValidateInputs.ValidateAccountIdFormat(accountId);
                 if (isValidAccount.Result)
                 {
@@ -222,15 +258,16 @@ namespace BankApplication
             return accountId;
         }
 
-        public static string GetName(string position) //Validate  Name
+        //Validate  Name
+        public string GetName(string position) 
         {
             string name = string.Empty;
             bool isInvalidName = true;
             while (isInvalidName)
             {
                 Console.WriteLine($"Enter {position} Name:");
-                name = Console.ReadLine().ToUpper();
-                Message isValidName = ValidateInputs.ValidateName(name);
+                name = Console.ReadLine() ?? string.Empty.ToUpper();
+                Message isValidName = ValidateInputs.ValidateNameFormat(name);
                 if (isValidName.Result)
                 {
                     isInvalidName = false;
@@ -247,15 +284,16 @@ namespace BankApplication
             return name;
         }
 
-        public static string GetPassword(string position) //Validate  Password
+        //Validate  Password
+        public string GetPassword(string position) 
         {
             string password = string.Empty;
             bool isInvalidPassword = true;
             while (isInvalidPassword)
             {
                 Console.WriteLine($"Enter {position} Password:");
-                password = Console.ReadLine();
-                Message isValidPassword = ValidateInputs.ValidatePassword(password);
+                password = Console.ReadLine() ?? string.Empty;
+                Message isValidPassword = ValidateInputs.ValidatePasswordFormat(password);
                 if (isValidPassword.Result)
                 {
                     isInvalidPassword = false;
@@ -272,15 +310,16 @@ namespace BankApplication
             return password;
         }
 
-        public static string GetPhoneNumber(string position) //Validate  Phone Number
+        //Validate  Phone Number
+        public string GetPhoneNumber(string position) 
         {
             string phoneNumber = string.Empty;
             bool isInvalidPhoneNumber = true;
             while (isInvalidPhoneNumber)
             {
                 Console.WriteLine($"Enter {position} Phone Number:");
-                phoneNumber = Console.ReadLine();
-                Message isValidPhoneNumber = ValidateInputs.ValidatePhoneNumber(phoneNumber);
+                phoneNumber = Console.ReadLine() ?? string.Empty;
+                Message isValidPhoneNumber = ValidateInputs.ValidatePhoneNumberFormat(phoneNumber);
                 if (isValidPhoneNumber.Result)
                 {
                     isInvalidPhoneNumber = false;
@@ -297,15 +336,16 @@ namespace BankApplication
             return phoneNumber;
         }
 
-        public static string GetEmailId(string position) // Validate  email
+        // Validate  email
+        public string GetEmailId(string position) 
         {
             string emailId = string.Empty;
             bool isInvalidEmail = true;
             while (isInvalidEmail)
             {
                 Console.WriteLine($"Enter {position} Email Id:");
-                emailId = Console.ReadLine().ToUpper();
-                Message isValidEmail = ValidateInputs.ValidateEmailId(emailId);
+                emailId = Console.ReadLine() ?? string.Empty.ToUpper();
+                Message isValidEmail = ValidateInputs.ValidateEmailIdFormat(emailId);
                 if (isValidEmail.Result)
                 {
                     isInvalidEmail = false;
@@ -321,7 +361,8 @@ namespace BankApplication
             return emailId;
         }
 
-        public static int GetAccountType(string position) // Validate  account type
+        // Validate  account type
+        public int GetAccountType(string position)
         {
             int accountType = 0;
             bool isInvalidAccountType = true;
@@ -333,8 +374,8 @@ namespace BankApplication
                     Console.WriteLine("Enter {0} For {1}", (int)type, type.ToString());
                 }
 
-                accountType = int.Parse(Console.ReadLine());
-                Message isValidAccountType = ValidateInputs.ValidateAccountType(accountType);
+                accountType = int.Parse(Console.ReadLine() ?? string.Empty);
+                Message isValidAccountType = ValidateInputs.ValidateAccountTypeFormat(accountType);
                 if (isValidAccountType.Result)
                 {
                     isInvalidAccountType = false;
@@ -350,15 +391,16 @@ namespace BankApplication
             return accountType;
         }
 
-        public static string GetAddress(string position) // Validate address
+        // Validate address
+        public string GetAddress(string position) 
         {
             string address = string.Empty;
             bool isInvalidAddress = true;
             while (isInvalidAddress)
             {
                 Console.WriteLine($"Enter {position} Address:");
-                address = Console.ReadLine().ToUpper();
-                Message isValidAddress = ValidateInputs.ValidateAddress(address);
+                address = Console.ReadLine() ?? string.Empty.ToUpper();
+                Message isValidAddress = ValidateInputs.ValidateAddressFormat(address);
                 if (isValidAddress.Result)
                 {
                     isInvalidAddress = false;
@@ -374,15 +416,16 @@ namespace BankApplication
             return address;
         }
 
-        public static string GetDateOfBirth(string position) // Validate  date of birth
+        // Validates  date of birth 
+        public string GetDateOfBirth(string position) 
         {
             string dateOfBirth = string.Empty;
             bool isInvalidDOB = true;
             while (isInvalidDOB)
             {
                 Console.WriteLine($"Enter {position} Date Of Birth Ex:27/06/97(DD/MM/YY):");
-                dateOfBirth = Console.ReadLine();
-                Message isValidDOB = ValidateInputs.ValidateDateOfBirth(dateOfBirth);
+                dateOfBirth = Console.ReadLine() ?? string.Empty;
+                Message isValidDOB = ValidateInputs.ValidateDateOfBirthFormat(dateOfBirth);
                 if (isValidDOB.Result)
                 {
                     isInvalidDOB = false;
@@ -398,7 +441,8 @@ namespace BankApplication
             return dateOfBirth;
         }
 
-        public static int GetGender(string position) // Validate  gender
+        //Checks whether the given GenderOption is valid or not.
+        public int GetGender(string position) 
         {
             int genderType = 0;
             bool isInvalidGender = true;
@@ -410,8 +454,8 @@ namespace BankApplication
                     Console.WriteLine("Enter {0} For {1}", (int)gender, gender.ToString());
                 }
 
-                genderType = int.Parse(Console.ReadLine());
-                Message isValidGender = ValidateInputs.ValidateGender(genderType);
+                genderType = int.Parse(Console.ReadLine() ?? string.Empty);
+                Message isValidGender = ValidateInputs.ValidateGenderFormat(genderType);
                 if (isValidGender.Result)
                 {
                     isInvalidGender = false;
@@ -426,8 +470,8 @@ namespace BankApplication
             }
             return genderType;
         }
-
-        public static int ValidateTransferMethod()
+        //Checks whether the given transferOptions are valid or not.
+        public int ValidateTransferMethod()
         {
             int result = 0;
             bool isInvalidChoice = true;
@@ -439,7 +483,7 @@ namespace BankApplication
                     Console.WriteLine("Enter {0} For {1}", (int)method, method.ToString());
                 }
 
-                int choice = int.Parse(Console.ReadLine());
+                int choice = int.Parse(Console.ReadLine() ?? string.Empty);
 
                 if (choice != 1 && choice != 2)
                 {
@@ -457,7 +501,8 @@ namespace BankApplication
             return result;
         }
 
-        public static decimal ValidateAmount()
+        //Checks whether the given amount is valid or not.
+        public decimal ValidateAmount()
         {
             decimal result = 0;
             bool isInvalidAmount = true;
@@ -465,7 +510,7 @@ namespace BankApplication
             {
                 Console.WriteLine("Enter the Amount");
 
-                decimal amount = decimal.Parse(Console.ReadLine());
+                decimal amount = decimal.Parse(Console.ReadLine() ?? string.Empty);
 
                 if (amount < 1)
                 {
@@ -483,54 +528,51 @@ namespace BankApplication
             return result;
         }
 
-        public static string ValidateCurrency(string bankId)  //checks the format and currency already exist or not 
+        //checks the format and currency already exist or not 
+        public string ValidateCurrency(string bankId)  
         {
             string result = string.Empty;
             bool isInvalidCurrency = true;
             while (isInvalidCurrency)
             {
                 Console.WriteLine("Enter the Currency Name Ex:USD,KWD.");
-                string currencyCode = Console.ReadLine().ToUpper();
-                if (currencyCode == null || currencyCode.Length != 3 && currencyCode.Length != 4)
+                string currencyCode = Console.ReadLine() ?? string.Empty.ToUpper();
+                message = ValidateInputs.ValidateCurrencyCodeFormat(currencyCode);
+
+                if(message.Result)
                 {
-                    Console.WriteLine($"Entered CurrencyCode '{currencyCode}' Should Not be NUll & Should be 3 or 4 Charecters only");
-                    continue;
-                }
-                else if (Miscellaneous.regex.IsMatch(currencyCode))
-                {
-                    Console.WriteLine($"Entered '{currencyCode}' Cannot Contain Special Charecters & Numbers");
-                    continue;
-                }
-                else
-                {
-                    Message isValidCurrency = ValidateInputs.ValidateCurrency(bankId, currencyCode);
+                    Message isValidCurrency = CurrencyService.ValidateCurrency(bankId, currencyCode);
                     if (isValidCurrency.Result)
                     {
-                        Console.WriteLine(isValidCurrency.ResultMessage);
-                        continue;
-
-                    }
-                    else
-                    {
+                        
                         isInvalidCurrency = false;
                         result = currencyCode;
                         break;
-
                     }
+                    else
+                    {
+                        Console.WriteLine(isValidCurrency.ResultMessage);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    continue;
                 }
 
             }
             return result;
         }
 
-        public static string ValidateTransactionIdFormat()
+        public string ValidateTransactionIdFormat()
         {
             string result = string.Empty;
             bool isInvalidTransactionId = true;
             while (isInvalidTransactionId)
             {
                 Console.WriteLine("Enter the Transaction Id");
-                string transactionId = Console.ReadLine().ToUpper();
+                string transactionId = Console.ReadLine() ?? string.Empty.ToUpper();
 
                 if (transactionId.Length == 46 && transactionId.Contains("TXN"))
                 {

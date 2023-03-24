@@ -1,6 +1,6 @@
-﻿namespace BankApplicationHelperMethods
+﻿namespace BankApplication
 {
-    internal static class StaffHelperMethod
+    internal static class StaffHelper
     {
         public static void SelectedOption(ushort Option, string staffBankId, string staffBranchId)
         {
@@ -17,14 +17,14 @@
                     bool case1Pending = true;
                     while (case1Pending)
                     {
-                        string customerName = CommonHelperMethods.GetName(Miscellaneous.customer);
-                        string customerPassword = CommonHelperMethods.GetPassword(Miscellaneous.customer);
-                        string customerPhoneNumber = CommonHelperMethods.GetPhoneNumber(Miscellaneous.customer);
-                        string customerEmailId = CommonHelperMethods.GetEmailId(Miscellaneous.customer);
-                        int customerAccountType = CommonHelperMethods.GetAccountType(Miscellaneous.customer);
-                        string customerAddress = CommonHelperMethods.GetAddress(Miscellaneous.customer);
-                        string customerDOB = CommonHelperMethods.GetDateOfBirth(Miscellaneous.customer);
-                        int customerGender = CommonHelperMethods.GetGender(Miscellaneous.customer);
+                        string customerName = CommonHelper.GetName(Miscellaneous.customer);
+                        string customerPassword = CommonHelper.GetPassword(Miscellaneous.customer);
+                        string customerPhoneNumber = CommonHelper.GetPhoneNumber(Miscellaneous.customer);
+                        string customerEmailId = CommonHelper.GetEmailId(Miscellaneous.customer);
+                        int customerAccountType = CommonHelper.GetAccountType(Miscellaneous.customer);
+                        string customerAddress = CommonHelper.GetAddress(Miscellaneous.customer);
+                        string customerDOB = CommonHelper.GetDateOfBirth(Miscellaneous.customer);
+                        int customerGender = CommonHelper.GetGender(Miscellaneous.customer);
 
                         Message isCustomerAccountOpened = branchStaffService.OpenCustomerAccount(customerName, customerPassword, customerPhoneNumber,
                             customerEmailId, customerAccountType, customerAddress, customerDOB, customerGender);
@@ -47,7 +47,7 @@
                     bool case2Pending = true;
                     while (case2Pending)
                     {
-                        string customerAccountIdForUpdate = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
+                        string customerAccountIdForUpdate = CommonHelper.GetAccountId(Miscellaneous.customer);
                         bool isValidCustomer = branchCustomerService.ValidateCustomerAccount(staffBankId, staffBranchId, customerAccountIdForUpdate);
                         if (isValidCustomer)
                         {
@@ -308,7 +308,7 @@
                     bool case3Pending = true;
                     while (case3Pending)
                     {
-                        string customerAccountIdForDelete = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
+                        string customerAccountIdForDelete = CommonHelper.GetAccountId(Miscellaneous.customer);
                         Message isCustomerAccountDeleted = branchStaffService.DeleteCustomerAccount(customerAccountIdForDelete);
                         if (isCustomerAccountDeleted.Result)
                         {
@@ -329,7 +329,7 @@
                     bool case4Pending = true;
                     while (case4Pending)
                     {
-                        string customerAccountIdForTransHistory = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
+                        string customerAccountIdForTransHistory = CommonHelper.GetAccountId(Miscellaneous.customer);
                         bool isValidAccountId = branchCustomerService.ValidateCustomerAccount(staffBankId, staffBranchId, customerAccountIdForTransHistory);
                         if (isValidAccountId)
                         {
@@ -357,19 +357,19 @@
                     bool case5Pending = true;
                     while (case5Pending)
                     {
-                        string fromCustomerAccountId = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
+                        string fromCustomerAccountId = CommonHelper.GetAccountId(Miscellaneous.customer);
 
                         bool isFromCustomerValid = branchCustomerService.ValidateCustomerAccount(staffBankId, staffBranchId, fromCustomerAccountId);
                         if (isFromCustomerValid)
                         {
-                            string toCustomerBankId = CommonHelperMethods.GetBankId(Miscellaneous.toCustomer);
-                            string toCustomerBranchId = CommonHelperMethods.GetBranchId(Miscellaneous.toCustomer);
-                            string toCustomerAccountId = CommonHelperMethods.GetAccountId(Miscellaneous.toCustomer);
+                            string toCustomerBankId = CommonHelper.GetBankId(Miscellaneous.toCustomer);
+                            string toCustomerBranchId = CommonHelper.GetBranchId(Miscellaneous.toCustomer);
+                            string toCustomerAccountId = CommonHelper.GetAccountId(Miscellaneous.toCustomer);
 
                             bool isToCustomerValid = branchCustomerService.ValidateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                             if (isToCustomerValid)
                             {
-                                string transactionId = CommonHelperMethods.ValidateTransactionIdFormat();
+                                string transactionId = CommonHelper.ValidateTransactionIdFormat();
                                 message = branchStaffService.RevertTransaction(transactionId, staffBankId, staffBranchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                                 Console.WriteLine(message.ResultMessage);
                                 case5Pending = false;
@@ -389,7 +389,7 @@
                     bool case6Pending = true;
                     while (case6Pending)
                     {
-                        string customerAccountIdForBalCheck = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
+                        string customerAccountIdForBalCheck = CommonHelper.GetAccountId(Miscellaneous.customer);
                         bool isValidAccountId = branchCustomerService.ValidateCustomerAccount(staffBankId, staffBranchId, customerAccountIdForBalCheck);
                         if (isValidAccountId)
                         {
@@ -462,9 +462,9 @@
                     bool case9Pending = true;
                     while (case9Pending)
                     {
-                        string customerAccountId = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
-                        decimal depositAmount = CommonHelperMethods.ValidateAmount();
-                        string currencyCode = CommonHelperMethods.ValidateCurrency(staffBankId);
+                        string customerAccountId = CommonHelper.GetAccountId(Miscellaneous.customer);
+                        decimal depositAmount = CommonHelper.ValidateAmount();
+                        string currencyCode = CommonHelper.ValidateCurrency(staffBankId);
                         Message isDepositSuccesful = branchStaffService.DepositAmount(customerAccountId, depositAmount, currencyCode);
                         if (isDepositSuccesful.Result)
                         {
@@ -484,10 +484,10 @@
                     bool case10Pending = true;
                     while (case10Pending)
                     {
-                        string fromCustomerAccountId = CommonHelperMethods.GetAccountId(Miscellaneous.customer);
+                        string fromCustomerAccountId = CommonHelper.GetAccountId(Miscellaneous.customer);
 
-                        int transferMethod = CommonHelperMethods.ValidateTransferMethod();
-                        decimal amount = CommonHelperMethods.ValidateAmount();
+                        int transferMethod = CommonHelper.ValidateTransferMethod();
+                        decimal amount = CommonHelper.ValidateAmount();
                         bool isFromCustomerAccountExist = branchCustomerService.ValidateCustomerAccount(staffBankId, staffBranchId, fromCustomerAccountId);
 
                         if (isFromCustomerAccountExist)
@@ -495,9 +495,9 @@
                             bool isInvalidToCustomer = true;
                             while (isInvalidToCustomer)
                             {
-                                string toCustomerBankId = CommonHelperMethods.GetBankId(Miscellaneous.toCustomer);
-                                string toCustomerBranchId = CommonHelperMethods.GetBranchId(Miscellaneous.toCustomer);
-                                string toCustomerAccountId = CommonHelperMethods.GetAccountId(Miscellaneous.toCustomer);
+                                string toCustomerBankId = CommonHelper.GetBankId(Miscellaneous.toCustomer);
+                                string toCustomerBranchId = CommonHelper.GetBranchId(Miscellaneous.toCustomer);
+                                string toCustomerAccountId = CommonHelper.GetAccountId(Miscellaneous.toCustomer);
                                 bool isToCustomerAccountExist = branchCustomerService.ValidateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                                 if (isToCustomerAccountExist)
                                 {

@@ -1,6 +1,7 @@
-﻿using BankApplicationServices.Interfaces;
-using System.Text.Json;
+﻿
 using BankApplicationModels;
+using BankApplicationServices.IServices;
+using System.Text.Json;
 
 namespace BankApplicationServices.Services
 {
@@ -21,7 +22,11 @@ namespace BankApplicationServices.Services
         }
         public string ReadFile()
         {
-            string jsonData = File.ReadAllText(CheckFile());
+            string jsonData = string.Empty;
+            if (CheckFile() != null)
+            {
+                jsonData = File.ReadAllText(CheckFile());
+            }
             return jsonData;
         }
 
@@ -35,6 +40,7 @@ namespace BankApplicationServices.Services
         public List<Bank> GetData()
         {
             return JsonSerializer.Deserialize<List<Bank>>(ReadFile());
+
         }
     }
 }

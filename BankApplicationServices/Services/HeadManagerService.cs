@@ -1,65 +1,40 @@
 ﻿using BankApplicationModels;
-using BankApplicationServices.Interfaces;
+using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
 {
-    public class ReserveBankService : IReserveBankService
+    public class HeadManagerService : IHeadManagerService
     {
         IFileService _fileService;
         List<Bank> banks;
-        public ReserveBankService(IFileService fileService)
+        public HeadManagerService(IFileService fileService)
         {
             _fileService = fileService;
             this.banks = _fileService.GetData();
         }
-        public static string reserveBankManagerName = "Technovert";
-        public static string reserveBankManagerpassword = "Techno123@";
+
+        private static int bankObjectIndex = 0;
         Message message = new Message();
-        public Message ValidateReserveBankManager(string userName, string userPassword)
+        public Message AuthenticateHeadManager(string bankName, string bankId, string headManagerAccountId, string headManagerPassword)
         {
-
-            if (userName.Equals(reserveBankManagerName) && userPassword.Equals(reserveBankManagerpassword))
+            if (banks.Count > 0)
             {
-                message.Result = true;
-            }
-            else
-            {
-                message.Result = false;
+                var bank = banks.FirstOrDefault(b => b.BankName == bankName && b.BankId == bankId);
+                if (bank != null)
+                {
+                    var headManager = bank.HeadManagers?.FirstOrDefault(hm => hm.HeadManagerAccountId == headManagerAccountId && hm.HeadManagerPassword == headManagerPassword);
+                    if (headManager != null)
+                    {
+                        bankObjectIndex = banks.IndexOf(bank);
+                        message.Result = true;
+                        message.ResultMessage = "Head Manager Validation Successful.";
+                    }
+                }
             }
             return message;
         }
-        public Message CreateBank(string bankName)
-        {
-            bool isBankAlreadyRegistered = false;
 
-            if (_fileService.ReadFile().Length > 0)
-            {
-                isBankAlreadyRegistered = banks.Any(bank => bank.BankName == bankName);
-            }
-
-            if (isBankAlreadyRegistered)
-            {
-                Console.WriteLine();
-                message.Result = false;
-                message.ResultMessage = $"BankName:{bankName} is Already Registered.";
-            }
-            else
-            {
-                DateTime currentDate = DateTime.Today;
-                string date = currentDate.ToString().Substring(0, 10).Replace("-", "");
-                string bankFirstThreeCharecters = bankName.Substring(0, 3);
-                string bankId = bankFirstThreeCharecters + date + "M";
-
-                Bank bank = new Bank() { BankName = bankName, BankId = bankId };
-                banks.Add(bank);
-
-                _fileService.WriteFile(banks);
-                message.Result = true;
-                message.ResultMessage = $"Bank {bankName} is Created with {bankId}";
-            }
-            return message;
-        }
-        public Message CreateBankHeadManagerAccount(string bankId, string headManagerName, string headManagerPassword)
+        public Message CreateHeadManagerAccount(string bankId, string headManagerName, string headManagerPassword)
         {
             bool isBankExist = false;
             int bankObjectIndex = 0;
@@ -103,5 +78,15 @@ namespace BankApplicationServices.Services
 
             return message;
         }
+
+        public Message UpdateHeadManagerAccount(string bankId, string headManagerName, string headManagerPassword)
+        {
+
+        }
+        public Message DeleteHeadManagerAccount(string bankId, string headManagerAccountId)
+        {
+
+        }
+
     }
 }

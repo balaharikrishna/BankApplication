@@ -1,55 +1,49 @@
-﻿using System.Text.Json;
-using BankApplicationModels;
-using BankApplicationServices;
-using BankApplicationServices.Interfaces;
+﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
+using System.Text.RegularExpressions;
 
 namespace BankApplicationHelperMethods
 {
-    public class ValidateInputs : IFileService
+    public static class ValidateInputs
     {
-        IFileService _fileService;
-        List<Bank> banks;
-        public ValidateInputs(IFileService fileService)
-        {
-            _fileService = fileService;
-            this.banks = _fileService.GetData();
-        }
         static Message message = new Message();
-
-        public static Message ValidateBankId(string bankId)
+        
+        private static Regex passwordRegex = new Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
+        private static Regex regex = new Regex("^[a-zA-Z]+$");
+        private static Regex phoneNumberRegex = new Regex("^\\d{10}$");
+        private static Regex exchangeRateRegex = new Regex(@"\b[A-Z]{3}\s\d{1,3}(,\d{3})*(\.\d+)?\b");
+        private static Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        private static Regex dateRegex = new Regex(@"^(0[1-9]|[1-2][0-9]|3[0-1])/(0[1-9]|1[0-2])/(\d{4})$");// Enter a date(DD/MM/YYYY)
+      //  public static string passwordComment = "Password Should Contain minimum 8 characters with atleast one uppercase ,one lowercase,one digit,one special character";
+        public static Message ValidateBankIdFormat(string bankId)
         {
-            bool bank = banks.Any(b => b.BankId == bankId);
-            if (bank)
+            if (bankId.Length != 12 )
             {
-                message.Result = true;
-                message.ResultMessage = $"Valid Bank Id:'{bankId}'";
+                message.Result = false;
+                message.ResultMessage = $"Bank Id:'{bankId}' Format Is Invalid.";
             }
             else
             {
-                message.Result = false;
-                message.ResultMessage = $"Invalid Bank Id:'{bankId}'";
+                message.Result = true;
+                message.ResultMessage = $"Bank Id Format:'{bankId}' Is Valid";
             }
             return message;
         }
 
-        public static Message ValidateBranchId(string bankId, string branchId)
+        public static Message ValidateBranchIdFormat(string branchId)
         {
-            var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-            bool isValidBranch = false;
-            if (bank != null)
+            if (branchId.Length != 17)
             {
-                isValidBranch = bank.Branches.Any(br => br.BranchId == branchId);
-                message.Result = true;
-                message.ResultMessage = $"Branch Id:'{branchId}' is Valid";
+                message.Result = false;
+                message.ResultMessage = $"Branch Id:'{branchId}' Format Is Invalid.";
             }
             else
             {
-                message.Result = false;
-                message.ResultMessage = $"Invalid Branch Id:'{branchId}'";
+                message.Result = true;
+                message.ResultMessage = $"Branch Id '{branchId}' Format Is Valid.";
             }
             return message;
         }
-
         public static Message ValidateAccountIdFormat(string accountId)
         {
             if (accountId.Length != 17)
@@ -64,9 +58,9 @@ namespace BankApplicationHelperMethods
             }
             return message;
         }
-        public static Message ValidateName(string name)
+        public static Message ValidateNameFormat(string name)
         {
-            bool isValidName = Miscellaneous.regex.IsMatch(name);
+            bool isValidName = regex.IsMatch(name);
             if (!isValidName)
             {
                 message.Result = false;
@@ -80,9 +74,9 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidatePassword(string password)
+        public static Message ValidatePasswordFormat(string password)
         {
-            bool isValidPassword = Miscellaneous.passwordRegex.IsMatch(password);
+            bool isValidPassword = passwordRegex.IsMatch(password);
             if (!isValidPassword)
             {
                 message.Result = false;
@@ -97,9 +91,9 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidatePhoneNumber(string phoneNumber)
+        public static Message ValidatePhoneNumberFormat(string phoneNumber)
         {
-            bool isValidPhoneNumber = Miscellaneous.phoneNumberRegex.IsMatch(phoneNumber);
+            bool isValidPhoneNumber = phoneNumberRegex.IsMatch(phoneNumber);
             if (!isValidPhoneNumber)
             {
                 message.Result = false;
@@ -114,9 +108,9 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidateEmailId(string emailId)
+        public static Message ValidateEmailIdFormat(string emailId)
         {
-            bool isValidemail = Miscellaneous.emailRegex.IsMatch(emailId);
+            bool isValidemail = emailRegex.IsMatch(emailId);
             if (!isValidemail)
             {
                 message.Result = false;
@@ -131,7 +125,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidateAccountType(int accountType)
+        public static Message ValidateAccountTypeFormat(int accountType)
         {
             if (accountType != 1 && accountType != 2)
             {
@@ -147,7 +141,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidateAddress(string address)
+        public static Message ValidateAddressFormat(string address)
         {
 
             if (address == string.Empty || address.Length < 10)
@@ -164,9 +158,9 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidateDateOfBirth(string dateOfBirth)
+        public static Message ValidateDateOfBirthFormat(string dateOfBirth)
         {
-            bool isValidDob = Miscellaneous.dateRegex.IsMatch(dateOfBirth);
+            bool isValidDob = dateRegex.IsMatch(dateOfBirth);
             if (!isValidDob)
             {
                 message.Result = false;
@@ -181,7 +175,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidateGender(int gender)
+        public static Message ValidateGenderFormat(int gender)
         {
             if (gender < 1 && gender > 3)
             {
@@ -197,22 +191,30 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        public static Message ValidateCurrency(string bankId, string currencyCode)
+        public static Message ValidateCurrencyCodeFormat(string currencyCode)
         {
-            var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-            if (bank != null)
+            if (currencyCode == null || currencyCode.Length != 3 && currencyCode.Length != 4)
             {
-                bool isValidCurrency = bank.Currency.Any(cr => cr.CurrencyCode == currencyCode);
-                message.Result = true;
-                message.ResultMessage = $"Currency Code:'{currencyCode}' is Existed";
+                message.Result = false;
+                message.ResultMessage = $"Entered CurrencyCode '{currencyCode}' Should Not be NUll & Should be 3 or 4 Charecters only";
+       
+            }
+            else if (regex.IsMatch(currencyCode))
+            {
+                message.Result = false;
+                message.ResultMessage = $"Entered '{currencyCode}' Cannot Contain Special Charecters & Numbers";
+
             }
             else
             {
-                message.Result = false;
-                message.ResultMessage = $"Invalid Currency Code:'{currencyCode}'";
+                message.Result = true;
+                message.ResultMessage = $"Currency Code:'{currencyCode}' Format is Valid";
             }
+
             return message;
         }
+
+       
 
     }
 }

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BankApplicationModels.Enums
 {
-    public enum ReserveBankManagerOptions
+    public enum YesNoOptions
     {
-        CreateBank = 1,
-        CreateReserveBankManager = 2
+        no = 0,
+        yes = 1
     }
 }

@@ -1,11 +1,15 @@
-﻿namespace BankApplicationHelperMethods
+﻿using BankApplicationModels;
+using BankApplicationServices.Interfaces;
+namespace BankApplication
 {
-    internal class HeadManagerHelperMethod
+    internal class HeadManagerHelper
     {
-        public static void SelectedOption(short Option, string headManagerBankId, string headManagerBranchId)
+        IBankHeadManagerService _bankHeadManagerService;
+        public HeadManagerHelper(IBankHeadManagerService bankHeadManagerService) { 
+            this._bankHeadManagerService = bankHeadManagerService;
+        }
+        public void SelectedOption(short Option, string headManagerBankId, string headManagerBranchId)
         {
-
-            BankHeadManagerService bankHeadManagerService = new BankHeadManagerService();
             Message message = new Message();
 
             switch (Option)
@@ -14,11 +18,11 @@
                     bool branchPendingStatus = true;
                     while (branchPendingStatus)
                     {
-                        string branchName = CommonHelperMethods.GetName(Miscellaneous.branch);
-                        string branchPhoneNumber = CommonHelperMethods.GetPhoneNumber(Miscellaneous.branch);
-                        string branchAddress = CommonHelperMethods.GetAddress(Miscellaneous.branch);
+                        string branchName = CommonHelper.GetName(Miscellaneous.branch);
+                        string branchPhoneNumber = CommonHelper.GetPhoneNumber(Miscellaneous.branch);
+                        string branchAddress = CommonHelper.GetAddress(Miscellaneous.branch);
 
-                        message = bankHeadManagerService.CreateBankBranch(branchName, branchPhoneNumber, branchAddress);
+                        message = _bankHeadManagerService.CreateBankBranch(branchName, branchPhoneNumber, branchAddress);
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -50,10 +54,10 @@
                     bool branchManagerAccountPending = true;
                     while (branchManagerAccountPending)
                     {
-                        string branchManagerName = CommonHelperMethods.GetName(Miscellaneous.branchManager);
-                        string branchManagerPassword = CommonHelperMethods.GetPassword(Miscellaneous.branchManager);
+                        string branchManagerName = CommonHelper.GetName(Miscellaneous.branchManager);
+                        string branchManagerPassword = CommonHelper.GetPassword(Miscellaneous.branchManager);
 
-                        message = bankHeadManagerService.OpenBranchManagerAccount(headManagerBranchId, branchManagerName, branchManagerPassword);
+                        message = _bankHeadManagerService.OpenBranchManagerAccount(headManagerBranchId, branchManagerName, branchManagerPassword);
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -86,7 +90,7 @@
                         bool CurrencyCodePending = true;
                         while (CurrencyCodePending)
                         {
-                            string currencyCode = CommonHelperMethods.ValidateCurrency(headManagerBankId);
+                            string currencyCode = CommonHelper.ValidateCurrency(headManagerBankId);
 
                             bool exchangeRatePending = true;
                             while (exchangeRatePending)
@@ -102,7 +106,7 @@
                                 }
                                 else
                                 {
-                                    message = bankHeadManagerService.AddCurrencyWithExchangeRate(currencyCode, exchangeRate);
+                                    message = _bankHeadManagerService.AddCurrencyWithExchangeRate(currencyCode, exchangeRate);
                                     if (message.Result)
                                     {
                                         Console.WriteLine($"currency {currencyCode} with ExchangeRate {exchangeRate} added Successfully");

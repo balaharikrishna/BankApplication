@@ -69,66 +69,39 @@ namespace BankApplicationServices.Services
 
         public Message UpdateBank(string bankId, string bankName)
         {
-            if (banks.Count < 0)
+            message = AuthenticateBankId(bankId);
+            if (message.Result)
             {
-                message = AuthenticateBankId(bankId);
-                if (message.Result)
+                string bankNameReceived = banks[banks.FindIndex(bank => bank.BankId == bankId)].BankName;
+                if (bankNameReceived != bankName)
                 {
-                    string bankNameReceived = banks[banks.FindIndex(bank => bank.BankId == bankId)].BankName;
-                    if (bankNameReceived != bankName)
-                    {
-                        bankNameReceived = bankName;
-                        _fileService.WriteFile(banks);
-                        message.Result = true;
-                        message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"BankName :{bankName} Is Matching with the Existing BankName.,Please Change the Bank Name.";
-                    }
+                    bankNameReceived = bankName;
+                    _fileService.WriteFile(banks);
+                    message.Result = true;
+                    message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "BankId: {bankId} Doesn't Exist.";
+                    message.ResultMessage = $"BankName :{bankName} Is Matching with the Existing BankName.,Please Change the Bank Name.";
                 }
             }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "No Banks Available";
-            }
+
             return message;
         }
 
         public Message DeleteBank(string bankId)
         {
-            if (banks.Count < 0)
+            message = AuthenticateBankId(bankId);
+            if (message.Result)
             {
-                message = AuthenticateBankId(bankId);
-                if (message.Result)
-                {
-                    banks[banks.FindIndex(bank => bank.BankId == bankId)].IsActive = 0;
-                    _fileService.WriteFile(banks);
-                    message.Result = true;
-                    message.ResultMessage = $"Bank Id :{bankId} Succesfully Deleted.";
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = "BankId: {bankId} Doesn't Exist.";
-                }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "No Banks Available";
+                banks[banks.FindIndex(bank => bank.BankId == bankId)].IsActive = 0;
+                _fileService.WriteFile(banks);
+                message.Result = true;
+                message.ResultMessage = $"Bank Id :{bankId} Succesfully Deleted.";
             }
             return message;
         }
-
-       
 
         public Message GetExchangeRates(string bankId)
         {
@@ -136,7 +109,6 @@ namespace BankApplicationServices.Services
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
-                
                 int bankIndex = banks.FindIndex(bank => bank.BankId == bankId);
                 if (bankIndex > -1)
                 {
@@ -153,12 +125,6 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"No Currencies Available for BankId:{bankId}";
                 }
             }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = $"BankId :{bankId} Is Not Available;";
-            }
-
             return message;
         }
     }

@@ -7,21 +7,31 @@ namespace BankApplicationServices.Services
     {
         public static string defaultCurrencyCode = "INR";
         public static short defaultCurrencyValue = 1;
+
+        IBankService _bankService;
+        IFileService _fileService;
+        List<Bank> banks;
+        Message message = new Message();
+        public CurrencyService(IFileService fileService, IBankService bankService) {
+            _bankService = bankService;
+            _fileService = fileService;
+            banks = _fileService.GetData();
+        }
         public Message AddCurrency(string bankId, string currencyCode, decimal exchangeRate)
         {
-
             Currency currency = new Currency()
             {
                 ExchangeRate = exchangeRate,
                 CurrencyCode = currencyCode
             };
-
-            if (banks[bankObjectIndex].Currency == null)
+            int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+            List<Currency> currencies = banks[bankIndex].Currency;
+            if (currencies == null)
             {
-                banks[bankObjectIndex].Currency = new List<Currency>();
+                currencies = new List<Currency>();
             }
 
-            banks[bankObjectIndex].Currency.Add(currency);
+            banks[bankIndex].Currency.Add(currency);
             _fileService.WriteFile(banks);
             message.Result = true;
             message.ResultMessage = $"Added Currency Code:{currencyCode} with Exchange Rate:{exchangeRate}";
@@ -30,6 +40,7 @@ namespace BankApplicationServices.Services
 
         public Message UpdateCurrency(string bankId, string currencyCode, decimal exchangeRate)
         {
+
         }
 
         public Message DeleteCurrency(string bankId, string currencyCode)

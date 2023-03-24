@@ -281,7 +281,7 @@ namespace BankApplication
                 }
 
             }
-            return name;
+            return name.Replace(" ","");
         }
 
         //Validate  Password

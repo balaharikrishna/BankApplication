@@ -8,18 +8,19 @@ namespace BankApplicationServices.Services
         IFileService _fileService;
         IBankService _bankService;
         List<Bank> banks;
-        public BranchService(IFileService fileService,IBankService bankService)
+        public BranchService(IFileService fileService, IBankService bankService)
         {
             _fileService = fileService;
             _bankService = bankService;
             this.banks = _fileService.GetData();
-            
+
         }
         Message message = new Message();
-    
+        Branch? _branch;
         public Message AuthenticateBranchId(string bankId, string branchId)
         {
-            if (banks.Count < 0)
+            message = _bankService.AuthenticateBankId(bankId);
+            if (message.Result)
             {
                 int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
                 if (bankIndex >= 0)
@@ -27,55 +28,36 @@ namespace BankApplicationServices.Services
                     List<Branch> branches = banks[bankIndex].Branches;
                     if (branches != null)
                     {
+
                         var branchData = branches.Find(br => br.BranchId == branchId);
                         if (branchData != null)
                         {
                             Branch branch = branchData;
                             message.Result = true;
-                            message.ResultMessage = $"Branch Id:'{branchId}' is Valid";
+                            message.ResultMessage = $"Branch Id:'{branchId}' is Exist";
                         }
                         else
                         {
                             message.Result = false;
-                            message.ResultMessage = $"BranchId:{bankId} Not Found!";
+                            message.ResultMessage = $"BranchId:{branchId} Not Found!";
                         }
                     }
                 }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"BankId:{bankId} Not Found!";
-                }
             }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "No Banks Available";
-            }
+
             return message;
         }
+
         public Message CreateBranch(string bankId, string branchName, string branchPhoneNumber, string branchAddress)
         {
-           message = _bankService.AuthenticateBankId(bankId);
+            message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-
-            }
-
-
-
-
-
-
-
-
-
-                if (banks.Count < 0)
-            {
                 bool isBranchAlreadyRegistered = false;
-                if (banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches == null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
+                if (branches == null)
                 {
-                    banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches = new List<Branch>();
+                    branches = new List<Branch>();
                 }
 
                 isBranchAlreadyRegistered = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches.Any(branch => branch.BranchName == branchName);
@@ -103,13 +85,8 @@ namespace BankApplicationServices.Services
                     banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches.Add(bankBranch);
                     _fileService.WriteFile(banks);
                     message.Result = true;
-                    message.ResultMessage = $"Branch Created Successfully with BranchName:{branchName} BranchId:{branchId}";
+                    message.ResultMessage = $"Branch Created Successfully with BranchName:{branchName} & BranchId:{branchId}";
                 }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "No Banks Available";
             }
             return message;
         }
@@ -125,19 +102,22 @@ namespace BankApplicationServices.Services
                 if (branchData != null)
                 {
                     Branch branch = branchData;
-                    if (branchName != string.Empty)
+
+                    if (!string.IsNullOrEmpty(branchName))
                     {
                         branch.BranchName = branchName;
                     }
-                    if (branchPhoneNumber != string.Empty)
+
+                    if (!string.IsNullOrEmpty(branchPhoneNumber))
                     {
                         branch.BranchPhoneNumber = branchPhoneNumber;
                     }
-                    if (branchAddress != string.Empty)
+
+                    if (!string.IsNullOrEmpty(branchAddress))
                     {
                         branch.BranchAddress = branchAddress;
                     }
-                    branches.Add(branch);
+                    _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Updated BranchId:{branchId} with Branch Name:{branch.BranchName},Branch Phone Number:{branch.BranchPhoneNumber},Branch Address:{branch.BranchAddress}";
                 }
@@ -147,61 +127,41 @@ namespace BankApplicationServices.Services
         }
         public Message DeleteBranch(string bankId, string branchId)
         {
-            if (banks.Count < 0)
+            message = AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
             {
                 int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
-                if (bankIndex >= 0)
+                List<Branch> branches = banks[bankIndex].Branches;
+                var branchData = branches.Find(br => br.BranchId == branchId);
+                if (branchData != null)
                 {
-                    List<Branch> branches = banks[bankIndex].Branches;
-                    if (branches != null)
-                    {
-                        var branchData = branches.Find(br => br.BranchId == branchId);
-                        if (branchData != null)
-                        {
-                            branch = branchData;
-                            branch.IsActive = 0;
-                            branches.Add(branch);
-                            message.Result = true;
-                            message.ResultMessage = $"Deleted BranchId:{branchId} Successfully";
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = $"BranchId:{bankId} Not Found!";
-                        }
-                    }
+                    branchData.IsActive = 0;
+                    _fileService.WriteFile(banks);
+                    message.Result = true;
+                    message.ResultMessage = $"Deleted BranchId:{branchId} Successfully";
                 }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"BankId:{bankId} Not Found!";
-                }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "No Banks Available";
             }
             return message;
         }
 
-
-
         public Message GetTransactionCharges(string bankId, string branchId)
         {
-            List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
-            if (branches != null)
+            message = AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
             {
-                var branchData = branches.Find(br => br.BranchId == branchId);
-                if (branchData != null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
+                if (branches != null)
                 {
-                    TransactionCharges transactionCharges = branchData.Charges[0];
-                    message.Result = true;
-                    message.Data = transactionCharges.ToString();
-                    message.ResultMessage = $"Deleted BranchId:{branchId} Successfully";
+                    var branchData = branches.Find(br => br.BranchId == branchId);
+                    if (branchData != null)
+                    {
+                        TransactionCharges transactionCharges = branchData.Charges[0];
+                        message.Result = true;
+                        message.Data = transactionCharges.ToString();
+                        message.ResultMessage = $"Deleted BranchId:{branchId} Successfully";
+                    }
                 }
             }
-
             return message;
         }
     }

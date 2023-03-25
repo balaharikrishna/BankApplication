@@ -19,7 +19,7 @@ namespace BankApplicationServices.Services
         {
             if (banks.Count < 0)
             {
-                bool bank = banks.Any(b => b.BankId == bankId);
+                bool bank = banks.Any(b => b.BankId == bankId && b.IsActive == 1);
                 if (bank)
                 {
                     message.Result = true;
@@ -57,7 +57,11 @@ namespace BankApplicationServices.Services
                 string bankFirstThreeCharecters = bankName.Substring(0, 3);
                 string bankId = bankFirstThreeCharecters + date + "M";
 
-                Bank bank = new Bank() { BankName = bankName, BankId = bankId, IsActive = 1 };
+                Bank bank = new Bank() {
+                    BankName = bankName,
+                    BankId = bankId,
+                    IsActive = 1
+                };
                 banks.Add(bank);
 
                 _fileService.WriteFile(banks);

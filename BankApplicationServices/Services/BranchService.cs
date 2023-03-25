@@ -29,7 +29,7 @@ namespace BankApplicationServices.Services
                     if (branches != null)
                     {
 
-                        var branchData = branches.Find(br => br.BranchId == branchId);
+                        var branchData = branches.Find(br => br.BranchId == branchId && br.IsActive == 1);
                         if (branchData != null)
                         {
                             Branch branch = branchData;
@@ -80,6 +80,7 @@ namespace BankApplicationServices.Services
                         bankBranch.BranchId = branchId;
                         bankBranch.BranchAddress = branchAddress;
                         bankBranch.BranchPhoneNumber = branchPhoneNumber;
+                        bankBranch.IsActive = 1;
                     }
 
                     banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches.Add(bankBranch);

@@ -8,10 +8,12 @@ namespace BankApplicationModels
         public string Name { get; set; }
 
         [RegularExpression("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")]
-        public string Password { get; set; }
+        public byte[] Salt { get; set; }
+        public byte[] HashedPassword { get; set; }
         public string AccountId { get; set; }
 
         [RegularExpression("^[01]+$")]
         public ushort IsActive { get; set; }
+
     }
 }

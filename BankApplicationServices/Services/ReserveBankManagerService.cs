@@ -10,7 +10,7 @@ namespace BankApplicationServices.Services
         public ReserveBankManagerService(IFileService fileService)
         {
             _fileService = fileService;
-            this.banks = _fileService.GetData();
+            banks = _fileService.GetData();
         }
         public static string reserveBankManagerName = "Technovert";
         public static string reserveBankManagerpassword = "Techno123@";

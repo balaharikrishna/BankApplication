@@ -1,5 +1,4 @@
 ﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -7,60 +6,60 @@ namespace BankApplicationServices.Services
     public class StaffService : IStaffService
     {
         IFileService _fileService;
-        IBranchCustomerService _branchCustomerService;
+        IBranchService _branchService;
+        IEncryptionService _encryptionService;
         List<Bank> banks;
-        public StaffService(IFileService fileService, IBranchCustomerService branchCustomerService)
+        public StaffService(IFileService fileService, IBranchService branchService, IEncryptionService encryptionService)
         {
             _fileService = fileService;
-            this.banks = _fileService.GetData();
-            this._branchCustomerService = branchCustomerService;
+            _branchService = branchService;
+            _encryptionService = encryptionService;
+            banks = _fileService.GetData();
         }
-        private static int bankObjectIndex = 0;
-        private static int branchObjectIndex = 0;
-        private static string staffBankId = string.Empty;
-        private static string staffBranchId = string.Empty;
+
 
         Message message = new Message();
-        public Message AuthenticateBranchStaffAccount(string bankId, string branchid,
+        public Message AuthenticateBranchStaffAccount(string bankId, string branchId,
            string staffAccountId, string staffAccountPassword)
         {
-
-            if (banks.Count > 0)
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
             {
                 var bank = banks.FirstOrDefault(b => b.BankId == bankId);
                 if (bank != null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchid);
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
                     if (branch != null)
                     {
-                        bankObjectIndex = banks.IndexOf(bank);
-                        var staff = branch.Staffs.FirstOrDefault(s => s.StaffAccountId == staffAccountId && s.StaffPassword == staffAccountPassword);
-                        if (staff != null)
+                        List<Staff> staffs = branch.Staffs;
+                        if (staffs != null)
                         {
-                            staffBankId = bankId;
-                            staffBranchId = branchid;
+                            byte[] salt = new byte[32];
+                            var staff = staffs.Find(m => m.AccountId == staffAccountId);
+                            if (staff != null)
+                            {
+                                salt = staff.Salt;
+                            }
 
-                            message.Result = true;
-                            message.ResultMessage = $"Validation Succesful";
-
+                            byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
+                            bool isManagerAvilable = staffs.Any(m => m.AccountId == staffAccountId && m.HashedPassword == hashedPasswordToCheck && m.IsActive == 1);
+                            if (isManagerAvilable)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = "Staff Validation Successful.";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Staff Validation Failed.";
+                            }
                         }
                         else
                         {
                             message.Result = false;
-                            message.ResultMessage = $"Validation Failed! Please check Accound Id and Password";
+                            message.ResultMessage = $"No Staff Available In The Branch:{branchId}";
                         }
                     }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"Entered branchId '{branchid}' is not found. Please Check Again.";
-                    }
-                    branchObjectIndex = banks[bankObjectIndex].Branches.FindIndex(branch => branch.BranchId == branchid);
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"Entered bankId '{bankId}' is not found. Please Check Again.";
                 }
             }
             return message;
@@ -68,48 +67,144 @@ namespace BankApplicationServices.Services
 
         public Message OpenStaffAccount(string bankId, string branchId, string staffName, string staffPassword, ushort staffRole)
         {
-
-            bool isStaffAlreadyRegistered = false;
-            if (banks[bankObjectIndex].Branches[branchObjectIndex].Staffs == null)
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
             {
-                banks[bankObjectIndex].Branches[branchObjectIndex].Staffs = new List<Staff>();
-            }
-            isStaffAlreadyRegistered = banks[bankObjectIndex].Branches[branchObjectIndex].Staffs.Any(sn => sn.StaffName == staffName);
-            if (isStaffAlreadyRegistered)
-            {
-                Console.WriteLine($"Staff Member {staffName} is already Registered");
-                message.Result = false;
-            }
-            else
-            {
-                DateTime currentDate = DateTime.Now;
-                string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
-                string UserFirstThreeCharecters = staffName.Substring(0, 3);
-                string bankStaffAccountId = UserFirstThreeCharecters + date;
-
-                Staff bankManager = new Staff()
+                bool isManagerAlreadyAvailabe = false;
+                List<Staff>? staffs = null;
+                List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
+                if (branches != null)
                 {
-                    StaffAccountId = bankStaffAccountId,
-                    StaffName = staffName,
-                    StaffPassword = staffPassword,
-                    Role = (StaffRole)staffRole
-                };
+                    staffs = branches[branches.FindIndex(br => br.BranchId == branchId)].Staffs;
+                    isManagerAlreadyAvailabe = staffs.Any(m => m.Name == staffName && m.IsActive == 1);
+                }
 
-                banks[bankObjectIndex].Branches[branchObjectIndex].Staffs.Add(bankManager);
-                _fileService.WriteFile(banks);
+                if (!isManagerAlreadyAvailabe)
+                {
+                    DateTime currentDate = DateTime.Now;
+                    string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
+                    string UserFirstThreeCharecters = staffName.Substring(0, 3);
+                    string staffAccountId = UserFirstThreeCharecters + date;
 
-                message.Result = true;
+                    byte[] salt = _encryptionService.GenerateSalt();
+                    byte[] hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
+
+                    Staff staff = new Staff()
+                    {
+                        Name = staffName,
+                        Salt = salt,
+                        HashedPassword = hashedPassword,
+                        AccountId = staffAccountId,
+                        IsActive = 1
+                    };
+
+                    if (staffs == null)
+                    {
+                        staffs = new List<Staff>();
+                    }
+
+                    staffs.Add(staff);
+                    _fileService.WriteFile(banks);
+                    message.Result = true;
+                    message.ResultMessage = $"Account Created for {staffName} with Account Id:{staffAccountId}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Staff: {staffName} Already Existed";
+                }
 
             }
             return message;
+
         }
 
         public Message UpdateStaffAccount(string bankId, string branchId, string staffAccountId, string staffName, string staffPassword, ushort staffRole)
         {
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                List<Staff>? staffs = null;
+                Staff? staff = null;
+                List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
+                if (branches != null)
+                {
+                    staffs = branches[branches.FindIndex(br => br.BranchId == branchId)].Staffs;
+                    if (staffs != null)
+                    {
+                        staff = staffs.Find(m => m.AccountId == staffAccountId && m.IsActive == 1);
+                    }
+                }
 
+                if (staff != null)
+                {
+                    if (staffName != string.Empty)
+                    {
+                        staff.Name = staffName;
+                    }
+
+                    if (staffPassword != string.Empty)
+                    {
+                        byte[] salt = new byte[32];
+                        salt = staff.Salt;
+                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffPassword, salt);
+                        if (staff.HashedPassword == hashedPasswordToCheck)
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        }
+                        else
+                        {
+                            salt = _encryptionService.GenerateSalt();
+                            byte[] hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
+                            staff.Salt = salt;
+                            staff.HashedPassword = hashedPassword;
+                            message.Result = true;
+                            message.ResultMessage = "Updated Password Sucessfully";
+                        }
+                    }
+                    _fileService.WriteFile(banks);
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Head Manager: {staffName} with AccountId:{staffAccountId} Doesn't Exist";
+                }
+            }
+            return message;
         }
 
-        public Message DeleteStaffAccount(string bankId, string branchId,, string staffAccountId)
+        public Message DeleteStaffAccount(string bankId, string branchId, string staffAccountId)
         {
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                List<Staff>? staffs = null;
+                Staff? staff = null;
+                List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
+                if (branches != null)
+                {
+                    staffs = branches[branches.FindIndex(br => br.BranchId == branchId)].Staffs;
+                    if (staffs != null)
+                    {
+                        staff = staffs.Find(m => m.AccountId == staffAccountId && m.IsActive == 1);
+                    }
+                }
 
+                if (staff != null)
+                {
+                    staff.IsActive = 0;
+                    message.Result = true;
+                    message.ResultMessage = $"Deleted AccountId:{staffAccountId} Successfully.";
+                    _fileService.WriteFile(banks);
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"{staffAccountId} Doesn't Exist.";
+                }
+            }
+            return message;
         }
+    }
+}

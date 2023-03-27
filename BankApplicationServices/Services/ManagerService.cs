@@ -1,113 +1,210 @@
 ﻿
 using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
 {
     public class ManagerService : IManagerService
     {
-        private static int bankObjectIndex = 0;
-        private static int branchObjectIndex = 0;
-
         IFileService _fileService;
-        IBranchStaffService _branchStaffService;
+        IBranchService _branchService;
         List<Bank> banks;
-        public ManagerService(IFileService fileService, IBranchStaffService branchStaffService)
+        IEncryptionService _encryptionService;
+        public ManagerService(IFileService fileService, IEncryptionService encryptionService,
+            IBranchService branchService)
         {
             _fileService = fileService;
-            _branchStaffService = branchStaffService;
-            this.banks = _fileService.GetData();
+            _encryptionService = encryptionService;
+            _branchService = branchService;
+            banks = _fileService.GetData();
         }
         Message message = new Message();
         public Message AuthenticateManagerAccount(string bankId, string branchId,
-            string branchManagerAccountId, string branchManagerPassword)
+            string managerAccountId, string managerPassword)
         {
-            if (banks.Count > 0)
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
             {
                 var bank = banks.FirstOrDefault(b => b.BankId == bankId);
                 if (bank != null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.branchId == branchId);
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
                     if (branch != null)
                     {
-                        bankObjectIndex = banks.IndexOf(bank);
-                        var staff = branch.Staffs.FirstOrDefault(s => s.StaffAccountId == branchManagerAccountId && s.StaffPassword == branchManagerPassword);
-                        if (staff != null)
+                        List<Manager> managers = branch.Managers;
+                        if (managers != null)
                         {
-                            message.Result = true;
-                            message.ResultMessage = "Validation Succesful";
+                            byte[] salt = new byte[32];
+                            var manager = managers.Find(m => m.AccountId == managerAccountId);
+                            if (manager != null)
+                            {
+                                salt = manager.Salt;
+                            }
+
+                            byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
+                            bool isManagerAvilable = managers.Any(m => m.AccountId == managerAccountId && m.HashedPassword == hashedPasswordToCheck && m.IsActive == 1);
+                            if (isManagerAvilable)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = "Manager Validation Successful.";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Manager Validation Failed.";
+                            }
                         }
                         else
                         {
                             message.Result = false;
-                            message.ResultMessage = "Validation Failed! Please check Accound Id and Password";
+                            message.ResultMessage = $"No Managers Available In The Branch:{branchId}";
                         }
                     }
-                    else
+                }
+            }
+            return message;
+        }
+
+
+        public Message OpenManagerAccount(string bankId, string branchId, string managerName, string managerPassword)
+        {
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                bool isManagerAlreadyAvailabe = false;
+                List<Manager>? managers = null;
+                List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
+                if(branches != null)
+                {
+                    managers = branches[branches.FindIndex(br => br.BranchId == branchId)].Managers;
+                    isManagerAlreadyAvailabe = managers.Any(m => m.Name == managerName && m.IsActive == 1);
+                }
+
+                if (!isManagerAlreadyAvailabe)
+                {
+                    DateTime currentDate = DateTime.Now;
+                    string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
+                    string UserFirstThreeCharecters = managerName.Substring(0, 3);
+                    string managerAccountId = UserFirstThreeCharecters + date;
+
+                    byte[] salt = _encryptionService.GenerateSalt();
+                    byte[] hashedPassword = _encryptionService.HashPassword(managerPassword, salt);
+
+                    Manager manager = new Manager()
                     {
-                        message.Result = false;
-                        message.ResultMessage = $"Entered branchId '{branchId}' is not found. Please Check Again.";
+                        Name = managerName,
+                        Salt = salt,
+                        HashedPassword = hashedPassword,
+                        AccountId = managerAccountId,
+                        IsActive = 1
+                    };
+
+                    if (managers == null)
+                    {
+                        managers = new List<Manager>();
                     }
-                    branchObjectIndex = banks[bankObjectIndex].Branches.FindIndex(branch => branch.branchId == branchId);
+
+                    managers.Add(manager);
+                    _fileService.WriteFile(banks);
+                    message.Result = true;
+                    message.ResultMessage = $"Account Created for {managerName} with Account Id:{managerAccountId}";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = $"Entered bankId '{bankId}' is not found. Please Check Again.";
+                    message.ResultMessage = $"Manager: {managerName} Already Existed";
+                }
+
+            }
+            return message;
+        }
+
+        public Message UpdateManagerAccount(string bankId, string branchId,string accountId, string managerName, string managerPassword)
+        {
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                List<Manager>? managers = null;
+                Manager? manager = null;
+                List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
+                if (branches != null)
+                {
+                    managers = branches[branches.FindIndex(br => br.BranchId == branchId)].Managers;
+                    if(managers != null)
+                    {
+                      manager = managers.Find(m => m.AccountId == accountId && m.IsActive == 1);
+                    }
+                }
+
+                if (manager != null)
+                {
+                    if (managerName != string.Empty)
+                    {
+                        manager.Name = managerName;
+                    }
+
+                    if (managerPassword != string.Empty)
+                    {
+                        byte[] salt = new byte[32];
+                        salt = manager.Salt;
+                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
+                        if (manager.HashedPassword == hashedPasswordToCheck)
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        }
+                        else
+                        {
+                            salt = _encryptionService.GenerateSalt();
+                            byte[] hashedPassword = _encryptionService.HashPassword(managerPassword, salt);
+                            manager.Salt = salt;
+                            manager.HashedPassword = hashedPassword;
+                            message.Result = true;
+                            message.ResultMessage = "Updated Password Sucessfully";
+                        }
+                    }
+                    _fileService.WriteFile(banks);
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Manager: {managerName} with AccountId:{accountId} Doesn't Exist";
                 }
             }
             return message;
         }
 
-        public Message OpenManagerAccount(string bankId, string branchId, string branchManagerName, string branchManagerPassword)
+        public Message DeleteManagerAccount(string bankId, string branchId,string accountId)
         {
-            bool isBranchManagerAlreadyRegistered = false;
-            int branchObjectIndex;
-
-            branchObjectIndex = banks[bankObjectIndex].Branches.FindIndex(branch => branch.branchId == branchId);
-            if (banks[bankObjectIndex].Branches[branchObjectIndex].Managers == null)
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
             {
-                banks[bankObjectIndex].Branches[branchObjectIndex].Managers = new List<Manager>();
-            }
-
-            isBranchManagerAlreadyRegistered = banks[bankObjectIndex].Branches[branchObjectIndex].Managers.Any(ma => ma.BranchManagerName == branchManagerName);
-            if (isBranchManagerAlreadyRegistered)
-            {
-                message.Result = false;
-                message.ResultMessage = $"Branch Manager {branchManagerName} is already Registered";
-            }
-            else
-            {
-                DateTime currentDate = DateTime.Now;
-                string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
-                string UserFirstThreeCharecters = branchManagerName.Substring(0, 3);
-                string branchManagerAccountId = UserFirstThreeCharecters + date;
-
-                Manager branchManager = new Manager()
+                List<Manager>? managers = null;
+                Manager? manager = null;
+                List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
+                if (branches != null)
                 {
-                    BranchManagerAccountId = branchManagerAccountId,
-                    BranchManagerName = branchManagerName,
-                    BranchMangerPassword = branchManagerPassword
-                };
-
-
-                banks[bankObjectIndex].Branches[branchObjectIndex].Managers.Add(branchManager);
-                _fileService.WriteFile(banks);
-                message.Result = true;
-                message.ResultMessage = $"Branch Manager Account Opened with AccountId:{branchManagerAccountId}";
+                    managers = branches[branches.FindIndex(br => br.BranchId == branchId)].Managers;
+                    if (managers != null)
+                    {
+                        manager = managers.Find(m => m.AccountId == accountId && m.IsActive == 1);
+                    }
+                }
+                
+                if (manager != null)
+                {
+                    manager.IsActive = 0;
+                    message.Result = true;
+                    message.ResultMessage = $"Deleted AccountId:{accountId} Successfully.";
+                    _fileService.WriteFile(banks);
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"{accountId} Doesn't Exist.";
+                }
             }
             return message;
-        }
-
-        public Message UpdateManagerAccount(string bankId, string branchId, string branchManagerName, string branchManagerPassword)
-        {
-
-        }
-
-        public Message DeleteManagerAccount(string bankId, string branchId)
-        {
-
         }
     }
 }

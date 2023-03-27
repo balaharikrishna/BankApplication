@@ -29,10 +29,7 @@ namespace BankApplicationModels
         public string DateOfBirth { get; set; }
         public Gender Gender { get; set; }
         public DateTime PassbookIssueDate { get; set; }
-
-        //[RegularExpression("^[01]+$")]
-        //public ushort IsActive { get; set; }
-        //public List<Transaction> Transactions { get; set; }
+        public List<Transaction> Transactions { get; set; }
 
         public override string ToString()
         {

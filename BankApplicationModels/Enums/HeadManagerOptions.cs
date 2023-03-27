@@ -10,6 +10,8 @@ namespace BankApplicationModels.Enums
     {
         CreateBankBranch = 1,
         OpenBranchManagerAcccount = 2,
-        AddExchangeRates = 3
+        AddExchangeRates = 3,
+        UpdateManagerAccount = 4,
+        DeleteManagerAccount = 5
     }
 }

@@ -5,14 +5,14 @@ namespace BankApplicationServices.Services
 {
     public class BranchService : IBranchService
     {
-        IFileService _fileService;
-        IBankService _bankService;
+        private readonly IFileService _fileService;
+        private readonly IBankService _bankService;
         List<Bank> banks;
         public BranchService(IFileService fileService, IBankService bankService)
         {
             _fileService = fileService;
             _bankService = bankService;
-            this.banks = _fileService.GetData();
+            banks = _fileService.GetData();
 
         }
         Message message = new Message();
@@ -157,10 +157,20 @@ namespace BankApplicationServices.Services
                     if (branchData != null)
                     {
                         TransactionCharges transactionCharges = branchData.Charges[0];
-                        message.Result = true;
-                        message.Data = transactionCharges.ToString();
-                        message.ResultMessage = $"Deleted BranchId:{branchId} Successfully";
+                        if (transactionCharges != null)
+                        {
+                            message.Result = true;
+                            message.Data = transactionCharges.ToString();
+                            message.ResultMessage = $"Transaction Charges Available";
+                        }
+                        else
+                        {
+                            message.Result = true;
+                            message.ResultMessage = $"Transaction Charges Not Available";
+                        }
+
                     }
+                    
                 }
             }
             return message;

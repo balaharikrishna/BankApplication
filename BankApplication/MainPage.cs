@@ -1,13 +1,30 @@
 ﻿using BankApplication;
+using BankApplication.Exceptions;
+using BankApplication.IHelperServices;
+using BankApplicationModels;
 using BankApplicationModels.Enums;
-using BankApplicationServices.Interfaces;
-using BankApplicationServices.Services;
+using BankApplicationServices.IServices;
+using Microsoft.Extensions.DependencyInjection;
 
 internal class MainPage
 {
-   
+    public static readonly IServiceProvider services = DIContainerBuilder.Build();
+
     private static void Main(string[] args)
     {
+        IBankService? bankService = services.GetService<IBankService>();
+        IBranchService? branchService = services.GetService<IBranchService>();
+        ICustomerService? customerService = services.GetService<ICustomerService>();
+        IHeadManagerService? headManagerService = services.GetService<IHeadManagerService>();
+        IManagerService? managerService = services.GetService<IManagerService>();
+        IReserveBankManagerService? reserveBankManagerService = services.GetService<IReserveBankManagerService>();
+        IStaffService? staffService = services.GetService<IStaffService>();
+        ICommonHelperService? commonHelperService = services.GetService<ICommonHelperService>();
+        ICustomerHelperService? customerHelperService = services.GetService<ICustomerHelperService>();
+        IHeadManagerHelperService? headManagerHelperService = services.GetService<IHeadManagerHelperService>();
+        IManagerHelperService? managerHelperService = services.GetService<IManagerHelperService>();
+        IReserveBankManagerHelperService? reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>();
+        IStaffHelperService? staffHelperService = services.GetService<IStaffHelperService>();
         bool pendingTask = true;
         while (pendingTask)
         {
@@ -19,7 +36,7 @@ internal class MainPage
                     Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                 }
 
-                ushort Option = CommonHelper.GetOption(Miscellaneous.mainPage);
+                ushort Option = commonHelperService.GetOption(Miscellaneous.mainPage);
 
                 switch (Option)
                 {
@@ -27,13 +44,12 @@ internal class MainPage
                         bool customerloginPending = true;
                         while (customerloginPending)
                         {
-                            string customerBankId = CommonHelper.GetBankId(Miscellaneous.customer);
-                            string customerBranchId = CommonHelper.GetBranchId(Miscellaneous.customer);
-                            string customerAccountId = CommonHelper.GetAccountId(Miscellaneous.customer);
-                            string customerPassword = CommonHelper.GetPassword(Miscellaneous.customer);
+                            string customerBankId = commonHelperService.GetBankId(Miscellaneous.customer, bankService);
+                            string customerBranchId = commonHelperService.GetBranchId(Miscellaneous.customer, branchService);
+                            string customerAccountId = commonHelperService.GetAccountId(Miscellaneous.customer);
+                            string customerPassword = commonHelperService.GetPassword(Miscellaneous.customer);
 
-                            CustomerService branchCustomerService = new BranchCustomerService();
-                            Message isCustomerExist = branchCustomerService.ValidateCustomerLogin(customerBankId, customerBranchId, customerAccountId, customerPassword);
+                            Message isCustomerExist = customerService.AuthenticateCustomerAccount(customerBankId, customerBranchId, customerAccountId, customerPassword);
 
                             if (isCustomerExist.Result)
                             {
@@ -46,19 +62,18 @@ internal class MainPage
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
                                     Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = CommonHelper.GetOption(Miscellaneous.customer);
+                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.customer);
                                     if (selectedOption == 0)
                                     {
                                         isCustomerActionsPending = false;
                                         customerloginPending = false;
                                         break;
                                     }
-                                    else 
+                                    else
                                     {
-                                        CustomerHelperMethods.SelectedOption(selectedOption, customerBankId, customerBranchId);
+                                        customerHelperService.SelectedOption(selectedOption, customerBankId, customerBranchId, customerAccountId);
                                         continue;
                                     }
-
                                 }
                             }
                             else
@@ -72,13 +87,13 @@ internal class MainPage
                         bool stafloginPending = true;
                         while (stafloginPending)
                         {
-                            string staffbankId = CommonHelper.GetBankId(Miscellaneous.staff);
-                            string staffbranchId = CommonHelper.GetBranchId(Miscellaneous.staff);
-                            string staffAccountId = CommonHelper.GetAccountId(Miscellaneous.staff);
-                            string staffPassword = CommonHelper.GetPassword(Miscellaneous.staff);
+                            string staffbankId = commonHelperService.GetBankId(Miscellaneous.staff, bankService);
+                            string staffbranchId = commonHelperService.GetBranchId(Miscellaneous.staff, branchService);
+                            string staffAccountId = commonHelperService.GetAccountId(Miscellaneous.staff);
+                            string staffPassword = commonHelperService.GetPassword(Miscellaneous.staff);
 
-                            StaffService branchStaffService = new BranchStaffService();
-                            Message isStaffExist = branchStaffService.ValidateBranchStaffAccount(staffbankId, staffbranchId, staffAccountId, staffPassword);
+
+                            Message isStaffExist = staffService.AuthenticateStaffAccount(staffbankId, staffbranchId, staffAccountId, staffPassword);
 
                             if (isStaffExist.Result)
                             {
@@ -91,7 +106,7 @@ internal class MainPage
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
                                     Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = CommonHelper.GetOption(Miscellaneous.staff);
+                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.staff);
                                     if (selectedOption == 0)
                                     {
                                         isStaffPending = false;
@@ -100,7 +115,7 @@ internal class MainPage
                                     }
                                     else
                                     {
-                                        StaffHelperMethod.SelectedOption(selectedOption, staffbankId, staffbranchId);
+                                        staffHelperService.SelectedOption(selectedOption, staffbankId, staffbranchId);
                                         continue;
                                     }
                                 }
@@ -116,13 +131,13 @@ internal class MainPage
                         bool managerLoginPending = true;
                         while (managerLoginPending)
                         {
-                            string managerbankId = CommonHelper.GetBankId(Miscellaneous.branchManager);
-                            string managerbranchId = CommonHelper.GetBranchId(Miscellaneous.branchManager);
-                            string branchManagerAccountId = CommonHelper.GetAccountId(Miscellaneous.branchManager);
-                            string branchManagerPassword = CommonHelper.GetPassword(Miscellaneous.branchManager);
+                            string managerbankId = commonHelperService.GetBankId(Miscellaneous.branchManager, bankService);
+                            string managerbranchId = commonHelperService.GetBranchId(Miscellaneous.branchManager, branchService);
+                            string managerAccountId = commonHelperService.GetAccountId(Miscellaneous.branchManager);
+                            string managerPassword = commonHelperService.GetPassword(Miscellaneous.branchManager);
 
-                            ManagerService branchManagerService = new BranchManagerService();
-                            Message isBranchManagerAccountExist = branchManagerService.ValidateBranchManagerAccount(managerbankId, managerbranchId, branchManagerAccountId, branchManagerPassword);
+
+                            Message isBranchManagerAccountExist = managerService.AuthenticateManagerAccount(managerbankId, managerbranchId, managerAccountId, managerPassword);
                             if (isBranchManagerAccountExist.Result)
                             {
                                 bool isManagerActionsPending = true;
@@ -134,7 +149,7 @@ internal class MainPage
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
                                     Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = CommonHelper.GetOption(Miscellaneous.branchManager);
+                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.branchManager);
                                     if (selectedOption == 0)
                                     {
                                         isManagerActionsPending = false;
@@ -143,7 +158,7 @@ internal class MainPage
                                     }
                                     else
                                     {
-                                        StaffHelperMethod.SelectedOption(selectedOption, managerbankId, managerbranchId);
+                                        managerHelperService.SelectedOption(selectedOption, managerbankId, managerbranchId, managerAccountId);
                                         continue;
                                     }
                                 }
@@ -159,13 +174,11 @@ internal class MainPage
                         bool headManagerLoginPending = true;
                         while (headManagerLoginPending)
                         {
-                            string headManagerbankId = CommonHelper.GetBankId(Miscellaneous.headManager);
-                            string headManagerbranchId = CommonHelper.GetBranchId(Miscellaneous.headManager);
-                            string headManagerAccountId = CommonHelper.GetAccountId(Miscellaneous.headManager);
-                            string headManagerPassword = CommonHelper.GetPassword(Miscellaneous.headManager);
+                            string headManagerbankId = commonHelperService.GetBankId(Miscellaneous.headManager, bankService);
+                            string headManagerAccountId = commonHelperService.GetAccountId(Miscellaneous.headManager);
+                            string headManagerPassword = commonHelperService.GetPassword(Miscellaneous.headManager);
 
-                            HeadManagerService bankHeadManagerService = new BankHeadManagerService();
-                            Message isHeadManagerExist = bankHeadManagerService.ValidateBankHeadManager(headManagerbankId, headManagerbranchId, headManagerAccountId, headManagerPassword);
+                            Message isHeadManagerExist = headManagerService.AuthenticateHeadManager(headManagerbankId, headManagerAccountId, headManagerPassword);
                             if (isHeadManagerExist.Result)
                             {
                                 bool isHeadManagerActionsPending = true;
@@ -177,7 +190,7 @@ internal class MainPage
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
                                     Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = CommonHelper.GetOption(Miscellaneous.headManager);
+                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.headManager);
                                     if (selectedOption == 0)
                                     {
                                         isHeadManagerActionsPending = false;
@@ -186,7 +199,7 @@ internal class MainPage
                                     }
                                     else
                                     {
-                                        StaffHelperMethod.SelectedOption(selectedOption, headManagerbankId, headManagerbranchId);
+                                        headManagerHelperService.SelectedOption(selectedOption, headManagerbankId);
                                         continue;
                                     }
                                 }
@@ -202,10 +215,10 @@ internal class MainPage
                         bool reserveBankMangerLoginPending = true;
                         while (reserveBankMangerLoginPending)
                         {
-                            string ReserveBankManagerName = CommonHelper.GetName(Miscellaneous.reserveBankManager);
-                            string ReserveBankManagerPassword = CommonHelper.GetPassword(Miscellaneous.reserveBankManager);
-                            ReserveBankManagerService reserveBank = new ReserveBankService();
-                            Message isReserveManagerExist = reserveBank.ValidateReserveBankManager(ReserveBankManagerName, ReserveBankManagerPassword);
+                            string ReserveBankManagerName = commonHelperService.GetName(Miscellaneous.reserveBankManager);
+                            string ReserveBankManagerPassword = commonHelperService.GetPassword(Miscellaneous.reserveBankManager);
+
+                            Message isReserveManagerExist = reserveBankManagerService.AuthenticateReserveBankManager(ReserveBankManagerName, ReserveBankManagerPassword);
                             if (isReserveManagerExist.Result)
                             {
                                 bool isReserveBankManagerActionsPending = true;
@@ -217,7 +230,7 @@ internal class MainPage
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
                                     Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = CommonHelper.GetOption(Miscellaneous.reserveBankManager);
+                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.reserveBankManager);
                                     if (selectedOption == 0)
                                     {
                                         isReserveBankManagerActionsPending = false;
@@ -226,7 +239,7 @@ internal class MainPage
                                     }
                                     else
                                     {
-                                        ReserveBankManagerHelperMethod.SelectedOption(selectedOption);
+                                        reserveBankManagerHelperService.SelectedOption(selectedOption);
                                         continue;
                                     }
 

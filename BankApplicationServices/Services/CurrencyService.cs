@@ -8,8 +8,8 @@ namespace BankApplicationServices.Services
         public static string defaultCurrencyCode = "INR";
         public static short defaultCurrencyValue = 1;
 
-        IBankService _bankService;
-        IFileService _fileService;
+        private readonly IBankService _bankService;
+        private readonly IFileService _fileService;
         List<Bank> banks;
         Message message = new Message();
         public CurrencyService(IFileService fileService, IBankService bankService) {

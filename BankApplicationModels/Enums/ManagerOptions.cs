@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BankApplicationModels.Enums
+﻿namespace BankApplicationModels.Enums
 {
     public enum ManagerOptions
     {
@@ -19,8 +13,10 @@ namespace BankApplicationModels.Enums
         GetExchangeRates = 9, // 
         GetTransactionCharges = 10, // 
         DepositAmountInCustomerAccount = 11, // 
-        TransferAmount = 12 // 
-
-
+        TransferAmount = 12,// 
+        UpdateTransactionCharges =13,
+        DeleteTransactionCharges =14,
+        UpdateStaffAccount = 15,
+        DeleteStaffAccount = 16
     }
 }

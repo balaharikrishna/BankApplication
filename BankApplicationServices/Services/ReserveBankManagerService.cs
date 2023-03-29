@@ -5,7 +5,7 @@ namespace BankApplicationServices.Services
 {
     public class ReserveBankManagerService : IReserveBankManagerService
     {
-        IFileService _fileService;
+        private readonly IFileService _fileService;
         List<Bank> banks;
         public ReserveBankManagerService(IFileService fileService)
         {

@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace BankApplicationModels.Enums
 {
     public enum HeadManagerOptions
     {
         CreateBankBranch = 1,
-        OpenBranchManagerAcccount = 2,
-        AddExchangeRates = 3,
-        UpdateManagerAccount = 4,
-        DeleteManagerAccount = 5
+        OpenManagerAcccount = 2,
+        UpdateManagerAccount = 3,
+        DeleteManagerAccount = 4,
+        AddExchangeRates = 5,
+        UpdateExchangeRates = 6,
+        DeleteExchangeRates = 7
     }
 }

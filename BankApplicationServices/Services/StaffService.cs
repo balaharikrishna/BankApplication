@@ -5,9 +5,9 @@ namespace BankApplicationServices.Services
 {
     public class StaffService : IStaffService
     {
-        IFileService _fileService;
-        IBranchService _branchService;
-        IEncryptionService _encryptionService;
+        private readonly IFileService _fileService;
+        private readonly IBranchService _branchService;
+        private readonly IEncryptionService _encryptionService;
         List<Bank> banks;
         public StaffService(IFileService fileService, IBranchService branchService, IEncryptionService encryptionService)
         {
@@ -17,9 +17,8 @@ namespace BankApplicationServices.Services
             banks = _fileService.GetData();
         }
 
-
         Message message = new Message();
-        public Message AuthenticateBranchStaffAccount(string bankId, string branchId,
+        public Message AuthenticateStaffAccount(string bankId, string branchId,
            string staffAccountId, string staffAccountPassword)
         {
             message = _branchService.AuthenticateBranchId(bankId, branchId);
@@ -119,6 +118,45 @@ namespace BankApplicationServices.Services
 
         }
 
+        public Message IsAccountExist(string bankId, string branchId, string staffAccountId)
+        {
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
+                if (bank != null)
+                {
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
+                    if (branch != null)
+                    {
+                        List<Staff> staffs = branch.Staffs;
+                        if (staffs != null)
+                        {
+                            bool isStaffAvilable = staffs.Any(m => m.AccountId == staffAccountId && m.IsActive == 1);
+                            if (isStaffAvilable)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = "Staff Validation Successful.";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Staff Validation Failed.";
+                            }
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = $"No Staff Available In The Branch:{branchId}";
+                        }
+                    }
+                }
+            }
+            return message;
+        }
+
+
+
         public Message UpdateStaffAccount(string bankId, string branchId, string staffAccountId, string staffName, string staffPassword, ushort staffRole)
         {
             message = _branchService.AuthenticateBranchId(bankId, branchId);
@@ -205,6 +243,21 @@ namespace BankApplicationServices.Services
                 }
             }
             return message;
+        }
+
+        public string GetStaffDetails(string bankId, string branchId, string staffAccountId)
+        {
+            message = IsAccountExist(bankId, branchId, staffAccountId);
+            string staffDetails = string.Empty;
+            if (message.Result)
+            {
+                int bankIndex = banks.FindIndex(b => b.BankId == bankId);
+                int branchIndex = banks[bankIndex].Branches.FindIndex(br => br.BranchId == branchId);
+                int staffIndex = banks[bankIndex].Branches[branchIndex].Staffs.FindIndex(c => c.AccountId == staffAccountId);
+                Staff details = banks[bankIndex].Branches[branchIndex].Staffs[staffIndex];
+                staffDetails =  details.ToString()??string.Empty;
+            }
+            return staffDetails;
         }
     }
 }

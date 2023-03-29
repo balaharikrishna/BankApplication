@@ -6,8 +6,8 @@ namespace BankApplicationServices.Services
 {
     public class TransactionService : ITransactionService
     {
-        IFileService _fileService;
-        ICustomerService _customerService;
+        private readonly IFileService _fileService;
+        private readonly ICustomerService _customerService;
         List<Bank> banks;
         public TransactionService(IFileService fileService, ICustomerService customerService)
         {

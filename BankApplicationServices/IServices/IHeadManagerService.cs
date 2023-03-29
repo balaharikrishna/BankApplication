@@ -8,5 +8,8 @@ namespace BankApplicationServices.IServices
         Message OpenHeadManagerAccount(string bankId, string headManagerName, string headManagerPassword);
         Message DeleteHeadManagerAccount(string bankId, string headManagerAccountId);
         Message UpdateHeadManagerAccount(string bankId, string headManagerAccountId, string headManagerName, string headManagerPassword);
+        Message IsHeadManagerExist(string bankId, string headManagerAccountId);
+        public string GetHeadManagerDetails(string bankId, string headManagerAccountId);
+
     }
 }

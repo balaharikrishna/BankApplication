@@ -6,10 +6,11 @@ namespace BankApplicationServices.Services
 {
     public class ManagerService : IManagerService
     {
-        IFileService _fileService;
-        IBranchService _branchService;
+        private readonly IFileService _fileService;
+        private readonly IBranchService _branchService;
+        private readonly IEncryptionService _encryptionService;
         List<Bank> banks;
-        IEncryptionService _encryptionService;
+        
         public ManagerService(IFileService fileService, IEncryptionService encryptionService,
             IBranchService branchService)
         {
@@ -119,6 +120,42 @@ namespace BankApplicationServices.Services
             return message;
         }
 
+        public Message IsAccountExist(string bankId, string branchId, string managerAccountId)
+        {
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
+                if (bank != null)
+                {
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
+                    if (branch != null)
+                    {
+                        List<Manager> managers = branch.Managers;
+                        if (managers != null)
+                        {
+                            bool isManagerAvilable = managers.Any(m => m.AccountId == managerAccountId && m.IsActive == 1);
+                            if (isManagerAvilable)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = "Manager Validation Successful.";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Manager Validation Failed.";
+                            }
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = $"No Manager Available In The Branch:{branchId}";
+                        }
+                    }
+                }
+            }
+            return message;
+        }
         public Message UpdateManagerAccount(string bankId, string branchId,string accountId, string managerName, string managerPassword)
         {
             message = _branchService.AuthenticateBranchId(bankId, branchId);
@@ -205,6 +242,21 @@ namespace BankApplicationServices.Services
                 }
             }
             return message;
+        }
+
+        public string GetManagerDetails(string bankId, string branchId, string managerAccountId)
+        {
+            message = IsAccountExist(bankId, branchId, managerAccountId);
+            string managerDetails = string.Empty;
+            if (message.Result)
+            {
+                int bankIndex = banks.FindIndex(b => b.BankId == bankId);
+                int branchIndex = banks[bankIndex].Branches.FindIndex(br => br.BranchId == branchId);
+                int managerIndex = banks[bankIndex].Branches[branchIndex].Managers.FindIndex(c => c.AccountId == managerAccountId);
+                Manager details = banks[bankIndex].Branches[branchIndex].Managers[managerIndex];
+                managerDetails = details.ToString() ?? string.Empty;
+            }
+            return managerDetails;
         }
     }
 }

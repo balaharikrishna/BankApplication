@@ -6,10 +6,10 @@ namespace BankApplicationServices.Services
 {
     public class CustomerService : ICustomerService
     {
-        IFileService _fileService;
-        IEncryptionService _encryptionService;
-        IBranchService _branchService;
-        ITransactionService _transactionService;
+        private readonly IFileService _fileService;
+        private readonly IEncryptionService _encryptionService;
+        private readonly IBranchService _branchService;
+        private readonly ITransactionService _transactionService;
         List<Bank> banks;
         public CustomerService(IFileService fileService, IEncryptionService encryptionService,
             IBranchService branchService, ITransactionService transactionService)
@@ -577,7 +577,7 @@ namespace BankApplicationServices.Services
                 decimal toCustomerBalance = decimal.Parse(message.Data);
                 _transactionService.TransactionHistory(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, 3, 1);
                 message.Result = true;
-                message.ResultMessage = $"Transfer of {transferAmount} ₹ Sucessfull.,Deducted Amout :{transferAmount + transferAmountInterest}, Avl.Bal: {fromCustomerBalanace}";
+                message.ResultMessage = $"Transfer of {transferAmount} Rupees Sucessfull.,Deducted Amout :{transferAmount + transferAmountInterest}, Avl.Bal: {fromCustomerBalanace}";
             }
             else
             {

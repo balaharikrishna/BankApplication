@@ -6,13 +6,13 @@ namespace BankApplicationServices.Services
 {
     public class BankService : IBankService
     {
-        IFileService _fileService;
+        private readonly IFileService _fileService;
         List<Bank> banks;
         Message message = new Message();
         public BankService(IFileService fileService)
         {
             _fileService = fileService;
-            this.banks = _fileService.GetData();
+             banks = _fileService.GetData();
         }
 
         public Message AuthenticateBankId(string bankId)

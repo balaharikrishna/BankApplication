@@ -43,7 +43,7 @@ namespace BankApplicationServices.Services
                             }
 
                             byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
-                            bool isManagerAvilable = managers.Any(m => m.AccountId == managerAccountId && m.HashedPassword == hashedPasswordToCheck && m.IsActive == 1);
+                            bool isManagerAvilable = managers.Any(m => m.AccountId == managerAccountId && Convert.ToBase64String(m.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck) && m.IsActive == 1);
                             if (isManagerAvilable)
                             {
                                 message.Result = true;
@@ -69,17 +69,23 @@ namespace BankApplicationServices.Services
 
         public Message OpenManagerAccount(string bankId, string branchId, string managerName, string managerPassword)
         {
+
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                bool isManagerAlreadyAvailabe = false;
+              
                 List<Manager>? managers = null;
                 List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
                 if(branches != null)
                 {
                     managers = branches[branches.FindIndex(br => br.BranchId == branchId)].Managers;
-                    isManagerAlreadyAvailabe = managers.Any(m => m.Name == managerName && m.IsActive == 1);
                 }
+
+                if (managers == null)
+                {
+                    managers = new List<Manager>();
+                }
+                bool isManagerAlreadyAvailabe = managers.Any(m => m.Name == managerName && m.IsActive == 1);
 
                 if (!isManagerAlreadyAvailabe)
                 {
@@ -100,12 +106,12 @@ namespace BankApplicationServices.Services
                         IsActive = 1
                     };
 
-                    if (managers == null)
-                    {
-                        managers = new List<Manager>();
-                    }
-
+                    
                     managers.Add(manager);
+                    if(branches != null)
+                    {
+                        banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches[branches.FindIndex(br => br.BranchId == branchId)].Managers = managers;
+                    }
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Account Created for {managerName} with Account Id:{managerAccountId}";
@@ -185,7 +191,7 @@ namespace BankApplicationServices.Services
                         byte[] salt = new byte[32];
                         salt = manager.Salt;
                         byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
-                        if (manager.HashedPassword == hashedPasswordToCheck)
+                        if (Convert.ToBase64String(manager.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck))
                         {
                             message.Result = false;
                             message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
@@ -200,6 +206,18 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = "Updated Password Sucessfully";
                         }
                     }
+
+                    if (managerName == string.Empty && managerPassword == string.Empty)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = $"No Changes Added.";
+                    }
+                    else
+                    {
+                        message.Result = true;
+                        message.ResultMessage = $"Updated Details Successfully";
+                    }
+                   
                     _fileService.WriteFile(banks);
                 }
                 else
@@ -207,7 +225,10 @@ namespace BankApplicationServices.Services
                     message.Result = false;
                     message.ResultMessage = $"Manager: {managerName} with AccountId:{accountId} Doesn't Exist";
                 }
+
+
             }
+            
             return message;
         }
 

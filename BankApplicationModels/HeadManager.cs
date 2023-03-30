@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BankApplicationModels.Enums;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace BankApplicationModels
 {
@@ -14,6 +16,11 @@ namespace BankApplicationModels
 
         [RegularExpression("^[01]+$")]
         public ushort IsActive { get; set; }
+
+        public override string ToString()
+        {
+            return $"\nAccountID: {AccountId}  Name:{Name}";
+        }
 
     }
 }

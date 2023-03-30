@@ -1,4 +1,5 @@
 ﻿using BankApplication.IHelperServices;
+using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
 
@@ -11,14 +12,16 @@ namespace BankApplication
         IBranchService _branchService;
         ITransactionService _transactionService;
         ICommonHelperService _commonHelperService;
+        IValidateInputs _validateInputs;
         public CustomerHelperService(ICustomerService customerService, IBankService bankService, IBranchService branchService,
-            ITransactionService transactionService,ICommonHelperService commonHelperService)
+            ITransactionService transactionService,ICommonHelperService commonHelperService,IValidateInputs validateInputs)
         {
             _CustomerService = customerService;
             _bankService = bankService;
             _branchService = branchService;
             _transactionService = transactionService;
             _commonHelperService = commonHelperService;
+            _validateInputs = validateInputs;
         }
         Message message = new Message();
         public void SelectedOption(ushort Option, string bankId, string branchId, string accountId)
@@ -144,9 +147,9 @@ namespace BankApplication
                         bool isInvalidToCustomer = true;
                         while (isInvalidToCustomer)
                         {
-                            string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService);
-                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService);
-                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer);
+                            string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService,_validateInputs);
+                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
                             Message isToCustomerAccountExist = _CustomerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                             if (isToCustomerAccountExist.Result)
                             {

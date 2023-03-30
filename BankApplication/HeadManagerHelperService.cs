@@ -21,6 +21,7 @@ namespace BankApplication
             _commonHelperService = commonHelperService;
             _managerService = managerService;
             _currencyService = currencyService;
+            _validateInputs = validateInputs;
         }
         public void SelectedOption(ushort Option, string headManagerBankId)
         {
@@ -32,9 +33,9 @@ namespace BankApplication
                     bool branchPendingStatus = true;
                     while (branchPendingStatus)
                     {
-                        string branchName = _commonHelperService.GetName(Miscellaneous.branch);
-                        string branchPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.branch);
-                        string branchAddress = _commonHelperService.GetAddress(Miscellaneous.branch);
+                        string branchName = _commonHelperService.GetName(Miscellaneous.branch, _validateInputs);
+                        string branchPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.branch, _validateInputs);
+                        string branchAddress = _commonHelperService.GetAddress(Miscellaneous.branch, _validateInputs);
 
                         message = _branchService.CreateBranch(headManagerBankId,branchName, branchPhoneNumber, branchAddress);
                         if (message.Result)
@@ -54,27 +55,15 @@ namespace BankApplication
                     bool OpenManagerAccountPending = true;
                     while (OpenManagerAccountPending)
                     {
-                        string branchManagerName = _commonHelperService.GetName(Miscellaneous.branchManager);
-                        string branchManagerPassword = _commonHelperService.GetPassword(Miscellaneous.branchManager);
-                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService);
+                        string branchManagerName = _commonHelperService.GetName(Miscellaneous.branchManager, _validateInputs);
+                        string branchManagerPassword = _commonHelperService.GetPassword(Miscellaneous.branchManager, _validateInputs);
+                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
 
                         message = _managerService.OpenManagerAccount(headManagerBankId, branchId, branchManagerName, branchManagerPassword);
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
-                            Console.WriteLine("Enter 0 to Go Back");
-                            short userInput = short.Parse(Console.ReadLine()?? string.Empty);
-                            if (userInput == 0)
-                            {
-                                OpenManagerAccountPending = false;
-                                break;
-                            }
-
-                            else if (userInput != 0)
-                            {
-                                Console.WriteLine($"Entered Value {userInput} is invalid please provide valid input");
-                                continue;
-                            }
+                            break;
                         }
                         else
                         {
@@ -89,8 +78,8 @@ namespace BankApplication
                     bool case3Pending = true;
                     while (case3Pending)
                     {
-                        string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager);
-                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService);
+                        string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
+                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
                         message = _managerService.IsAccountExist(headManagerBankId, branchId, managerAccountId);
                         if (message.Result)
                         {
@@ -181,8 +170,8 @@ namespace BankApplication
                     bool deleteManagerAccountPending = true;
                     while (deleteManagerAccountPending)
                     {
-                        string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager);
-                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService);
+                        string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
+                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
 
                         message = _managerService.DeleteManagerAccount(headManagerBankId, branchId, managerAccountId);
                         if (message.Result)

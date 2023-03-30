@@ -41,7 +41,7 @@ namespace BankApplicationServices.Services
                             }
 
                             byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
-                            bool isManagerAvilable = staffs.Any(m => m.AccountId == staffAccountId && m.HashedPassword == hashedPasswordToCheck && m.IsActive == 1);
+                            bool isManagerAvilable = staffs.Any(m => m.AccountId == staffAccountId && Convert.ToBase64String(m.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck) && m.IsActive == 1);
                             if (isManagerAvilable)
                             {
                                 message.Result = true;
@@ -69,14 +69,18 @@ namespace BankApplicationServices.Services
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                bool isManagerAlreadyAvailabe = false;
                 List<Staff>? staffs = null;
                 List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches;
                 if (branches != null)
                 {
                     staffs = branches[branches.FindIndex(br => br.BranchId == branchId)].Staffs;
-                    isManagerAlreadyAvailabe = staffs.Any(m => m.Name == staffName && m.IsActive == 1);
                 }
+
+                if (staffs == null)
+                {
+                    staffs = new List<Staff>();
+                }
+                bool isManagerAlreadyAvailabe = staffs.Any(m => m.Name == staffName && m.IsActive == 1);
 
                 if (!isManagerAlreadyAvailabe)
                 {
@@ -97,12 +101,12 @@ namespace BankApplicationServices.Services
                         IsActive = 1
                     };
 
-                    if (staffs == null)
-                    {
-                        staffs = new List<Staff>();
-                    }
-
                     staffs.Add(staff);
+                    if (branches != null)
+                    {
+                        banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches[branches.FindIndex(br => br.BranchId == branchId)].Staffs = staffs;
+                    }
+                    
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Account Created for {staffName} with Account Id:{staffAccountId}";
@@ -112,10 +116,8 @@ namespace BankApplicationServices.Services
                     message.Result = false;
                     message.ResultMessage = $"Staff: {staffName} Already Existed";
                 }
-
             }
             return message;
-
         }
 
         public Message IsAccountExist(string bankId, string branchId, string staffAccountId)
@@ -186,7 +188,7 @@ namespace BankApplicationServices.Services
                         byte[] salt = new byte[32];
                         salt = staff.Salt;
                         byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffPassword, salt);
-                        if (staff.HashedPassword == hashedPasswordToCheck)
+                        if (Convert.ToBase64String(staff.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck))
                         {
                             message.Result = false;
                             message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
@@ -200,6 +202,16 @@ namespace BankApplicationServices.Services
                             message.Result = true;
                             message.ResultMessage = "Updated Password Sucessfully";
                         }
+                    }
+                    if (staffName == string.Empty && staffPassword == string.Empty)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = $"No Changes Added.";
+                    }
+                    else
+                    {
+                        message.Result = true;
+                        message.ResultMessage = $"Updated Details Successfully";
                     }
                     _fileService.WriteFile(banks);
                 }

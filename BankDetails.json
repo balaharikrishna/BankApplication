@@ -1,0 +1,72 @@
+[
+    {
+        "BankName": "KAURURVYSHYA",
+        "BankId": "KAU30032023M",
+        "IsActive": 1,
+        "Branches": [
+            {
+                "BranchName": "KONDAPUR",
+                "BranchId": "KON30032023170712",
+                "BranchAddress": "KONDAPUR X RAOD",
+                "BranchPhoneNumber": "9989787665",
+                "IsActive": 1,
+                "Managers": [
+                    {
+                        "Name": "SRAVAN",
+                        "Salt": "0FyYtS3dd1hLc/lEMIbVB6NREY/uXuAe6yqFh1j8hG8=",
+                        "HashedPassword": "tY41FbQXmY9UugVlKvu9bX10uszTCoEKIfkZ4yime70=",
+                        "AccountId": "SRA30032023173050",
+                        "IsActive": 1
+                    }
+                ],
+                "Charges": null,
+                "Staffs": null,
+                "Customers": null
+            },
+            {
+                "BranchName": "UDAYPUR",
+                "BranchId": "UDA30032023171557",
+                "BranchAddress": "SSSSFDFSDFS",
+                "BranchPhoneNumber": "9989899897",
+                "IsActive": 1,
+                "Managers": [
+                    {
+                        "Name": "satwik",
+                        "Salt": "/yBiTqKc3BsyXhxx3PWj2M8m93mnJRrCW5hNeGYYlUk=",
+                        "HashedPassword": "8UkLvftqX95+0jGPJc6FZ0n0e9tAs81/U662d9ZnwUo=",
+                        "AccountId": "SAT30032023190802",
+                        "IsActive": 0
+                    }
+                ],
+                "Charges": null,
+                "Staffs": null,
+                "Customers": null
+            }
+        ],
+        "HeadManagers": [
+            {
+                "Name": "AKASH",
+                "Salt": "AQI7crKt1HTsAWEOsWnlIkwoo77+WBjXGoU28xCiLI0=",
+                "HashedPassword": "tO0FH3HYYZKWiHq7csm4YHHPxu9LP9KRsrEJXuf0vkw=",
+                "AccountId": "AKA30032023140736",
+                "IsActive": 1
+            },
+            {
+                "Name": "sai",
+                "Salt": "M9mVVqxXL+x07ylz9COEYG4q4II4k1ym2XZ0TNNKk/M=",
+                "HashedPassword": "WSSm+NiKWOBUpd4tJectDn97nFr1fokn2aG9O2ESyk0=",
+                "AccountId": "HAR30032023151229",
+                "IsActive": 0
+            }
+        ],
+        "Currency": null
+    },
+    {
+        "BankName": "SBI",
+        "BankId": "SBI30032023M",
+        "IsActive": 1,
+        "Branches": null,
+        "HeadManagers": null,
+        "Currency": null
+    }
+]

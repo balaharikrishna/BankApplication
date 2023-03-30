@@ -31,7 +31,7 @@ namespace BankApplication
                     bool case1Pending = true;
                     while (case1Pending)
                     {
-                        string bankName = _commonHelperService.GetName(Miscellaneous.bank);
+                        string bankName = _commonHelperService.GetName(Miscellaneous.bank, _validateInputs);
 
                         message = _bankService.CreateBank(bankName);
                         if (message.Result)
@@ -52,9 +52,9 @@ namespace BankApplication
                     bool headManagerCreateStatus = true;
                     while (headManagerCreateStatus)
                     {
-                        string bankHeadManagerName = _commonHelperService.GetName(Miscellaneous.headManager);
-                        string bankHeadManagerPassword = _commonHelperService.GetPassword(Miscellaneous.headManager);
-                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank,_bankService);
+                        string bankHeadManagerName = _commonHelperService.GetName(Miscellaneous.headManager, _validateInputs);
+                        string bankHeadManagerPassword = _commonHelperService.GetPassword(Miscellaneous.headManager, _validateInputs);
+                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank,_bankService,_validateInputs);
 
                         message = _headManagerService.OpenHeadManagerAccount(bankId, bankHeadManagerName, bankHeadManagerPassword);
                         if (message.Result)
@@ -75,8 +75,8 @@ namespace BankApplication
                     bool case3Pending = true;
                     while (case3Pending)
                     {
-                        string headManagerAccountId = _commonHelperService.GetAccountId(Miscellaneous.headManager);
-                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService);
+                        string headManagerAccountId = _commonHelperService.GetAccountId(Miscellaneous.headManager, _validateInputs);
+                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
                         message = _headManagerService.IsHeadManagerExist(bankId, headManagerAccountId);
                         if (message.Result)
                         {
@@ -167,12 +167,10 @@ namespace BankApplication
                     bool bankHeadManagerUpdateStatus = true;
                     while (bankHeadManagerUpdateStatus)
                     {
-                        string headManagerAccountId = _commonHelperService.GetAccountId(Miscellaneous.headManager);
-                        string headManagerName = _commonHelperService.GetName(Miscellaneous.headManager);
-                        string headManagerPassword = _commonHelperService.GetPassword(Miscellaneous.headManager);
-                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank,_bankService);
+                        string headManagerAccountId = _commonHelperService.GetAccountId(Miscellaneous.headManager, _validateInputs);
+                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank,_bankService, _validateInputs);
 
-                        message = _headManagerService.UpdateHeadManagerAccount(bankId, headManagerAccountId, headManagerName, headManagerPassword);
+                        message = _headManagerService.DeleteHeadManagerAccount(bankId, headManagerAccountId);
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);

@@ -7,12 +7,10 @@ namespace BankApplicationServices.Services
     public class TransactionService : ITransactionService
     {
         private readonly IFileService _fileService;
-        private readonly ICustomerService _customerService;
         List<Bank> banks;
-        public TransactionService(IFileService fileService, ICustomerService customerService)
+        public TransactionService(IFileService fileService)
         {
             _fileService = fileService;
-            _customerService = customerService;
             banks = _fileService.GetData();
         }
         Message message = new Message();
@@ -128,96 +126,86 @@ namespace BankApplicationServices.Services
             Customer? fromBranchCustomer = null;
             Transaction? fromCustomerTransaction = null;
 
-            Message fromCustomerExist = _customerService.IsAccountExist(fromBankId, fromBranchId, fromCustomerAccountId);
-            Message toCustomerExist = _customerService.IsAccountExist(toBankId, toBranchId, toCustomerAccountId);
-            if (fromCustomerExist.Result && toCustomerExist.Result)
+            var bank = banks.Find(bk => bk.BankId == fromBankId);
+            if (bank != null)
             {
-                var bank = banks.Find(bk => bk.BankId == fromBankId);
-                if (bank != null)
+                var branch = bank.Branches.Find(br => br.BranchId == fromBranchId);
+                if (branch != null)
                 {
-                    var branch = bank.Branches.Find(br=>br.BranchId == fromBranchId);
-                    if (branch != null)
+                    List<Customer> customers = branch.Customers;
+                    if (customers != null)
                     {
-                        List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        var customerData = customers.Find(cu => cu.AccountId == fromCustomerAccountId);
+                        if (customerData != null)
                         {
-                            var customerData = customers.Find(cu => cu.AccountId == fromCustomerAccountId);
-                            if (customerData != null)
+                            var fromCustomerTransactionData = customerData.Transactions.Find(tr => tr.TransactionId == transactionId);
+                            if (fromCustomerTransactionData != null)
                             {
-                                var fromCustomerTransactionData = customerData.Transactions.Find(tr => tr.TransactionId == transactionId);
-                                if (fromCustomerTransactionData != null)
-                                {
-                                    fromCustomerTransaction = fromCustomerTransactionData;
-                                }
+                                fromCustomerTransaction = fromCustomerTransactionData;
                             }
                         }
                     }
                 }
+            }
 
-                Customer? toBranchCustomer = null;
-                Transaction? toCustomerTransaction = null;
-                var toBank = banks.Find(bk => bk.BankId == toBankId);
-                if (toBank != null)
+            Customer? toBranchCustomer = null;
+            Transaction? toCustomerTransaction = null;
+            var toBank = banks.Find(bk => bk.BankId == toBankId);
+            if (toBank != null)
+            {
+                var toBranches = toBank.Branches;
+                if (toBranches != null)
                 {
-                    var toBranches = toBank.Branches;
-                    if (toBranches != null)
+                    var tobranch = toBranches.Find(br => br.BranchId == toBranchId);
+                    if (tobranch != null)
                     {
-                        var tobranch = toBranches.Find(br => br.BranchId == toBranchId);
-                        if (tobranch != null)
+                        var toCustomers = tobranch.Customers;
+                        if (toCustomerAccountId != null)
                         {
-                            var toCustomers = tobranch.Customers;
-                            if (toCustomerAccountId != null)
+                            var toCustomerData = toCustomers.Find(cu => cu.AccountId == toCustomerAccountId);
+                            if (toCustomerData != null)
                             {
-                                var toCustomerData = toCustomers.Find(cu => cu.AccountId == toCustomerAccountId);
-                                if (toCustomerData != null)
+                                toBranchCustomer = toCustomerData; // entire Tocustomer Data
+
+                                var toCustomerTransactionData = toCustomerData.Transactions.Find(tr => tr.TransactionId == transactionId);
+                                if (toCustomerTransactionData != null)
                                 {
-                                    toBranchCustomer = toCustomerData; // entire Tocustomer Data
-
-                                    var toCustomerTransactionData = toCustomerData.Transactions.Find(tr => tr.TransactionId == transactionId);
-                                    if (toCustomerTransactionData != null)
-                                    {
-                                        toCustomerTransaction = toCustomerTransactionData; //entire Transaction Data
-                                    }
+                                    toCustomerTransaction = toCustomerTransactionData; //entire Transaction Data
                                 }
-
                             }
+
                         }
                     }
-
                 }
 
-                if (toBranchCustomer != null && toCustomerTransaction != null && fromCustomerTransaction != null && fromBranchCustomer != null && toCustomerAccountId != null)
+            }
+
+            if (toBranchCustomer != null && toCustomerTransaction != null && fromCustomerTransaction != null && fromBranchCustomer != null && toCustomerAccountId != null)
+            {
+                decimal toCustomerAmount = toBranchCustomer.Amount;
+                if (toCustomerAmount > fromCustomerTransaction.Debit)
                 {
-                    decimal toCustomerAmount = toBranchCustomer.Amount;
-                    if (toCustomerAmount > fromCustomerTransaction.Debit)
+                    if (toCustomerTransaction.TransactionId == fromCustomerTransaction.TransactionId)
                     {
-                        if (toCustomerTransaction.TransactionId == fromCustomerTransaction.TransactionId)
-                        {
-                            fromBranchCustomer.Amount += toCustomerTransaction.Credit;
-                            toBranchCustomer.Amount -= toCustomerTransaction.Credit;
-                            _fileService.WriteFile(banks);
-                            TransactionHistory(fromBankId, fromBranchId, fromCustomerAccountId, toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit, fromBranchCustomer.Amount, toBranchCustomer.Amount, 4, 1);
-                            message.Result = true;
-                            message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromBranchCustomer.Amount}";
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = "Transaction Id are Mismatching.";
-                        }
+                        fromBranchCustomer.Amount += toCustomerTransaction.Credit;
+                        toBranchCustomer.Amount -= toCustomerTransaction.Credit;
+                        _fileService.WriteFile(banks);
+                        TransactionHistory(fromBankId, fromBranchId, fromCustomerAccountId, toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit, fromBranchCustomer.Amount, toBranchCustomer.Amount, 4, 1);
+                        message.Result = true;
+                        message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromBranchCustomer.Amount}";
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "To Customer doesn't have the Required Amount to be Deducted.";
+                        message.ResultMessage = "Transaction Id are Mismatching.";
                     }
-
                 }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "One of the Customer Account Doesnt Exist.";
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "To Customer doesn't have the Required Amount to be Deducted.";
+                }
+
             }
             return message;
         }

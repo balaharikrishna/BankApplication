@@ -41,8 +41,8 @@ namespace BankApplication
                     bool case1Pending = true;
                     while (case1Pending)
                     {
-                        string staffName = _commonHelperService.GetName(Miscellaneous.staff);
-                        string staffPassword = _commonHelperService.GetPassword(Miscellaneous.staff);
+                        string staffName = _commonHelperService.GetName(Miscellaneous.staff, _validateInputs);
+                        string staffPassword = _commonHelperService.GetPassword(Miscellaneous.staff, _validateInputs);
                         Console.WriteLine("Choose Staff Roles from Below:");
                         foreach (StaffRole option in Enum.GetValues(typeof(StaffRole)))
                         {
@@ -196,14 +196,14 @@ namespace BankApplication
                     bool case3Pending = true;
                     while (case3Pending)
                     {
-                        string customerName = _commonHelperService.GetName(Miscellaneous.customer);
-                        string customerPassword = _commonHelperService.GetPassword(Miscellaneous.customer);
-                        string customerPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.customer);
-                        string customerEmailId = _commonHelperService.GetEmailId(Miscellaneous.customer);
-                        int customerAccountType = _commonHelperService.GetAccountType(Miscellaneous.customer);
-                        string customerAddress = _commonHelperService.GetAddress(Miscellaneous.customer);
-                        string customerDOB = _commonHelperService.GetDateOfBirth(Miscellaneous.customer);
-                        int customerGender = _commonHelperService.GetGender(Miscellaneous.customer);
+                        string customerName = _commonHelperService.GetName(Miscellaneous.customer, _validateInputs);
+                        string customerPassword = _commonHelperService.GetPassword(Miscellaneous.customer, _validateInputs);
+                        string customerPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.customer, _validateInputs);
+                        string customerEmailId = _commonHelperService.GetEmailId(Miscellaneous.customer, _validateInputs);
+                        int customerAccountType = _commonHelperService.GetAccountType(Miscellaneous.customer, _validateInputs);
+                        string customerAddress = _commonHelperService.GetAddress(Miscellaneous.customer, _validateInputs);
+                        string customerDOB = _commonHelperService.GetDateOfBirth(Miscellaneous.customer, _validateInputs);
+                        int customerGender = _commonHelperService.GetGender(Miscellaneous.customer, _validateInputs);
 
                         Message isCustomerAccountOpened = _customerService.OpenCustomerAccount(managerBankId,
                         managerBranchId, customerName, customerPassword, customerPhoneNumber, customerEmailId,
@@ -226,7 +226,7 @@ namespace BankApplication
                     bool case4Pending = true;
                     while (case4Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                         message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
                         if (message.Result)
                         {
@@ -489,7 +489,7 @@ namespace BankApplication
                     bool case5Pending = true;
                     while (case5Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                         message = _customerService.DeleteCustomerAccount(managerBankId, managerBranchId, customerAccountId);
                         if (message.Result)
                         {
@@ -509,7 +509,7 @@ namespace BankApplication
                     bool case6Pending = true;
                     while (case6Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                         message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
                         if (message.Result)
                         {
@@ -536,25 +536,25 @@ namespace BankApplication
                     bool case7Pending = true;
                     while (case7Pending)
                     {
-                        string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
 
                         message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
+
                         if (message.Result)
                         {
-                            string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService);
-                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService);
-                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer);
+                            string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
 
-                            message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                            message = _customerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                             if (message.Result)
                             {
                                 string transactionId = _commonHelperService.ValidateTransactionIdFormat();
                                 message = _transactionService.RevertTransaction(transactionId, managerBankId, managerBranchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                                 Console.WriteLine(message.ResultMessage);
-                                case7Pending = false;
+                                case5Pending = false;
                                 break;
                             }
-
                         }
                         else
                         {
@@ -568,7 +568,7 @@ namespace BankApplication
                     bool case8Pending = true;
                     while (case8Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                         message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
                         if (message.Result)
                         {
@@ -642,9 +642,9 @@ namespace BankApplication
                     bool case11Pending = true;
                     while (case11Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                         decimal depositAmount = _commonHelperService.ValidateAmount();
-                        string currencyCode = _commonHelperService.ValidateCurrency(managerBankId, _currencyService);
+                        string currencyCode = _commonHelperService.ValidateCurrency(managerBankId, _currencyService, _validateInputs);
                         message = _customerService.DepositAmount(managerBankId, managerBranchId, customerAccountId, depositAmount, currencyCode);
                         if (message.Result)
                         {
@@ -664,7 +664,7 @@ namespace BankApplication
                     bool case12Pending = true;
                     while (case12Pending)
                     {
-                        string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer);
+                        string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
 
                         int transferMethod = _commonHelperService.ValidateTransferMethod();
                         decimal amount = _commonHelperService.ValidateAmount();
@@ -675,9 +675,9 @@ namespace BankApplication
                             bool isInvalidToCustomer = true;
                             while (isInvalidToCustomer)
                             {
-                                string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService);
-                                string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService);
-                                string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer);
+                                string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                                string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
                                 message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                                 if (message.Result)
                                 {
@@ -829,7 +829,7 @@ namespace BankApplication
                     bool case15Pending = true;
                     while (case15Pending)
                     {
-                        string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff);
+                        string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
                         message = _staffService.IsAccountExist(managerBankId, managerBranchId, staffAccountId);
                         if (message.Result)
                         {
@@ -941,7 +941,7 @@ namespace BankApplication
                     bool case16Pending = true;
                     while (case16Pending)
                     {
-                        string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff);
+                        string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
                        
                         message = _staffService.DeleteStaffAccount(managerBankId, managerBranchId, staffAccountId);
                         if (message.Result)

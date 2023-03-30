@@ -1,6 +1,7 @@
 ﻿using BankApplication;
 using BankApplication.Exceptions;
 using BankApplication.IHelperServices;
+using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
@@ -25,6 +26,8 @@ internal class MainPage
         IManagerHelperService? managerHelperService = services.GetService<IManagerHelperService>();
         IReserveBankManagerHelperService? reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>();
         IStaffHelperService? staffHelperService = services.GetService<IStaffHelperService>();
+        IValidateInputs? validateInputs= services.GetService<IValidateInputs>();
+        ICurrencyService? currencyService = services.GetService<ICurrencyService>();
         bool pendingTask = true;
         while (pendingTask)
         {
@@ -44,10 +47,10 @@ internal class MainPage
                         bool customerloginPending = true;
                         while (customerloginPending)
                         {
-                            string customerBankId = commonHelperService.GetBankId(Miscellaneous.customer, bankService);
-                            string customerBranchId = commonHelperService.GetBranchId(Miscellaneous.customer, branchService);
-                            string customerAccountId = commonHelperService.GetAccountId(Miscellaneous.customer);
-                            string customerPassword = commonHelperService.GetPassword(Miscellaneous.customer);
+                            string customerBankId = commonHelperService.GetBankId(Miscellaneous.customer, bankService, validateInputs);
+                            string customerBranchId = commonHelperService.GetBranchId(Miscellaneous.customer, branchService, validateInputs);
+                            string customerAccountId = commonHelperService.GetAccountId(Miscellaneous.customer, validateInputs);
+                            string customerPassword = commonHelperService.GetPassword(Miscellaneous.customer, validateInputs);
 
                             Message isCustomerExist = customerService.AuthenticateCustomerAccount(customerBankId, customerBranchId, customerAccountId, customerPassword);
 
@@ -87,10 +90,10 @@ internal class MainPage
                         bool stafloginPending = true;
                         while (stafloginPending)
                         {
-                            string staffbankId = commonHelperService.GetBankId(Miscellaneous.staff, bankService);
-                            string staffbranchId = commonHelperService.GetBranchId(Miscellaneous.staff, branchService);
-                            string staffAccountId = commonHelperService.GetAccountId(Miscellaneous.staff);
-                            string staffPassword = commonHelperService.GetPassword(Miscellaneous.staff);
+                            string staffbankId = commonHelperService.GetBankId(Miscellaneous.staff, bankService, validateInputs);
+                            string staffbranchId = commonHelperService.GetBranchId(Miscellaneous.staff, branchService, validateInputs);
+                            string staffAccountId = commonHelperService.GetAccountId(Miscellaneous.staff, validateInputs);
+                            string staffPassword = commonHelperService.GetPassword(Miscellaneous.staff, validateInputs);
 
 
                             Message isStaffExist = staffService.AuthenticateStaffAccount(staffbankId, staffbranchId, staffAccountId, staffPassword);
@@ -131,10 +134,10 @@ internal class MainPage
                         bool managerLoginPending = true;
                         while (managerLoginPending)
                         {
-                            string managerbankId = commonHelperService.GetBankId(Miscellaneous.branchManager, bankService);
-                            string managerbranchId = commonHelperService.GetBranchId(Miscellaneous.branchManager, branchService);
-                            string managerAccountId = commonHelperService.GetAccountId(Miscellaneous.branchManager);
-                            string managerPassword = commonHelperService.GetPassword(Miscellaneous.branchManager);
+                            string managerbankId = commonHelperService.GetBankId(Miscellaneous.branchManager, bankService, validateInputs);
+                            string managerbranchId = commonHelperService.GetBranchId(Miscellaneous.branchManager, branchService, validateInputs);
+                            string managerAccountId = commonHelperService.GetAccountId(Miscellaneous.branchManager, validateInputs);
+                            string managerPassword = commonHelperService.GetPassword(Miscellaneous.branchManager, validateInputs);
 
 
                             Message isBranchManagerAccountExist = managerService.AuthenticateManagerAccount(managerbankId, managerbranchId, managerAccountId, managerPassword);
@@ -174,9 +177,9 @@ internal class MainPage
                         bool headManagerLoginPending = true;
                         while (headManagerLoginPending)
                         {
-                            string headManagerbankId = commonHelperService.GetBankId(Miscellaneous.headManager, bankService);
-                            string headManagerAccountId = commonHelperService.GetAccountId(Miscellaneous.headManager);
-                            string headManagerPassword = commonHelperService.GetPassword(Miscellaneous.headManager);
+                            string headManagerbankId = commonHelperService.GetBankId(Miscellaneous.headManager, bankService, validateInputs);
+                            string headManagerAccountId = commonHelperService.GetAccountId(Miscellaneous.headManager, validateInputs);
+                            string headManagerPassword = commonHelperService.GetPassword(Miscellaneous.headManager, validateInputs);
 
                             Message isHeadManagerExist = headManagerService.AuthenticateHeadManager(headManagerbankId, headManagerAccountId, headManagerPassword);
                             if (isHeadManagerExist.Result)
@@ -215,8 +218,8 @@ internal class MainPage
                         bool reserveBankMangerLoginPending = true;
                         while (reserveBankMangerLoginPending)
                         {
-                            string ReserveBankManagerName = commonHelperService.GetName(Miscellaneous.reserveBankManager);
-                            string ReserveBankManagerPassword = commonHelperService.GetPassword(Miscellaneous.reserveBankManager);
+                            string ReserveBankManagerName = commonHelperService.GetName(Miscellaneous.reserveBankManager, validateInputs);
+                            string ReserveBankManagerPassword = commonHelperService.GetPassword(Miscellaneous.reserveBankManager, validateInputs);
 
                             Message isReserveManagerExist = reserveBankManagerService.AuthenticateReserveBankManager(ReserveBankManagerName, ReserveBankManagerPassword);
                             if (isReserveManagerExist.Result)

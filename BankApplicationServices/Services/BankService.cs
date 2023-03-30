@@ -17,7 +17,7 @@ namespace BankApplicationServices.Services
 
         public Message AuthenticateBankId(string bankId)
         {
-            if (banks.Count < 0)
+            if (banks.Count > 0)
             {
                 bool bank = banks.Any(b => b.BankId == bankId && b.IsActive == 1);
                 if (bank)

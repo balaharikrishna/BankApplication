@@ -45,7 +45,7 @@ namespace BankApplicationServices.Services
                             }
 
                             byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                            bool isCustomerAvilable = customers.Any(m => m.AccountId == customerAccountId && m.HashedPassword == hashedPasswordToCheck && m.IsActive == 1);
+                            bool isCustomerAvilable = customers.Any(m => m.AccountId == customerAccountId && Convert.ToBase64String(m.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck) && m.IsActive == 1);
                             if (isCustomerAvilable)
                             {
                                 message.Result = true;
@@ -112,15 +112,19 @@ namespace BankApplicationServices.Services
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                bool isCustomerAlreadyAvailabe = false;
                 List<Customer>? customers = null;
                 List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
                 if (branches != null)
                 {
                     customers = branches[branches.FindIndex(br => br.BranchId == branchId)].Customers;
-                    isCustomerAlreadyAvailabe = customers.Any(m => m.Name == customerName && m.IsActive == 1);
                 }
 
+                if (customers == null)
+                {
+                    customers = new List<Customer>();
+                }
+
+                bool isCustomerAlreadyAvailabe = customers.Any(m => m.Name == customerName && m.IsActive == 1); ;
                 if (!isCustomerAlreadyAvailabe)
                 {
                     DateTime currentDate = DateTime.Now;
@@ -147,12 +151,11 @@ namespace BankApplicationServices.Services
                         IsActive = 1
                     };
 
-                    if (customers == null)
-                    {
-                        customers = new List<Customer>();
-                    }
-
                     customers.Add(customer);
+                    if(branches != null)
+                    {
+                        banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches[branches.FindIndex(br => br.BranchId == branchId)].Customers = customers;
+                    }
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
@@ -162,7 +165,6 @@ namespace BankApplicationServices.Services
                     message.Result = false;
                     message.ResultMessage = $"Customer: {customerName} Already Existed";
                 }
-
             }
             return message;
         }
@@ -236,7 +238,7 @@ namespace BankApplicationServices.Services
                         byte[] salt = new byte[32];
                         salt = customer.Salt;
                         byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                        if (customer.HashedPassword == hashedPasswordToCheck)
+                        if (Convert.ToBase64String(customer.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck))
                         {
                             doAllInputsValid = false;
                             message.Result = false;

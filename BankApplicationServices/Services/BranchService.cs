@@ -60,7 +60,7 @@ namespace BankApplicationServices.Services
                     branches = new List<Branch>();
                 }
 
-                isBranchAlreadyRegistered = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches.Any(branch => branch.BranchName == branchName);
+                isBranchAlreadyRegistered = branches.Any(branch => branch.BranchName == branchName);
 
                 if (isBranchAlreadyRegistered)
                 {
@@ -74,16 +74,16 @@ namespace BankApplicationServices.Services
                     string branchNameFirstThreeCharecters = branchName.Substring(0, 3);
                     string branchId = branchNameFirstThreeCharecters + date;
 
-                    Branch bankBranch = new Branch();
+                    Branch branch = new Branch();
                     {
-                        bankBranch.BranchName = branchName;
-                        bankBranch.BranchId = branchId;
-                        bankBranch.BranchAddress = branchAddress;
-                        bankBranch.BranchPhoneNumber = branchPhoneNumber;
-                        bankBranch.IsActive = 1;
+                        branch.BranchName = branchName;
+                        branch.BranchId = branchId;
+                        branch.BranchAddress = branchAddress;
+                        branch.BranchPhoneNumber = branchPhoneNumber;
+                        branch.IsActive = 1;
                     }
-
-                    banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches.Add(bankBranch);
+                    branches.Add(branch);
+                    banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches = branches;
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Branch Created Successfully with BranchName:{branchName} & BranchId:{branchId}";

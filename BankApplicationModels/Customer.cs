@@ -11,12 +11,6 @@ namespace BankApplicationModels
 {
     public class Customer : HeadManager
     {
-        //public string CustomerAccountID { get; set; }
-        //[RegularExpression("^[a-zA-Z]+$")]
-        //public string CustomerName { get; set; }
-        //[RegularExpression("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")]
-        //public string CustomerPassword { get; set; }
-
         public decimal Amount { get; set; }
 
         [RegularExpression("^\\d{10}$")]

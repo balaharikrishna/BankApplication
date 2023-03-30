@@ -9,10 +9,10 @@ namespace BankApplication
 {
     public class CommonHelperService : ICommonHelperService
     {
-        private IBankService? _bankService;
+   //     private IBankService? _bankService;
         private IBranchService? _branchService;
         private ICurrencyService? _currencyService;
-        private IValidateInputs? _validateInputs;
+   //     private IValidateInputs? _validateInputs;
 
         Message message = new Message();
 
@@ -164,9 +164,8 @@ namespace BankApplication
         }
 
         //Takes BankId Input and Validates It.
-        public string GetBankId(string position, IBankService bankService)
+        public string GetBankId(string position, IBankService _bankService,IValidateInputs _validateInputs)
         {
-            _bankService = bankService;
             bool isInvalidBank = true;
             while (isInvalidBank)
             {
@@ -198,7 +197,7 @@ namespace BankApplication
         }
 
         //Takes BranchId Input and Validates It.
-        public string GetBranchId(string position, IBranchService branchService)
+        public string GetBranchId(string position, IBranchService branchService, IValidateInputs _validateInputs)
         {
             _branchService = branchService;
             bool isInvalidBranchId = true;
@@ -235,7 +234,7 @@ namespace BankApplication
         }
 
         //Validate  AccountId
-        public string GetAccountId(string position)
+        public string GetAccountId(string position, IValidateInputs _validateInputs)
         {
             string accountId = string.Empty;
             bool isAccountIdPending = true;
@@ -259,14 +258,14 @@ namespace BankApplication
         }
 
         //Validate  Name
-        public string GetName(string position)
+        public string GetName(string position, IValidateInputs _validateInputs)
         {
             string name = string.Empty;
             bool isInvalidName = true;
             while (isInvalidName)
             {
                 Console.WriteLine($"Enter {position} Name:");
-                name = Console.ReadLine().ToUpper() ?? string.Empty;
+                name = Console.ReadLine().Replace(" ","").ToUpper() ?? string.Empty;
                 Message isValidName = _validateInputs.ValidateNameFormat(name);
                 if (isValidName.Result)
                 {
@@ -280,11 +279,11 @@ namespace BankApplication
                 }
 
             }
-            return name.Replace(" ", "");
+            return name;
         }
 
         //Validate  Password
-        public string GetPassword(string position)
+        public string GetPassword(string position, IValidateInputs _validateInputs)
         {
             string password = string.Empty;
             bool isInvalidPassword = true;
@@ -310,7 +309,7 @@ namespace BankApplication
         }
 
         //Validate  Phone Number
-        public string GetPhoneNumber(string position)
+        public string GetPhoneNumber(string position, IValidateInputs _validateInputs)
         {
             string phoneNumber = string.Empty;
             bool isInvalidPhoneNumber = true;
@@ -336,7 +335,7 @@ namespace BankApplication
         }
 
         // Validate  email
-        public string GetEmailId(string position)
+        public string GetEmailId(string position, IValidateInputs _validateInputs)
         {
             string emailId = string.Empty;
             bool isInvalidEmail = true;
@@ -361,7 +360,7 @@ namespace BankApplication
         }
 
         // Validate  account type
-        public int GetAccountType(string position)
+        public int GetAccountType(string position, IValidateInputs _validateInputs)
         {
             int accountType = 0;
             bool isInvalidAccountType = true;
@@ -391,7 +390,7 @@ namespace BankApplication
         }
 
         // Validate address
-        public string GetAddress(string position)
+        public string GetAddress(string position, IValidateInputs _validateInputs)
         {
             string address = string.Empty;
             bool isInvalidAddress = true;
@@ -416,7 +415,7 @@ namespace BankApplication
         }
 
         // Validates  date of birth 
-        public string GetDateOfBirth(string position)
+        public string GetDateOfBirth(string position, IValidateInputs _validateInputs)
         {
             string dateOfBirth = string.Empty;
             bool isInvalidDOB = true;
@@ -441,7 +440,7 @@ namespace BankApplication
         }
 
         //Checks whether the given GenderOption is valid or not.
-        public int GetGender(string position)
+        public int GetGender(string position, IValidateInputs _validateInputs)
         {
             int genderType = 0;
             bool isInvalidGender = true;
@@ -528,7 +527,7 @@ namespace BankApplication
         }
 
         //checks the format and currency already exist or not 
-        public string ValidateCurrency(string bankId, ICurrencyService currencyService)
+        public string ValidateCurrency(string bankId, ICurrencyService currencyService, IValidateInputs _validateInputs)
         {
             _currencyService = currencyService;
             string result = string.Empty;

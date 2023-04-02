@@ -12,13 +12,52 @@ namespace BankApplicationServices.Services
         {
             _fileService = fileService;
             _bankService = bankService;
-            banks = _fileService.GetData();
 
         }
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
         Message message = new Message();
-        Branch? _branch;
+
+        public Message IsBranchesExist(string bankId)
+        {
+            GetBankData();
+            message = _bankService.AuthenticateBankId(bankId);
+            if (message.Result)
+            {
+                int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+                if (bankIndex >= 0)
+                {
+                    List<Branch> branches = banks[bankIndex].Branches;
+                    if(branches == null)
+                    {
+                        branches = new List<Branch>();
+                        branches.FindAll(br => br.IsActive == 1);
+                    }
+                    if (branches != null && branches.Count >1)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "Branches Exist";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"No Branches Available for {bankId}";
+                    }
+                }
+            }
+
+            return message;
+        }
+
         public Message AuthenticateBranchId(string bankId, string branchId)
         {
+            GetBankData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -50,6 +89,7 @@ namespace BankApplicationServices.Services
 
         public Message CreateBranch(string bankId, string branchName, string branchPhoneNumber, string branchAddress)
         {
+            GetBankData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -94,6 +134,7 @@ namespace BankApplicationServices.Services
 
         public Message UpdateBranch(string bankId, string branchId, string branchName, string branchPhoneNumber, string branchAddress)
         {
+            GetBankData();
             message = AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -128,6 +169,7 @@ namespace BankApplicationServices.Services
         }
         public Message DeleteBranch(string bankId, string branchId)
         {
+            GetBankData();
             message = AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -147,6 +189,7 @@ namespace BankApplicationServices.Services
 
         public Message GetTransactionCharges(string bankId, string branchId)
         {
+            GetBankData();
             message = AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {

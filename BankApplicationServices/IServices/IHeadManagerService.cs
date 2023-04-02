@@ -4,6 +4,7 @@ namespace BankApplicationServices.IServices
 {
     public interface IHeadManagerService
     {
+        Message IsHeadManagersExist(string bankId);
         Message AuthenticateHeadManager(string bankId, string headManagerAccountId, string headManagerPassword);
         Message OpenHeadManagerAccount(string bankId, string headManagerName, string headManagerPassword);
         Message DeleteHeadManagerAccount(string bankId, string headManagerAccountId);

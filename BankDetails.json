@@ -20,8 +20,111 @@
                     }
                 ],
                 "Charges": null,
-                "Staffs": null,
-                "Customers": null
+                "Staffs": [
+                    {
+                        "Role": 1,
+                        "Name": "SUHAS",
+                        "Salt": "O4e5ZbE5UGNUupqggTJGtitquMF5ftn+fIzzKPUXiX8=",
+                        "HashedPassword": "oEeZA/Y/1LCMcukerl+HsWaudz4QdxyWSs1RXf3Uuos=",
+                        "AccountId": "SUH31032023130810",
+                        "IsActive": 1
+                    },
+                    {
+                        "Role": 2,
+                        "Name": "CHANDU",
+                        "Salt": "x4NbPko1AHRsg4Ra/KxFUeYf1zbvuWLyhIvPP4mYNws=",
+                        "HashedPassword": "Q7/Vrfff4fRAJ7sqkwJs8KNhjvZ9UlrPsvcF/bMdo5k=",
+                        "AccountId": "CHA31032023131025",
+                        "IsActive": 1
+                    },
+                    {
+                        "Role": 4,
+                        "Name": "MANOJ",
+                        "Salt": "7Dih3LUkdCZ9AI4FThUDmzoMrD5W9LgX2sUataU3eF0=",
+                        "HashedPassword": "0SBNkVI4Lii7G9WrB+FMWC7XhH5KwRRydaKCFUYPBag=",
+                        "AccountId": "MAN31032023132330",
+                        "IsActive": 1
+                    }
+                ],
+                "Customers": [
+                    {
+                        "Balance": 913,
+                        "PhoneNumber": "9989786773",
+                        "EmailId": "saurabh123@gmail.com",
+                        "AccountType": 2,
+                        "Address": "XROAD KONDAPUR",
+                        "DateOfBirth": "27/08/1997",
+                        "Gender": 1,
+                        "PassbookIssueDate": "2023-03-31T16:56:21.664897+05:30",
+                        "Transactions": [
+                            {
+                                "FromCustomerBankId": "KAU30032023M",
+                                "ToCustomerBankId": null,
+                                "FromCustomerBranchId": "KON30032023170712",
+                                "ToCustomerBranchId": null,
+                                "TransactionId": "TXNKAUSAU02042023170102",
+                                "FromCustomerAccountId": "SAU31032023165621",
+                                "TransactionType": 1,
+                                "ToCustomerAccountId": null,
+                                "TransactionDate": "2023-04-02T17:01:02.0474511+05:30",
+                                "TransactionStatus": 1,
+                                "Debit": 0,
+                                "Credit": 166,
+                                "Balance": 166
+                            },
+                            {
+                                "FromCustomerBankId": "KAU30032023M",
+                                "ToCustomerBankId": null,
+                                "FromCustomerBranchId": "KON30032023170712",
+                                "ToCustomerBranchId": null,
+                                "TransactionId": "TXNKAUSAU02042023170807",
+                                "FromCustomerAccountId": "SAU31032023165621",
+                                "TransactionType": 1,
+                                "ToCustomerAccountId": null,
+                                "TransactionDate": "2023-04-02T17:08:07.4969967+05:30",
+                                "TransactionStatus": 1,
+                                "Debit": 0,
+                                "Credit": 83,
+                                "Balance": 249
+                            },
+                            {
+                                "FromCustomerBankId": "KAU30032023M",
+                                "ToCustomerBankId": null,
+                                "FromCustomerBranchId": "KON30032023170712",
+                                "ToCustomerBranchId": null,
+                                "TransactionId": "TXNKAUSAU02042023173449",
+                                "FromCustomerAccountId": "SAU31032023165621",
+                                "TransactionType": 1,
+                                "ToCustomerAccountId": null,
+                                "TransactionDate": "2023-04-02T17:34:49.5009112+05:30",
+                                "TransactionStatus": 1,
+                                "Debit": 0,
+                                "Credit": 249,
+                                "Balance": 498
+                            },
+                            {
+                                "FromCustomerBankId": "KAU30032023M",
+                                "ToCustomerBankId": null,
+                                "FromCustomerBranchId": "KON30032023170712",
+                                "ToCustomerBranchId": null,
+                                "TransactionId": "TXNKAUSAU02042023210845",
+                                "FromCustomerAccountId": "SAU31032023165621",
+                                "TransactionType": 1,
+                                "ToCustomerAccountId": null,
+                                "TransactionDate": "2023-04-02T21:08:45.0254505+05:30",
+                                "TransactionStatus": 1,
+                                "Debit": 0,
+                                "Credit": 415,
+                                "Balance": 913
+                            }
+                        ],
+                        "Name": "SAURABH",
+                        "Salt": "6FQBlQPVmcD2jY85+p0fL4LrrAAUYq8yIyup77qDyLI=",
+                        "HashedPassword": "m/qLWO8jGjjtVOhn/FYDx9nJ+l+B4ucUUfjZcnlDirA=",
+                        "AccountId": "SAU31032023165621",
+                        "IsActive": 1
+                    }
+                ]
             },
             {
                 "BranchName": "UDAYPUR",
@@ -59,7 +162,33 @@
                 "IsActive": 0
             }
         ],
-        "Currency": null
+        "Currency": [
+            {
+                "CurrencyCode": "USD",
+                "ExchangeRate": 83,
+                "IsDeleted": 0
+            },
+            {
+                "CurrencyCode": "KWD",
+                "ExchangeRate": 287,
+                "IsDeleted": 0
+            },
+            {
+                "CurrencyCode": "YEN",
+                "ExchangeRate": 0.63,
+                "IsDeleted": 0
+            },
+            {
+                "CurrencyCode": "YUAN",
+                "ExchangeRate": 89,
+                "IsDeleted": 1
+            },
+            {
+                "CurrencyCode": "CNY",
+                "ExchangeRate": 11.96,
+                "IsDeleted": 0
+            }
+        ]
     },
     {
         "BankName": "SBI",

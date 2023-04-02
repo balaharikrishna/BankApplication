@@ -17,12 +17,54 @@ namespace BankApplicationServices.Services
             _fileService = fileService;
             _encryptionService = encryptionService;
             _branchService = branchService;
-            banks = _fileService.GetData();
+        }
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
         }
         Message message = new Message();
+
+        public Message IsManagersExist(string bankId, string branchId)
+        {
+            GetBankData();
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
+                if (bank != null)
+                {
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
+                    if (branch != null)
+                    {
+                        List<Manager> managers = branch.Managers; 
+                        if(managers == null)
+                        {
+                            managers = new List<Manager>();
+                            managers.FindAll(m => m.IsActive == 1);
+                        }
+                        if (managers != null && managers.Count > 0)
+                        {
+                            message.Result = true;
+                            message.ResultMessage = "Managers Exist in Branch";
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = $"No Managers Available In The Branch:{branchId}";
+                        }
+                    }
+                }
+            }
+            return message;
+        }
         public Message AuthenticateManagerAccount(string bankId, string branchId,
             string managerAccountId, string managerPassword)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -69,7 +111,7 @@ namespace BankApplicationServices.Services
 
         public Message OpenManagerAccount(string bankId, string branchId, string managerName, string managerPassword)
         {
-
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -128,6 +170,7 @@ namespace BankApplicationServices.Services
 
         public Message IsAccountExist(string bankId, string branchId, string managerAccountId)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -164,6 +207,7 @@ namespace BankApplicationServices.Services
         }
         public Message UpdateManagerAccount(string bankId, string branchId,string accountId, string managerName, string managerPassword)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -234,6 +278,7 @@ namespace BankApplicationServices.Services
 
         public Message DeleteManagerAccount(string bankId, string branchId,string accountId)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -267,6 +312,7 @@ namespace BankApplicationServices.Services
 
         public string GetManagerDetails(string bankId, string branchId, string managerAccountId)
         {
+            GetBankData();
             message = IsAccountExist(bankId, branchId, managerAccountId);
             string managerDetails = string.Empty;
             if (message.Result)

@@ -9,11 +9,7 @@ namespace BankApplication
 {
     public class CommonHelperService : ICommonHelperService
     {
-   //     private IBankService? _bankService;
-        private IBranchService? _branchService;
-        private ICurrencyService? _currencyService;
-   //     private IValidateInputs? _validateInputs;
-
+       
         Message message = new Message();
 
         private string bankId = string.Empty;
@@ -197,9 +193,8 @@ namespace BankApplication
         }
 
         //Takes BranchId Input and Validates It.
-        public string GetBranchId(string position, IBranchService branchService, IValidateInputs _validateInputs)
+        public string GetBranchId(string position, IBranchService _branchService, IValidateInputs _validateInputs)
         {
-            _branchService = branchService;
             bool isInvalidBranchId = true;
             while (isInvalidBranchId)
             {
@@ -527,9 +522,8 @@ namespace BankApplication
         }
 
         //checks the format and currency already exist or not 
-        public string ValidateCurrency(string bankId, ICurrencyService currencyService, IValidateInputs _validateInputs)
+        public string ValidateCurrency(string bankId, ICurrencyService _currencyService, IValidateInputs _validateInputs)
         {
-            _currencyService = currencyService;
             string result = string.Empty;
             bool isInvalidCurrency = true;
             while (isInvalidCurrency)

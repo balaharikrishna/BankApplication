@@ -15,12 +15,50 @@ namespace BankApplicationServices.Services
             _fileService = fileService;
             _bankService = bankService;
             _encryptionService = encryptionService;
-            banks = _fileService.GetData();
         }
-
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
         Message message = new Message();
+
+        public Message IsHeadManagersExist(string bankId)
+        {
+            GetBankData();
+            message = _bankService.AuthenticateBankId(bankId);
+            if (message.Result)
+            {
+                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
+                if (bank != null)
+                {
+                    List<HeadManager> headManagers = bank.HeadManagers; 
+                    if(headManagers == null)
+                    {
+                        headManagers = new List<HeadManager>();
+                        headManagers.FindAll(hm => hm.IsActive == 1);
+                    }
+                   
+                    if (headManagers != null && headManagers.Count > 0)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "Head Managers Exist in Branch";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"No Head Managers Available In The Bank:{bankId}";
+                    }
+                }
+            }
+            return message;
+        }
         public Message AuthenticateHeadManager(string bankId, string headManagerAccountId, string headManagerPassword)
         {
+            GetBankData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -59,6 +97,7 @@ namespace BankApplicationServices.Services
 
         public Message OpenHeadManagerAccount(string bankId, string headManagerName, string headManagerPassword)
         {
+            GetBankData();
             List<HeadManager> headManagers = banks[banks.FindIndex(obj => obj.BankId == bankId)].HeadManagers;
             if (headManagers == null)
             {
@@ -100,6 +139,7 @@ namespace BankApplicationServices.Services
 
         public Message IsHeadManagerExist(string bankId, string headManagerAccountId)
         {
+            GetBankData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -132,6 +172,7 @@ namespace BankApplicationServices.Services
         }
         public Message UpdateHeadManagerAccount(string bankId, string headManagerAccountId, string headManagerName, string headManagerPassword)
         {
+            GetBankData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -183,6 +224,7 @@ namespace BankApplicationServices.Services
         }
         public Message DeleteHeadManagerAccount(string bankId, string headManagerAccountId)
         {
+            GetBankData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -206,6 +248,7 @@ namespace BankApplicationServices.Services
 
         public string GetHeadManagerDetails(string bankId, string headManagerAccountId)
         {
+            GetBankData();
             message = IsHeadManagerExist(bankId, headManagerAccountId);
             string headManagerDetails = string.Empty;
             if (message.Result)

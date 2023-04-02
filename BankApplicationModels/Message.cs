@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BankApplicationModels
 {
-    public class Message
+    public class Message 
     {
         public bool Result { get; set; }
         public string ResultMessage { get; set; }

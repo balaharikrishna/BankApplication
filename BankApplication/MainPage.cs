@@ -26,9 +26,9 @@ internal class MainPage
         IManagerHelperService? managerHelperService = services.GetService<IManagerHelperService>();
         IReserveBankManagerHelperService? reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>();
         IStaffHelperService? staffHelperService = services.GetService<IStaffHelperService>();
-        IValidateInputs? validateInputs= services.GetService<IValidateInputs>();
-        ICurrencyService? currencyService = services.GetService<ICurrencyService>();
+        IValidateInputs? validateInputs = services.GetService<IValidateInputs>();
         bool pendingTask = true;
+        Message message = new Message();
         while (pendingTask)
         {
             try
@@ -47,172 +47,415 @@ internal class MainPage
                         bool customerloginPending = true;
                         while (customerloginPending)
                         {
-                            string customerBankId = commonHelperService.GetBankId(Miscellaneous.customer, bankService, validateInputs);
-                            string customerBranchId = commonHelperService.GetBranchId(Miscellaneous.customer, branchService, validateInputs);
-                            string customerAccountId = commonHelperService.GetAccountId(Miscellaneous.customer, validateInputs);
-                            string customerPassword = commonHelperService.GetPassword(Miscellaneous.customer, validateInputs);
-
-                            Message isCustomerExist = customerService.AuthenticateCustomerAccount(customerBankId, customerBranchId, customerAccountId, customerPassword);
-
-                            if (isCustomerExist.Result)
+                            bool inValidBankId = true;
+                            while (inValidBankId)
                             {
-                                bool isCustomerActionsPending = true;
-                                while (isCustomerActionsPending)
+                                string customerBankId = commonHelperService.GetBankId(Miscellaneous.customer, bankService, validateInputs);
+                                message = bankService.AuthenticateBankId(customerBankId);
+                                if (message.Result)
                                 {
-                                    Console.WriteLine("Choose From Below Menu Options");
-                                    foreach (CustomerOptions option in Enum.GetValues(typeof(CustomerOptions)))
+                                    message = branchService.IsBranchesExist(customerBankId);
+                                    if (message.Result)
                                     {
-                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                        bool inValidBranchId = true;
+                                        while (inValidBranchId)
+                                        {
+                                            string customerBranchId = commonHelperService.GetBranchId(Miscellaneous.customer, branchService, validateInputs);
+                                            message = branchService.AuthenticateBranchId(customerBankId, customerBranchId);
+                                            if (message.Result)
+                                            {
+                                                message = customerService.IsCustomersExist(customerBankId, customerBranchId);
+                                                if (message.Result)
+                                                {
+                                                    bool inValidAccountId = true;
+                                                    while (inValidAccountId)
+                                                    {
+                                                        string customerAccountId = commonHelperService.GetAccountId(Miscellaneous.customer, validateInputs);
+                                                        message = customerService.IsAccountExist(customerBankId, customerBranchId, customerAccountId);
+                                                        if (message.Result)
+                                                        {
+                                                            string customerPassword = commonHelperService.GetPassword(Miscellaneous.customer, validateInputs);
+                                                            message = customerService.AuthenticateCustomerAccount(customerBankId, customerBranchId, customerAccountId, customerPassword);
+
+                                                            if (message.Result)
+                                                            {
+                                                                bool isCustomerActionsPending = true;
+                                                                while (isCustomerActionsPending)
+                                                                {
+                                                                    Console.WriteLine("Choose From Below Menu Options");
+                                                                    foreach (CustomerOptions option in Enum.GetValues(typeof(CustomerOptions)))
+                                                                    {
+                                                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                                    }
+                                                                    Console.WriteLine("Enter 0 For Main Menu");
+                                                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.customer);
+                                                                    if (selectedOption == 0)
+                                                                    {
+                                                                        isCustomerActionsPending = false;
+                                                                        customerloginPending = false;
+                                                                        inValidAccountId = false;
+                                                                        inValidBranchId = false;
+                                                                        inValidBankId = false;
+                                                                        break;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        customerHelperService.SelectedOption(selectedOption, customerBankId, customerBranchId, customerAccountId);
+                                                                        continue;
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                Console.WriteLine(message.ResultMessage);
+                                                                continue;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine(message.ResultMessage);
+                                                            continue;
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(message.ResultMessage);
+                                                    inValidBranchId = false;
+                                                    inValidBankId = false;
+                                                    customerloginPending = false;
+                                                    break;
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
                                     }
-                                    Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.customer);
-                                    if (selectedOption == 0)
+                                    else
                                     {
-                                        isCustomerActionsPending = false;
+                                        Console.WriteLine(message.ResultMessage);
+                                        inValidBankId = false;
                                         customerloginPending = false;
                                         break;
                                     }
-                                    else
-                                    {
-                                        customerHelperService.SelectedOption(selectedOption, customerBankId, customerBranchId, customerAccountId);
-                                        continue;
-                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine(isCustomerExist.ResultMessage);
-                                continue;
-                            }
+
                         }
                         break;
+
                     case 2: //staff Login
-                        bool stafloginPending = true;
-                        while (stafloginPending)
+                        bool staffloginPending = true;
+                        while (staffloginPending)
                         {
-                            string staffbankId = commonHelperService.GetBankId(Miscellaneous.staff, bankService, validateInputs);
-                            string staffbranchId = commonHelperService.GetBranchId(Miscellaneous.staff, branchService, validateInputs);
-                            string staffAccountId = commonHelperService.GetAccountId(Miscellaneous.staff, validateInputs);
-                            string staffPassword = commonHelperService.GetPassword(Miscellaneous.staff, validateInputs);
-
-
-                            Message isStaffExist = staffService.AuthenticateStaffAccount(staffbankId, staffbranchId, staffAccountId, staffPassword);
-
-                            if (isStaffExist.Result)
+                            bool inValidBankId = true;
+                            while (inValidBankId)
                             {
-                                bool isStaffPending = true;
-                                while (isStaffPending)
+                                string staffBankId = commonHelperService.GetBankId(Miscellaneous.staff, bankService, validateInputs);
+                                message = bankService.AuthenticateBankId(staffBankId);
+                                if (message.Result)
                                 {
-                                    Console.WriteLine("Choose From Below Menu Options");
-                                    foreach (StaffOptions option in Enum.GetValues(typeof(StaffOptions)))
+                                    message = branchService.IsBranchesExist(staffBankId);
+                                    if (message.Result)
                                     {
-                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                    }
-                                    Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.staff);
-                                    if (selectedOption == 0)
-                                    {
-                                        isStaffPending = false;
-                                        stafloginPending = false;
-                                        break;
+                                        bool inValidBranchId = true;
+                                        while (inValidBranchId)
+                                        {
+                                            string staffBranchId = commonHelperService.GetBranchId(Miscellaneous.staff, branchService, validateInputs);
+                                            message = branchService.AuthenticateBranchId(staffBankId, staffBranchId);
+                                            if (message.Result)
+                                            {
+                                                message = staffService.IsStaffExist(staffBankId, staffBranchId);
+                                                if (message.Result)
+                                                {
+                                                    bool inValidAccountId = true;
+                                                    while (inValidAccountId)
+                                                    {
+                                                        string staffAccountId = commonHelperService.GetAccountId(Miscellaneous.staff, validateInputs);
+                                                        message = staffService.IsAccountExist(staffBankId, staffBranchId, staffAccountId);
+                                                        if (message.Result)
+                                                        {
+                                                            string staffPassword = commonHelperService.GetPassword(Miscellaneous.staff, validateInputs);
+                                                            message = customerService.AuthenticateCustomerAccount(staffBankId, staffBranchId, staffAccountId, staffPassword);
+
+                                                            if (message.Result)
+                                                            {
+                                                                bool isStaffActionsPending = true;
+                                                                while (isStaffActionsPending)
+                                                                {
+                                                                    Console.WriteLine("Choose From Below Menu Options");
+                                                                    foreach (StaffOptions option in Enum.GetValues(typeof(StaffOptions)))
+                                                                    {
+                                                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                                    }
+                                                                    Console.WriteLine("Enter 0 For Main Menu");
+                                                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.staff);
+                                                                    if (selectedOption == 0)
+                                                                    {
+                                                                        isStaffActionsPending = false;
+                                                                        staffloginPending = false;
+                                                                        inValidAccountId = false;
+                                                                        inValidBranchId = false;
+                                                                        inValidBankId = false;
+                                                                        break;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        staffHelperService.SelectedOption(selectedOption, staffBankId, staffBranchId);
+                                                                        continue;
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                Console.WriteLine(message.ResultMessage);
+                                                                continue;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine(message.ResultMessage);
+                                                            continue;
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(message.ResultMessage);
+                                                    inValidBranchId = false;
+                                                    inValidBankId = false;
+                                                    staffloginPending = false;
+                                                    break;
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
                                     }
                                     else
                                     {
-                                        staffHelperService.SelectedOption(selectedOption, staffbankId, staffbranchId);
-                                        continue;
+                                        Console.WriteLine(message.ResultMessage);
+                                        inValidBankId = false;
+                                        staffloginPending = false;
+                                        break;
                                     }
+                                    
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine(isStaffExist.ResultMessage);
-                                continue;
-                            }
+
                         }
+
                         break;
+
                     case 3: //Manager Login
-                        bool managerLoginPending = true;
-                        while (managerLoginPending)
+                        bool managerloginPending = true;
+                        while (managerloginPending)
                         {
-                            string managerbankId = commonHelperService.GetBankId(Miscellaneous.branchManager, bankService, validateInputs);
-                            string managerbranchId = commonHelperService.GetBranchId(Miscellaneous.branchManager, branchService, validateInputs);
-                            string managerAccountId = commonHelperService.GetAccountId(Miscellaneous.branchManager, validateInputs);
-                            string managerPassword = commonHelperService.GetPassword(Miscellaneous.branchManager, validateInputs);
-
-
-                            Message isBranchManagerAccountExist = managerService.AuthenticateManagerAccount(managerbankId, managerbranchId, managerAccountId, managerPassword);
-                            if (isBranchManagerAccountExist.Result)
+                            bool inValidBankId = true;
+                            while (inValidBankId)
                             {
-                                bool isManagerActionsPending = true;
-                                while (isManagerActionsPending)
+                                string managerBankId = commonHelperService.GetBankId(Miscellaneous.branchManager, bankService, validateInputs);
+                                message = bankService.AuthenticateBankId(managerBankId);
+                                if (message.Result)
                                 {
-                                    Console.WriteLine("Choose From Below Menu Options");
-                                    foreach (ManagerOptions option in Enum.GetValues(typeof(ManagerOptions)))
+                                    message = branchService.IsBranchesExist(managerBankId);
+                                    if (message.Result)
                                     {
-                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                    }
-                                    Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.branchManager);
-                                    if (selectedOption == 0)
-                                    {
-                                        isManagerActionsPending = false;
-                                        managerLoginPending = false;
-                                        break;
+                                        bool inValidBranchId = true;
+                                        while (inValidBranchId)
+                                        {
+                                            string managerBranchId = commonHelperService.GetBranchId(Miscellaneous.branchManager, branchService, validateInputs);
+                                            message = branchService.AuthenticateBranchId(managerBankId, managerBranchId);
+                                            if (message.Result)
+                                            {
+                                                message = managerService.IsManagersExist(managerBankId, managerBranchId);
+                                                if (message.Result)
+                                                {
+                                                    bool inValidAccountId = true;
+                                                    while (inValidAccountId)
+                                                    {
+                                                        string managerAccountId = commonHelperService.GetAccountId(Miscellaneous.branchManager, validateInputs);
+                                                        message = managerService.IsAccountExist(managerBankId, managerBranchId, managerAccountId);
+                                                        if (message.Result)
+                                                        {
+                                                            string managerPassword = commonHelperService.GetPassword(Miscellaneous.branchManager, validateInputs);
+                                                            message = managerService.AuthenticateManagerAccount(managerBankId, managerBranchId, managerAccountId, managerPassword);
+
+                                                            if (message.Result)
+                                                            {
+                                                                bool isManagerActionsPending = true;
+                                                                while (isManagerActionsPending)
+                                                                {
+                                                                    Console.WriteLine("Choose From Below Menu Options");
+                                                                    foreach (ManagerOptions option in Enum.GetValues(typeof(ManagerOptions)))
+                                                                    {
+                                                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                                    }
+                                                                    Console.WriteLine("Enter 0 For Main Menu");
+                                                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.branchManager);
+                                                                    if (selectedOption == 0)
+                                                                    {
+                                                                        isManagerActionsPending = false;
+                                                                        customerloginPending = false;
+                                                                        inValidAccountId = false;
+                                                                        inValidBranchId = false;
+                                                                        inValidBankId = false;
+                                                                        break;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        managerHelperService.SelectedOption(selectedOption, managerBankId, managerBranchId, managerAccountId);
+                                                                        continue;
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                Console.WriteLine(message.ResultMessage);
+                                                                continue;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Console.WriteLine(message.ResultMessage);
+                                                            continue;
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(message.ResultMessage);
+                                                    inValidBranchId = false;
+                                                    inValidBankId = false;
+                                                    managerloginPending = false;
+                                                    break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
                                     }
                                     else
                                     {
-                                        managerHelperService.SelectedOption(selectedOption, managerbankId, managerbranchId, managerAccountId);
-                                        continue;
+                                        Console.WriteLine(message.ResultMessage);
+                                        inValidBankId = false;
+                                        managerloginPending = false;
+                                        break;
                                     }
                                 }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
                             }
-                            else
-                            {
-                                Console.WriteLine(isBranchManagerAccountExist.ResultMessage);
-                                continue;
-                            }
+
                         }
                         break;
-                    case 4: //Head Manager Login
-                        bool headManagerLoginPending = true;
-                        while (headManagerLoginPending)
-                        {
-                            string headManagerbankId = commonHelperService.GetBankId(Miscellaneous.headManager, bankService, validateInputs);
-                            string headManagerAccountId = commonHelperService.GetAccountId(Miscellaneous.headManager, validateInputs);
-                            string headManagerPassword = commonHelperService.GetPassword(Miscellaneous.headManager, validateInputs);
 
-                            Message isHeadManagerExist = headManagerService.AuthenticateHeadManager(headManagerbankId, headManagerAccountId, headManagerPassword);
-                            if (isHeadManagerExist.Result)
+                    case 4: //Head Manager Login
+                        bool headManagerloginPending = true;
+                        while (headManagerloginPending)
+                        {
+                            bool inValidBankId = true;
+                            while (inValidBankId)
                             {
-                                bool isHeadManagerActionsPending = true;
-                                while (isHeadManagerActionsPending)
+                                string headManagerBankId = commonHelperService.GetBankId(Miscellaneous.headManager, bankService, validateInputs);
+                                message = bankService.AuthenticateBankId(headManagerBankId);
+                                if (message.Result)
                                 {
-                                    Console.WriteLine("Choose From Below Menu Options");
-                                    foreach (HeadManagerOptions option in Enum.GetValues(typeof(HeadManagerOptions)))
+                                    message = headManagerService.IsHeadManagersExist(headManagerBankId);
+                                    if (message.Result)
                                     {
-                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                    }
-                                    Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.headManager);
-                                    if (selectedOption == 0)
-                                    {
-                                        isHeadManagerActionsPending = false;
-                                        headManagerLoginPending = false;
-                                        break;
+                                        bool inValidAccountId = true;
+                                        while (inValidAccountId)
+                                        {
+                                            string headManagerAccountId = commonHelperService.GetAccountId(Miscellaneous.headManager, validateInputs);
+                                            message = headManagerService.IsHeadManagerExist(headManagerBankId, headManagerAccountId);
+                                            if (message.Result)
+                                            {
+                                                string haedManagerPassword = commonHelperService.GetPassword(Miscellaneous.customer, validateInputs);
+                                                message = headManagerService.AuthenticateHeadManager(headManagerBankId, headManagerAccountId, haedManagerPassword);
+
+                                                if (message.Result)
+                                                {
+                                                    bool isHeadManagerActionsPending = true;
+                                                    while (isHeadManagerActionsPending)
+                                                    {
+                                                        Console.WriteLine("Choose From Below Menu Options");
+                                                        foreach (HeadManagerOptions option in Enum.GetValues(typeof(HeadManagerOptions)))
+                                                        {
+                                                            Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                        }
+                                                        Console.WriteLine("Enter 0 For Main Menu");
+                                                        ushort selectedOption = commonHelperService.GetOption(Miscellaneous.headManager);
+                                                        if (selectedOption == 0)
+                                                        {
+                                                            isHeadManagerActionsPending = false;
+                                                            headManagerloginPending = false;
+                                                            inValidAccountId = false;
+                                                            inValidBankId = false;
+                                                            break;
+                                                        }
+                                                        else
+                                                        {
+                                                            headManagerHelperService.SelectedOption(selectedOption, headManagerBankId);
+                                                            continue;
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(message.ResultMessage);
+                                                    continue;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
                                     }
                                     else
                                     {
-                                        headManagerHelperService.SelectedOption(selectedOption, headManagerbankId);
-                                        continue;
+                                        Console.WriteLine(message.ResultMessage);
+                                        inValidBankId = false;
+                                        headManagerloginPending = false;
+                                        break;
                                     }
+                                    
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine(isHeadManagerExist.ResultMessage);
-                                continue;
-                            }
+
                         }
+
                         break;
                     case 5: //Reserve Bank Login
                         bool reserveBankMangerLoginPending = true;

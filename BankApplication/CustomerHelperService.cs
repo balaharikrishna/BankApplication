@@ -26,7 +26,6 @@ namespace BankApplication
         Message message = new Message();
         public void SelectedOption(ushort Option, string bankId, string branchId, string accountId)
         {
-
             switch (Option)
             {
                 case 1: //CheckAccountBalance

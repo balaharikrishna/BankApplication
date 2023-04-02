@@ -4,6 +4,8 @@ namespace BankApplicationServices.IServices
 {
     public interface ICustomerService
     {
+        public List<Bank> GetBankData();
+        Message IsCustomersExist(string bankId, string branchId);
         Message AuthenticateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerPassword);
         Message IsAccountExist(string bankId, string branchId, string customerAccountId);
         Message AuthenticateToCustomerAccount(string bankId, string branchId, string customerAccountId);

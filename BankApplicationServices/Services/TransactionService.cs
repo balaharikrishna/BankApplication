@@ -7,17 +7,43 @@ namespace BankApplicationServices.Services
     public class TransactionService : ITransactionService
     {
         private readonly IFileService _fileService;
-        List<Bank> banks;
+        private List<Bank> banks;
+        Message message = new Message();
         public TransactionService(IFileService fileService)
         {
             _fileService = fileService;
-            banks = _fileService.GetData();
         }
-        Message message = new Message();
+
+        public List<Bank> GetBankData()
+        {
+            if(_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
+
+        public Message IsTransactionsAvailable(string fromBankId, string fromBranchId, string fromCustomerAccountId)
+        {
+            GetBankData();
+            int fromBankIndex = banks.FindIndex(b => b.BankId == fromBankId);
+            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == fromBranchId);
+            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == fromCustomerAccountId);
+
+            List<Transaction> transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
+            if(transactions == null || transactions.Count>0)
+            {
+                message.Result = false;
+                message.ResultMessage = "No Transactions Available.";
+            }
+
+            return message;
+        }
 
         public void TransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
           decimal creditAmount, decimal fromCustomerbalance, int transactionType, int transactionStatus)
         {
+            GetBankData();
             int fromBankIndex = banks.FindIndex(b => b.BankId == fromBankId);
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == fromBranchId);
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == fromCustomerAccountId);
@@ -39,16 +65,18 @@ namespace BankApplicationServices.Services
                 Credit = creditAmount,
                 Balance = fromCustomerbalance,
                 TransactionDate = currentDate,
-                TransactionStatus = (TransactionStatus)transactionStatus,
+                TransactionStatus = (TransactionStatus)transactionStatus
             };
 
             transactions.Add(transaction);
+            banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions = transactions;
             _fileService.WriteFile(banks);
         }
 
         public void TransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
             decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, int transactionType, int transactionStatus)
         {
+            GetBankData();
             int fromBankIndex = banks.FindIndex(b => b.BankId == fromBankId);
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == fromBranchId);
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == fromCustomerAccountId);
@@ -107,10 +135,13 @@ namespace BankApplicationServices.Services
 
             fromCustomertransactions.Add(fromCustomertransaction);
             toCustomertransactions.Add(toCustomertransaction);
+            banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions = fromCustomertransactions;
+            banks[toBankIndex].Branches[toBranchIndex].Customers[toCustomerIndex].Transactions = toCustomertransactions;
             _fileService.WriteFile(banks);
         }
         public List<string> GetTransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId)
         {
+            GetBankData();
             int fromBankIndex = banks.FindIndex(b => b.BankId == fromBankId);
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == fromBranchId);
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == fromCustomerAccountId);
@@ -123,6 +154,7 @@ namespace BankApplicationServices.Services
         public Message RevertTransaction(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
           string toBranchId, string toCustomerAccountId)
         {
+            GetBankData();
             Customer? fromBranchCustomer = null;
             Transaction? fromCustomerTransaction = null;
 
@@ -182,17 +214,17 @@ namespace BankApplicationServices.Services
 
             if (toBranchCustomer != null && toCustomerTransaction != null && fromCustomerTransaction != null && fromBranchCustomer != null && toCustomerAccountId != null)
             {
-                decimal toCustomerAmount = toBranchCustomer.Amount;
+                decimal toCustomerAmount = toBranchCustomer.Balance;
                 if (toCustomerAmount > fromCustomerTransaction.Debit)
                 {
                     if (toCustomerTransaction.TransactionId == fromCustomerTransaction.TransactionId)
                     {
-                        fromBranchCustomer.Amount += toCustomerTransaction.Credit;
-                        toBranchCustomer.Amount -= toCustomerTransaction.Credit;
+                        fromBranchCustomer.Balance += toCustomerTransaction.Credit;
+                        toBranchCustomer.Balance -= toCustomerTransaction.Credit;
                         _fileService.WriteFile(banks);
-                        TransactionHistory(fromBankId, fromBranchId, fromCustomerAccountId, toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit, fromBranchCustomer.Amount, toBranchCustomer.Amount, 4, 1);
+                        TransactionHistory(fromBankId, fromBranchId, fromCustomerAccountId, toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit, fromBranchCustomer.Balance, toBranchCustomer.Balance, 4, 1);
                         message.Result = true;
-                        message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromBranchCustomer.Amount}";
+                        message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromBranchCustomer.Balance}";
                     }
                     else
                     {

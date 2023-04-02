@@ -4,6 +4,7 @@ namespace BankApplicationServices.IServices
 {
     public interface IManagerService
     {
+        Message IsManagersExist(string bankId, string branchId);
         Message AuthenticateManagerAccount(string bankId, string branchId, string branchManagerAccountId, string branchManagerPassword);
         Message DeleteManagerAccount(string bankId, string branchId, string accountId);
         Message OpenManagerAccount(string bankId, string branchId, string branchManagerName, string branchManagerPassword);

@@ -12,15 +12,24 @@ namespace BankApplicationServices.Services
     {
         private readonly IBranchService _branchService;
         private readonly IFileService _fileService;
+        Message message = new Message();
         List<Bank> banks;
         public TransactionChargeService(IFileService fileService,IBranchService branchService) {
             _fileService = fileService;
             _branchService = branchService;
-            banks = _fileService.GetData();
         }
-        Message message= new Message(); 
+
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
         public Message AddTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -31,9 +40,13 @@ namespace BankApplicationServices.Services
                     if (branch != null)
                     {
                         List<TransactionCharges> charges = branch.Charges;
+                        if(charges == null)
+                        {
+                            charges= new List<TransactionCharges>();
+                        }
                         if (charges.Count > 0)
-                        { 
-                            message.Result = false;
+                        {
+                            message.Result = true;
                             message.ResultMessage = "Charges Already Available";
                         }
                         else
@@ -44,15 +57,10 @@ namespace BankApplicationServices.Services
                                 RtgsOtherBank = rtgsOtherBank,
                                 ImpsSameBank = impsSameBank,
                                 ImpsOtherBank = impsOtherBank,
-
                             };
 
-                            if (branch.Charges == null)
-                            {
-                                branch.Charges = new List<TransactionCharges>();
-                            }
-
                             charges.Add(transactionCharges);
+                            branch.Charges = charges;
                             _fileService.WriteFile(banks);
                             message.Result = true;
                             message.ResultMessage = $"Transaction Charges RtgsSameBank:{rtgsSameBank}, RtgsOtherBank:{rtgsOtherBank}, ImpsSameBank:{impsSameBank}, ImpsOtherBank:{impsOtherBank} Added Successfully";
@@ -66,6 +74,7 @@ namespace BankApplicationServices.Services
 
         public Message UpdateTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -83,29 +92,29 @@ namespace BankApplicationServices.Services
                         if (branch.Charges.Count == 1)
                         {
                             TransactionCharges charges = branch.Charges[0];
-                            if(charges.RtgsOtherBank != 0)
+                            if(rtgsOtherBank != 101)
                             {
                                 charges.RtgsOtherBank = rtgsOtherBank;
                             }
 
-                            if (charges.RtgsSameBank != 0)
+                            if (rtgsSameBank != 101)
                             {
                                 charges.RtgsSameBank = rtgsSameBank;
                             }
 
-                            if (charges.ImpsOtherBank != 0)
+                            if (impsSameBank != 101)
+                            {
+                                charges.ImpsSameBank = impsSameBank;
+                            }
+
+                            if (impsOtherBank != 101)
                             {
                                 charges.ImpsOtherBank = impsOtherBank;
                             }
 
-                            if (charges.ImpsSameBank != 0)
-                            {
-                                charges.ImpsSameBank = impsOtherBank;
-                            }
-
                             _fileService.WriteFile(banks);
                             message.Result = true;
-                            message.ResultMessage = $"Transaction Charges RtgsSameBank:{rtgsSameBank}, RtgsOtherBank:{rtgsOtherBank}, ImpsSameBank:{impsSameBank}, ImpsOtherBank:{impsOtherBank} Added Successfully";
+                            message.ResultMessage = $"Transaction Charges RtgsSameBank:{charges.RtgsSameBank}, RtgsOtherBank:{charges.RtgsOtherBank}, ImpsSameBank:{charges.ImpsSameBank}, ImpsOtherBank:{charges.ImpsOtherBank} Updated Successfully";
                         }
                         else
                         {
@@ -121,6 +130,7 @@ namespace BankApplicationServices.Services
 
         public Message DeleteTransactionCharges(string bankId, string branchId)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {

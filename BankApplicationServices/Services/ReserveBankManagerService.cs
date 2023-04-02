@@ -10,14 +10,21 @@ namespace BankApplicationServices.Services
         public ReserveBankManagerService(IFileService fileService)
         {
             _fileService = fileService;
-            banks = _fileService.GetData();
         }
         public static string reserveBankManagerName = "TECHNOVERT";
         public static string reserveBankManagerpassword = "Techno123@";
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
         Message message = new Message();
         public Message AuthenticateReserveBankManager(string userName, string userPassword)
         {
-
+            GetBankData();
             if (userName.Equals(reserveBankManagerName) && userPassword.Equals(reserveBankManagerpassword))
             {
                 message.Result = true;

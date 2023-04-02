@@ -11,7 +11,7 @@ namespace BankApplicationModels
 {
     public class Customer : HeadManager
     {
-        public decimal Amount { get; set; }
+        public decimal Balance { get; set; }
 
         [RegularExpression("^\\d{10}$")]
         public string PhoneNumber { get; set; }
@@ -27,7 +27,7 @@ namespace BankApplicationModels
 
         public override string ToString()
         {
-            return $"\nAccountID: {AccountId}  Name:{Name}  Avl.Bal:{Amount}  PhoneNumber:{PhoneNumber}\nEmailId:{EmailId}  AccountType:{AccountType}  Address:{Address}  DateOfBirth:{DateOfBirth}\nGender:{Gender}  PassbookIssueDate:{PassbookIssueDate}\n";
+            return $"\nAccountID: {AccountId}  Name:{Name}  Avl.Bal:{Balance}  PhoneNumber:{PhoneNumber}\nEmailId:{EmailId}  AccountType:{AccountType}  Address:{Address}  DateOfBirth:{DateOfBirth}\nGender:{Gender}  PassbookIssueDate:{PassbookIssueDate}\n";
         }
     }
 }

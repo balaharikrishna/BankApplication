@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -8,19 +9,61 @@ namespace BankApplicationServices.Services
         private readonly IFileService _fileService;
         private readonly IBranchService _branchService;
         private readonly IEncryptionService _encryptionService;
+        Message message = new Message();
         List<Bank> banks;
         public StaffService(IFileService fileService, IBranchService branchService, IEncryptionService encryptionService)
         {
             _fileService = fileService;
             _branchService = branchService;
             _encryptionService = encryptionService;
-            banks = _fileService.GetData();
         }
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
+        
 
-        Message message = new Message();
+        public Message IsStaffExist(string bankId, string branchId)
+        {
+            GetBankData();
+            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            if (message.Result)
+            {
+                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
+                if (bank != null)
+                {
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
+                    if (branch != null)
+                    {
+                        List<Staff> staffs = branch.Staffs; 
+                        if(staffs == null)
+                        {
+                            staffs = new List<Staff>();
+                            staffs.FindAll(s => s.IsActive == 1);
+                        }
+                        if (staffs != null && staffs.Count > 0)
+                        {
+                            message.Result = true;
+                            message.ResultMessage = "Staff Exist in Branch";
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = $"No Staff Available In The Branch:{branchId}";
+                        }
+                    }
+                }
+            }
+            return message;
+        }
         public Message AuthenticateStaffAccount(string bankId, string branchId,
            string staffAccountId, string staffAccountPassword)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -64,8 +107,9 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message OpenStaffAccount(string bankId, string branchId, string staffName, string staffPassword, ushort staffRole)
+        public Message OpenStaffAccount(string bankId, string branchId, string staffName, string staffPassword, StaffRole staffRole)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -98,6 +142,7 @@ namespace BankApplicationServices.Services
                         Salt = salt,
                         HashedPassword = hashedPassword,
                         AccountId = staffAccountId,
+                        Role = staffRole,
                         IsActive = 1
                     };
 
@@ -122,6 +167,7 @@ namespace BankApplicationServices.Services
 
         public Message IsAccountExist(string bankId, string branchId, string staffAccountId)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -161,6 +207,7 @@ namespace BankApplicationServices.Services
 
         public Message UpdateStaffAccount(string bankId, string branchId, string staffAccountId, string staffName, string staffPassword, ushort staffRole)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -226,6 +273,7 @@ namespace BankApplicationServices.Services
 
         public Message DeleteStaffAccount(string bankId, string branchId, string staffAccountId)
         {
+            GetBankData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -259,6 +307,7 @@ namespace BankApplicationServices.Services
 
         public string GetStaffDetails(string bankId, string branchId, string staffAccountId)
         {
+            GetBankData();
             message = IsAccountExist(bankId, branchId, staffAccountId);
             string staffDetails = string.Empty;
             if (message.Result)

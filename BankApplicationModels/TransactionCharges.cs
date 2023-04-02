@@ -15,7 +15,7 @@ namespace BankApplicationModels
         public ushort ImpsOtherBank { get; set; }
         public override string ToString()
         {
-            return $"RtgsSameBank:{RtgsSameBank}% && RtgsOtherBank:{RtgsOtherBank}%\nImpsSameBank:{ImpsSameBank}% && ImpsOtherBank:{ImpsOtherBank}%";
+            return $"TransactionCharges: RtgsSameBank:{RtgsSameBank}% , RtgsOtherBank:{RtgsOtherBank}% , ImpsSameBank:{ImpsSameBank}% , ImpsOtherBank:{ImpsOtherBank}%";
         }
     }
 

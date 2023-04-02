@@ -3,6 +3,7 @@ using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
+using Newtonsoft.Json;
 
 namespace BankApplication
 {
@@ -49,13 +50,13 @@ namespace BankApplication
                             Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                         }
 
-                        ushort staffRole = 0;
+                        StaffRole staffRole = 0;
                         bool isInvalidStaffRole = true;
                         while (isInvalidStaffRole)
                         {
                             Console.WriteLine("Enter Staff Role:");
 
-                            ushort.TryParse(Console.ReadLine(), out staffRole);
+                            StaffRole.TryParse(Console.ReadLine(), out staffRole);
                             if (staffRole == 0)
                             {
                                 Console.WriteLine("Please Enter as per the Above Staff Roles");
@@ -182,6 +183,9 @@ namespace BankApplication
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
+                            case2Pending = false;
+                            break;
                         }
                         else
                         {
@@ -227,82 +231,90 @@ namespace BankApplication
                     while (case4Pending)
                     {
                         string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            string passbookDetatils = _customerService.GetPassbook(managerBankId, managerBranchId, customerAccountId);
-                            Console.WriteLine("Passbook Details:");
-                            Console.WriteLine(passbookDetatils);
-
-                            bool invalidCustomerName = true;
-                            string customerName = string.Empty;
-                            while (invalidCustomerName)
+                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
+                            if (message.Result)
                             {
-                                Console.WriteLine("Update Customer Name");
-                                customerName = Console.ReadLine() ?? string.Empty;
-                                if (customerName != string.Empty)
+                                string passbookDetatils = _customerService.GetPassbook(managerBankId, managerBranchId, customerAccountId);
+                                Console.WriteLine("Passbook Details:");
+                                Console.WriteLine(passbookDetatils);
+
+                                bool invalidCustomerName = true;
+                                string customerName = string.Empty;
+                                while (invalidCustomerName)
                                 {
-                                    message = _validateInputs.ValidateNameFormat(customerName);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Customer Name");
+                                    customerName = Console.ReadLine() ?? string.Empty;
+                                    if (customerName != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidateNameFormat(customerName);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+
+                                            invalidCustomerName = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
-
                                         invalidCustomerName = false;
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidCustomerName = false;
-                                    break;
-                                }
-                            }
 
-                            bool invalidCustomerPassword = true;
-                            string customerPassword = string.Empty;
-                            while (invalidCustomerPassword)
-                            {
-                                Console.WriteLine("Update Customer Password");
-                                customerPassword = Console.ReadLine() ?? string.Empty;
-                                if (customerPassword != string.Empty)
+                                bool invalidCustomerPassword = true;
+                                string customerPassword = string.Empty;
+                                while (invalidCustomerPassword)
                                 {
-                                    message = _validateInputs.ValidatePasswordFormat(customerPassword);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Customer Password");
+                                    customerPassword = Console.ReadLine() ?? string.Empty;
+                                    if (customerPassword != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidatePasswordFormat(customerPassword);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerPassword = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
-
                                         invalidCustomerPassword = false;
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidCustomerPassword = false;
-                                    break;
-                                }
-                            }
 
-                            bool invalidCustomerPhoneNumber = true;
-                            string customerPhoneNumber = string.Empty;
-                            while (invalidCustomerPhoneNumber)
-                            {
-                                Console.WriteLine("Update Customer Phone Number");
-                                customerPhoneNumber = Console.ReadLine() ?? string.Empty;
-                                if (customerPhoneNumber != string.Empty)
+                                bool invalidCustomerPhoneNumber = true;
+                                string customerPhoneNumber = string.Empty;
+                                while (invalidCustomerPhoneNumber)
                                 {
-                                    message = _validateInputs.ValidatePhoneNumberFormat(customerPhoneNumber);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Customer Phone Number");
+                                    customerPhoneNumber = Console.ReadLine() ?? string.Empty;
+                                    if (customerPhoneNumber != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidatePhoneNumberFormat(customerPhoneNumber);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerPhoneNumber = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
@@ -310,26 +322,26 @@ namespace BankApplication
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidCustomerPhoneNumber = false;
-                                    break;
-                                }
-                            }
 
-                            bool invalidCustomerEmailId = true;
-                            string customerEmailId = string.Empty;
-                            while (invalidCustomerEmailId)
-                            {
-                                Console.WriteLine("Update Customer Email Id");
-                                customerEmailId = Console.ReadLine() ?? string.Empty;
-                                if (customerEmailId != string.Empty)
+                                bool invalidCustomerEmailId = true;
+                                string customerEmailId = string.Empty;
+                                while (invalidCustomerEmailId)
                                 {
-                                    message = _validateInputs.ValidateEmailIdFormat(customerEmailId);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Customer Email Id");
+                                    customerEmailId = Console.ReadLine() ?? string.Empty;
+                                    if (customerEmailId != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidateEmailIdFormat(customerEmailId);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerEmailId = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
@@ -337,30 +349,30 @@ namespace BankApplication
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidCustomerEmailId = false;
-                                    break;
-                                }
-                            }
 
-                            bool invalidCustomerAccountType = true;
-                            int customerAccountType = 0;
-                            while (invalidCustomerAccountType)
-                            {
-                                Console.WriteLine("Choose From Below Menu Options To Update");
-                                foreach (AccountType option in Enum.GetValues(typeof(AccountType)))
+                                bool invalidCustomerAccountType = true;
+                                int customerAccountType = 0;
+                                while (invalidCustomerAccountType)
                                 {
-                                    Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                }
-                                bool isValid = int.TryParse(Console.ReadLine(), out customerAccountType);
-                                if (isValid && customerAccountType != 0)
-                                {
-                                    message = _validateInputs.ValidateAccountTypeFormat(customerAccountType);
-                                    if (!message.Result)
+                                    Console.WriteLine("Choose From Below Menu Options To Update");
+                                    foreach (AccountType option in Enum.GetValues(typeof(AccountType)))
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                    }
+                                    bool isValid = int.TryParse(Console.ReadLine(), out customerAccountType);
+                                    if (isValid && customerAccountType != 0)
+                                    {
+                                        message = _validateInputs.ValidateAccountTypeFormat(customerAccountType);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerAccountType = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
@@ -368,26 +380,26 @@ namespace BankApplication
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidCustomerAccountType = false;
-                                    break;
-                                }
-                            }
 
-                            bool invalidCustomerAddress = true;
-                            string customerAddress = string.Empty;
-                            while (invalidCustomerAddress)
-                            {
-                                Console.WriteLine("Update Customer Address");
-                                customerAddress = Console.ReadLine() ?? string.Empty;
-                                if (customerAddress != string.Empty)
+                                bool invalidCustomerAddress = true;
+                                string customerAddress = string.Empty;
+                                while (invalidCustomerAddress)
                                 {
-                                    message = _validateInputs.ValidateAddressFormat(customerAddress);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Customer Address");
+                                    customerAddress = Console.ReadLine() ?? string.Empty;
+                                    if (customerAddress != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidateAddressFormat(customerAddress);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerAddress = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
@@ -395,58 +407,58 @@ namespace BankApplication
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidCustomerAddress = false;
-                                    break;
-                                }
-                            }
 
-                            bool invalidCustomerDob = true;
-                            string customerDOB = string.Empty;
-                            while (invalidCustomerDob)
-                            {
-                                Console.WriteLine("Update Customer Date Of Birth");
-                                customerDOB = Console.ReadLine() ?? string.Empty;
-                                if (customerDOB != string.Empty)
+                                bool invalidCustomerDob = true;
+                                string customerDOB = string.Empty;
+                                while (invalidCustomerDob)
                                 {
-                                    message = _validateInputs.ValidateDateOfBirthFormat(customerDOB);
-                                    if (message.Result == false)
+                                    Console.WriteLine("Update Customer Date Of Birth");
+                                    customerDOB = Console.ReadLine() ?? string.Empty;
+                                    if (customerDOB != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidateDateOfBirthFormat(customerDOB);
+                                        if (message.Result == false)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerDob = false;
+                                            break;
+                                        }
+
                                     }
                                     else
                                     {
                                         invalidCustomerDob = false;
                                         break;
                                     }
+                                }
 
-                                }
-                                else
+                                bool invalidCustomerGender = true;
+                                int customerGender = 0;
+                                while (invalidCustomerGender)
                                 {
-                                    invalidCustomerDob = false;
-                                    break;
-                                }
-                            }
-
-                            bool invalidCustomerGender = true;
-                            int customerGender = 0;
-                            while (invalidCustomerGender)
-                            {
-                                Console.WriteLine("Choose From Below Menu Options To Update");
-                                foreach (Gender option in Enum.GetValues(typeof(Gender)))
-                                {
-                                    Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                }
-                                bool isValid = int.TryParse(Console.ReadLine(), out customerGender);
-                                if (customerGender != 0)
-                                {
-                                    message = _validateInputs.ValidateGenderFormat(customerGender);
-                                    if (message.Result == false)
+                                    Console.WriteLine("Choose From Below Menu Options To Update");
+                                    foreach (Gender option in Enum.GetValues(typeof(Gender)))
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                    }
+                                    bool isValid = int.TryParse(Console.ReadLine(), out customerGender);
+                                    if (customerGender != 0)
+                                    {
+                                        message = _validateInputs.ValidateGenderFormat(customerGender);
+                                        if (message.Result == false)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+                                            invalidCustomerGender = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
@@ -454,20 +466,52 @@ namespace BankApplication
                                         break;
                                     }
                                 }
-                                else
+
+                                message = _customerService.UpdateCustomerAccount(managerBankId, managerBranchId, customerAccountId, customerName, customerPassword, customerPhoneNumber,
+                                    customerEmailId, customerAccountType, customerAddress, customerDOB, customerGender);
+                                if (message.Result)
                                 {
-                                    invalidCustomerGender = false;
+                                    Console.WriteLine(message.ResultMessage);
+                                    case4Pending = false;
                                     break;
                                 }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
+
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                continue;
                             }
 
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            case4Pending = false;
+                            break;
+                        }
+                    }
+                    break;
 
-                            message = _customerService.UpdateCustomerAccount(managerBankId, managerBranchId, customerAccountId, customerName, customerPassword, customerPhoneNumber,
-                                customerEmailId, customerAccountType, customerAddress, customerDOB, customerGender);
+                case 5://DeleteCustomerAccount
+                    bool case5Pending = true;
+                    while (case5Pending)
+                    {
+
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
+                        if (message.Result)
+                        {
+                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
+                            message = _customerService.DeleteCustomerAccount(managerBankId, managerBranchId, customerAccountId);
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case4Pending = false;
+                                case5Pending = false;
                                 break;
                             }
                             else
@@ -479,29 +523,10 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
-                        }
-
-                    }
-                    break;
-
-                case 5://DeleteCustomerAccount
-                    bool case5Pending = true;
-                    while (case5Pending)
-                    {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.DeleteCustomerAccount(managerBankId, managerBranchId, customerAccountId);
-                        if (message.Result)
-                        {
-                            Console.WriteLine(message.ResultMessage);
                             case5Pending = false;
                             break;
                         }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            continue;
-                        }
+
                     }
                     break;
 
@@ -509,18 +534,40 @@ namespace BankApplication
                     bool case6Pending = true;
                     while (case6Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
+
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            List<string> transactions = _transactionService.GetTransactionHistory(managerBankId, managerBranchId, customerAccountId);
-                            foreach (string transaction in transactions)
+                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
+                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
+                            if (message.Result)
                             {
-                                Console.WriteLine(transaction);
-                                Console.WriteLine();
+                                message = _transactionService.IsTransactionsAvailable(managerBankId, managerBranchId, customerAccountId);
+                                if (message.Result)
+                                {
+                                    List<string> transactions = _transactionService.GetTransactionHistory(managerBankId, managerBranchId, customerAccountId);
+                                    foreach (string transaction in transactions)
+                                    {
+                                        Console.WriteLine(transaction);
+                                        Console.WriteLine();
+                                    }
+                                    case6Pending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    case6Pending = false;
+                                    break;
+                                }
+
                             }
-                            case6Pending = false;
-                            break;
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                case6Pending = false;
+                                break;
+                            }
                         }
                         else
                         {
@@ -536,31 +583,53 @@ namespace BankApplication
                     bool case7Pending = true;
                     while (case7Pending)
                     {
-                        string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
 
-                        message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
-
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
-                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+                            string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
+                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
 
-                            message = _customerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
                             if (message.Result)
                             {
-                                string transactionId = _commonHelperService.ValidateTransactionIdFormat();
-                                message = _transactionService.RevertTransaction(transactionId, managerBankId, managerBranchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                message = _transactionService.IsTransactionsAvailable(managerBankId, managerBranchId, fromCustomerAccountId);
+                                if (message.Result)
+                                {
+                                    string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                                    string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                    string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+
+                                    message = _customerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                    if (message.Result)
+                                    {
+                                        string transactionId = _commonHelperService.ValidateTransactionIdFormat();
+                                        message = _transactionService.RevertTransaction(transactionId, managerBankId, managerBranchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        Console.WriteLine(message.ResultMessage);
+                                        case5Pending = false;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    case7Pending = false;
+                                    break;
+                                }
+
+                            }
+                            else
+                            {
                                 Console.WriteLine(message.ResultMessage);
-                                case5Pending = false;
-                                break;
+                                continue;
                             }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
+                            case7Pending = false;
+                            break;
                         }
+
                     }
                     break;
 
@@ -568,21 +637,31 @@ namespace BankApplication
                     bool case8Pending = true;
                     while (case8Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            message = _customerService.CheckAccountBalance(managerBankId, managerBranchId, customerAccountId);
+                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
+                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
                             if (message.Result)
                             {
-                                Console.WriteLine(message.ResultMessage);
-                                case8Pending = false;
-                                break;
+                                message = _customerService.CheckAccountBalance(managerBankId, managerBranchId, customerAccountId);
+                                if (message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    case8Pending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
                             }
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                continue;
+                                case8Pending = false;
+                                break;
                             }
                         }
                         else
@@ -600,14 +679,17 @@ namespace BankApplication
                     while (case9Pending)
                     {
                         message = _bankService.GetExchangeRates(managerBankId);
-                        Dictionary<string, decimal> exchangeRates = message.Data.Cast<KeyValuePair<string, decimal>>().ToDictionary(x => x.Key, x => x.Value);
+
+                        Dictionary<string, decimal>? exchangeRates = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(message.Data);
+
                         if (exchangeRates != null)
                         {
                             Console.WriteLine("Available Exchange Rates:");
                             foreach (KeyValuePair<string, decimal> rates in exchangeRates)
                             {
-                                Console.WriteLine($"{rates.Key}:{rates.Value}Rupees");
+                                Console.WriteLine($"{rates.Key} : {rates.Value} Rupees");
                             }
+                            Console.WriteLine();
                             case9Pending = false;
                             break;
                         }
@@ -642,20 +724,40 @@ namespace BankApplication
                     bool case11Pending = true;
                     while (case11Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                        decimal depositAmount = _commonHelperService.ValidateAmount();
-                        string currencyCode = _commonHelperService.ValidateCurrency(managerBankId, _currencyService, _validateInputs);
-                        message = _customerService.DepositAmount(managerBankId, managerBranchId, customerAccountId, depositAmount, currencyCode);
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            Console.WriteLine(message.ResultMessage);
-                            case11Pending = false;
-                            break;
+                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
+                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
+                            if (message.Result)
+                            {
+                                decimal depositAmount = _commonHelperService.ValidateAmount();
+                                string currencyCode = _commonHelperService.ValidateCurrency(managerBankId, _currencyService, _validateInputs);
+                                message = _customerService.DepositAmount(managerBankId, managerBranchId, customerAccountId, depositAmount, currencyCode);
+                                if (message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    case11Pending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                case8Pending = false;
+                                break;
+                            }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
+                            case8Pending = false;
+                            break;
                         }
                     }
                     break;
@@ -664,51 +766,71 @@ namespace BankApplication
                     bool case12Pending = true;
                     while (case12Pending)
                     {
-                        string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-
-                        int transferMethod = _commonHelperService.ValidateTransferMethod();
-                        decimal amount = _commonHelperService.ValidateAmount();
-                        message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
-
+                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            bool isInvalidToCustomer = true;
-                            while (isInvalidToCustomer)
+                            string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
+                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
+                            if (message.Result)
                             {
-                                string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
-                                string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                                string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
-                                message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                int transferMethod = _commonHelperService.ValidateTransferMethod();
+                                decimal amount = _commonHelperService.ValidateAmount();
+                                message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
+
                                 if (message.Result)
                                 {
-                                    message = _customerService.TransferAmount(managerBankId, managerBranchId, fromCustomerAccountId,
-                                        toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
-                                    if (message.Result)
+                                    bool isInvalidToCustomer = true;
+                                    while (isInvalidToCustomer)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        isInvalidToCustomer = false;
-                                        case12Pending = false;
-                                        break;
+                                        string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                                        string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                        string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+                                        message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        if (message.Result)
+                                        {
+                                            message = _customerService.TransferAmount(managerBankId, managerBranchId, fromCustomerAccountId,
+                                                toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
+                                            if (message.Result)
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                isInvalidToCustomer = false;
+                                                case12Pending = false;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(message.Result);
+                                            continue;
+                                        }
                                     }
-                                    else
-                                    {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
-                                    }
+
                                 }
                                 else
                                 {
-                                    Console.WriteLine(message.Result);
+                                    Console.WriteLine(message.ResultMessage);
                                     continue;
                                 }
                             }
-
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                case8Pending = false;
+                                break;
+                            }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
+                            case12Pending = false;
+                            break;
                         }
+
                     }
                     break;
 
@@ -716,95 +838,130 @@ namespace BankApplication
                     bool case13Pending = true;
                     while (case13Pending)
                     {
-                        Console.WriteLine("Enter RtgsSameBank Charge in %");
-                        bool rtgsSameBankPending = true;
-                        ushort rtgsSameBank = 0;
-
-                        while (rtgsSameBankPending)
-                        {
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsSameBank);
-
-                            if (isValidValue && rtgsSameBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {rtgsSameBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                rtgsSameBankPending = false;
-                                break;
-                            }
-                        }
-
-                        bool rtgsOtherBankPending = true;
-                        ushort rtgsOtherBank = 0;
-                        while (rtgsOtherBankPending)
-                        {
-                            Console.WriteLine("Enter RtgsOtherBank Charge in %");
-
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsOtherBank);
-                            if (isValidValue && rtgsOtherBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {rtgsOtherBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                rtgsOtherBankPending = false;
-                                break;
-                            }
-                        }
-
-                        bool impsSameBankPending = true;
-                        ushort impsSameBank = 0;
-                        while (impsSameBankPending)
-                        {
-                            Console.WriteLine("Enter ImpsSameBank Charge in %");
-
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsSameBank);
-
-                            if (isValidValue && impsSameBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {impsSameBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                impsSameBankPending = false;
-                                break;
-                            }
-                        }
-
-                        bool impsOtherBankPending = true;
-                        ushort impsOtherBank = 0;
-                        while (impsOtherBankPending)
-                        {
-                            Console.WriteLine("Enter ImpsOtherBank Charge in %");
-
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsOtherBank);
-
-                            if (isValidValue && impsOtherBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {impsOtherBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                impsOtherBankPending = false;
-                                break;
-                            }
-                        }
-
-                        message = _transactionChargeService.UpdateTransactionCharges(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank);
+                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine("Enter RtgsSameBank Charge in %");
+                            bool rtgsSameBankPending = true;
+                            ushort rtgsSameBank = 0;
 
+                            while (rtgsSameBankPending)
+                            {
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsSameBank);
+
+                                if (isValidValue && rtgsSameBank >= 100 )
+                                {
+                                    Console.WriteLine($"Entered {rtgsSameBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else if (!isValidValue)
+                                {
+                                    rtgsSameBank = 101;
+                                    rtgsSameBankPending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    rtgsSameBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            bool rtgsOtherBankPending = true;
+                            ushort rtgsOtherBank =0;
+                            while (rtgsOtherBankPending)
+                            {
+                                Console.WriteLine("Enter RtgsOtherBank Charge in %");
+
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsOtherBank);
+                                if (!isValidValue && rtgsOtherBank >= 100)
+                                {
+                                    Console.WriteLine($"Entered {rtgsOtherBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else if (!isValidValue)
+                                {
+                                    rtgsOtherBank = 101;
+                                    rtgsOtherBankPending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    rtgsOtherBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            bool impsSameBankPending = true;
+                            ushort impsSameBank = 0;
+                            while (impsSameBankPending)
+                            {
+                                Console.WriteLine("Enter ImpsSameBank Charge in %");
+
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsSameBank);
+
+                                if (!isValidValue && impsSameBank >= 100 )
+                                {
+                                    Console.WriteLine($"Entered {impsSameBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else if (!isValidValue)
+                                {
+                                    impsSameBank = 101;
+                                    impsSameBankPending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    impsSameBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            bool impsOtherBankPending = true;
+                            ushort impsOtherBank = 0;
+                            while (impsOtherBankPending)
+                            {
+                                Console.WriteLine("Enter ImpsOtherBank Charge in %");
+
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsOtherBank);
+
+                                if (!isValidValue && impsOtherBank >= 100)
+                                {
+                                    Console.WriteLine($"Entered {impsOtherBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else if (!isValidValue)
+                                {
+                                    impsOtherBank = 101;
+                                    impsOtherBankPending = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    impsOtherBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            message = _transactionChargeService.UpdateTransactionCharges(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank);
+                            if (message.Result)
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                case13Pending = false;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                continue;
+                            }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
+                            case13Pending = false;
+                            break;
                         }
 
                     }
@@ -813,114 +970,163 @@ namespace BankApplication
                     bool case14Pending = true;
                     while (case14Pending)
                     {
-                        message = _transactionChargeService.DeleteTransactionCharges(managerBankId, managerBranchId);
+                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            Console.WriteLine(message.ResultMessage);
+                            message = _transactionChargeService.DeleteTransactionCharges(managerBankId, managerBranchId);
+                            if (message.Result)
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                            }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
+                            case14Pending = false;
+                            break;
                         }
-                        break;
                     }
                     break;
+
                 case 15: //UpdateStaffAccount
                     bool case15Pending = true;
                     while (case15Pending)
                     {
-                        string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
-                        message = _staffService.IsAccountExist(managerBankId, managerBranchId, staffAccountId);
+                        message = _staffService.IsStaffExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            string staffDetatils = _staffService.GetStaffDetails(managerBankId, managerBranchId, staffAccountId);
-                            Console.WriteLine("Staff Details:");
-                            Console.WriteLine(staffDetatils);
-
-                            string staffName = string.Empty;
-                            bool invalidStaffName = true;
-                            while (invalidStaffName)
+                            string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
+                            message = _staffService.IsAccountExist(managerBankId, managerBranchId, staffAccountId);
+                            if (message.Result)
                             {
-                                Console.WriteLine("Update Staff Name");
-                                staffName = Console.ReadLine() ?? string.Empty;
-                                if (staffName != string.Empty)
+                                string staffDetatils = _staffService.GetStaffDetails(managerBankId, managerBranchId, staffAccountId);
+                                Console.WriteLine("Staff Details:");
+                                Console.WriteLine(staffDetatils);
+
+                                string staffName = string.Empty;
+                                bool invalidStaffName = true;
+                                while (invalidStaffName)
                                 {
-                                    message = _validateInputs.ValidateNameFormat(staffName);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Staff Name");
+                                    staffName = Console.ReadLine() ?? string.Empty;
+                                    if (staffName != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidateNameFormat(staffName);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+
+                                            invalidStaffName = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
-
                                         invalidStaffName = false;
                                         break;
                                     }
                                 }
-                                else
-                                {
-                                    invalidStaffName = false;
-                                    break;
-                                }
-                            }
 
-                            string staffPassword = string.Empty;
-                            bool invalidStaffPassword = true;
-                            while (invalidStaffPassword)
-                            {
-                                Console.WriteLine("Update Staff Password");
-                                staffPassword = Console.ReadLine() ?? string.Empty;
-                                if (staffPassword != string.Empty)
+                                string staffPassword = string.Empty;
+                                bool invalidStaffPassword = true;
+                                while (invalidStaffPassword)
                                 {
-                                    message = _validateInputs.ValidatePasswordFormat(staffPassword);
-                                    if (!message.Result)
+                                    Console.WriteLine("Update Staff Password");
+                                    staffPassword = Console.ReadLine() ?? string.Empty;
+                                    if (staffPassword != string.Empty)
                                     {
-                                        Console.WriteLine(message.ResultMessage);
-                                        continue;
+                                        message = _validateInputs.ValidatePasswordFormat(staffPassword);
+                                        if (!message.Result)
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                        else
+                                        {
+
+                                            invalidStaffPassword = false;
+                                            break;
+                                        }
                                     }
                                     else
                                     {
-
                                         invalidStaffPassword = false;
                                         break;
                                     }
                                 }
-                                else
+
+                                bool invalidStaffRole = true;
+                                ushort staffRole = 0;
+                                while (invalidStaffRole)
                                 {
-                                    invalidStaffPassword = false;
+                                    Console.WriteLine("Choose From Below Menu Options To Update");
+                                    foreach (AccountType option in Enum.GetValues(typeof(StaffRole)))
+                                    {
+                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                    }
+                                    bool isValid = ushort.TryParse(Console.ReadLine(), out staffRole);
+                                    if (!isValid || staffRole != 0 || staffRole > 5)
+                                    {
+                                        Console.WriteLine("please Enter a Valid Option");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        invalidStaffRole = false;
+                                        break;
+                                    }
+                                }
+
+                                message = _staffService.UpdateStaffAccount(managerBankId, managerBranchId, staffAccountId, staffName, staffPassword, staffRole);
+
+                                if (message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    case15Pending = false;
                                     break;
                                 }
-                            }
-
-                            bool invalidStaffRole = true;
-                            ushort staffRole = 0;
-                            while (invalidStaffRole)
-                            {
-                                Console.WriteLine("Choose From Below Menu Options To Update");
-                                foreach (AccountType option in Enum.GetValues(typeof(StaffRole)))
+                                else
                                 {
-                                    Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                }
-                                bool isValid = ushort.TryParse(Console.ReadLine(), out staffRole);
-                                if (!isValid || staffRole != 0 || staffRole > 5)
-                                {
-                                    Console.WriteLine("please Enter a Valid Option");
+                                    Console.WriteLine(message.ResultMessage);
                                     continue;
                                 }
-                                else
-                                {
-                                    invalidStaffRole = false;
-                                    break;
-                                }
                             }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            case15Pending = false;
+                            break;
+                        }
+                    }
+                    break;
+                case 16: //DeleteStaffAccount
+                    bool case16Pending = true;
+                    while (case16Pending)
+                    {
+                        message = _staffService.IsStaffExist(managerBankId, managerBranchId);
+                        if (message.Result)
+                        {
+                            string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
 
-                            message = _staffService.UpdateStaffAccount(managerBankId, managerBranchId, staffAccountId, staffName, staffPassword, staffRole);
-                                
+                            message = _staffService.DeleteStaffAccount(managerBankId, managerBranchId, staffAccountId);
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case15Pending = false;
+                                case1Pending = false;
                                 break;
                             }
                             else
@@ -932,28 +1138,8 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
-                        }
-
-                    }
-                    break;
-                case 16: //DeleteStaffAccount
-                    bool case16Pending = true;
-                    while (case16Pending)
-                    {
-                        string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
-                       
-                        message = _staffService.DeleteStaffAccount(managerBankId, managerBranchId, staffAccountId);
-                        if (message.Result)
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            case1Pending = false;
+                            case16Pending = false;
                             break;
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            continue;
                         }
                     };
                     break;

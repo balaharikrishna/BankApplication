@@ -12,7 +12,5 @@ namespace BankApplicationModels
         public List<Branch> Branches { get; set; }
         public List<HeadManager> HeadManagers { get; set; }
         public List<Currency> Currency { get; set; }
-
-
     }
 }

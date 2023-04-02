@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using Newtonsoft.Json;
 using BankApplicationServices.IServices;
 
 
@@ -8,15 +9,22 @@ namespace BankApplicationServices.Services
     {
         private readonly IFileService _fileService;
         List<Bank> banks;
-        Message message = new Message();
         public BankService(IFileService fileService)
         {
             _fileService = fileService;
-             banks = _fileService.GetData();
         }
-
+        public List<Bank> GetBankData()
+        {
+            if (_fileService.GetData() != null)
+            {
+                banks = _fileService.GetData();
+            }
+            return banks;
+        }
+        Message message = new Message();
         public Message AuthenticateBankId(string bankId)
         {
+            GetBankData();
             if (banks.Count > 0)
             {
                 bool bank = banks.Any(b => b.BankId == bankId && b.IsActive == 1);
@@ -41,6 +49,7 @@ namespace BankApplicationServices.Services
         }
         public Message CreateBank(string bankName)
         {
+            GetBankData();
             bool isBankAlreadyRegistered = false;
 
             isBankAlreadyRegistered = banks.Any(bank => bank.BankName == bankName);
@@ -73,6 +82,7 @@ namespace BankApplicationServices.Services
 
         public Message UpdateBank(string bankId, string bankName)
         {
+            GetBankData();
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -96,6 +106,7 @@ namespace BankApplicationServices.Services
 
         public Message DeleteBank(string bankId)
         {
+            GetBankData();
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -109,19 +120,20 @@ namespace BankApplicationServices.Services
 
         public Message GetExchangeRates(string bankId)
         {
+            GetBankData();
             Dictionary<string, decimal> exchangeRates = new Dictionary<string, decimal>();
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bank => bank.BankId == bankId);
+                int bankIndex = banks.FindIndex(bank => bank.BankId == bankId );
                 if (bankIndex > -1)
                 {
-                    List<Currency> rates = banks[bankIndex].Currency;
+                    List<Currency> rates = banks[bankIndex].Currency.FindAll(cu=>cu.IsDeleted == 0);
                     for (int i = 0; i < rates.Count; i++)
                     {
                         exchangeRates.Add(rates[i].CurrencyCode, rates[i].ExchangeRate);
-                        message.Data = exchangeRates.ToString();
                     }
+                    message.Data = JsonConvert.SerializeObject(exchangeRates);
                 }
                 else
                 {

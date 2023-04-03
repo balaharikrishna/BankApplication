@@ -13,20 +13,20 @@ internal class MainPage
 
     private static void Main(string[] args)
     {
-        IBankService? bankService = services.GetService<IBankService>();
-        IBranchService? branchService = services.GetService<IBranchService>();
-        ICustomerService? customerService = services.GetService<ICustomerService>();
-        IHeadManagerService? headManagerService = services.GetService<IHeadManagerService>();
-        IManagerService? managerService = services.GetService<IManagerService>();
-        IReserveBankManagerService? reserveBankManagerService = services.GetService<IReserveBankManagerService>();
-        IStaffService? staffService = services.GetService<IStaffService>();
-        ICommonHelperService? commonHelperService = services.GetService<ICommonHelperService>();
-        ICustomerHelperService? customerHelperService = services.GetService<ICustomerHelperService>();
-        IHeadManagerHelperService? headManagerHelperService = services.GetService<IHeadManagerHelperService>();
-        IManagerHelperService? managerHelperService = services.GetService<IManagerHelperService>();
-        IReserveBankManagerHelperService? reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>();
-        IStaffHelperService? staffHelperService = services.GetService<IStaffHelperService>();
-        IValidateInputs? validateInputs = services.GetService<IValidateInputs>();
+        IBankService bankService = services.GetService<IBankService>()!;
+        IBranchService branchService = services.GetService<IBranchService>()!;
+        ICustomerService customerService = services.GetService<ICustomerService>()!;
+        IHeadManagerService headManagerService = services.GetService<IHeadManagerService>()!;
+        IManagerService managerService = services.GetService<IManagerService>()!;
+        IReserveBankManagerService reserveBankManagerService = services.GetService<IReserveBankManagerService>()!;
+        IStaffService staffService = services.GetService<IStaffService>()!;
+        ICommonHelperService commonHelperService = services.GetService<ICommonHelperService>()!;
+        ICustomerHelperService customerHelperService = services.GetService<ICustomerHelperService>()!;
+        IHeadManagerHelperService headManagerHelperService = services.GetService<IHeadManagerHelperService>()!;
+        IManagerHelperService managerHelperService = services.GetService<IManagerHelperService>()!;
+        IReserveBankManagerHelperService reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>()!;
+        IStaffHelperService staffHelperService = services.GetService<IStaffHelperService>()!;
+        IValidateInputs validateInputs = services.GetService<IValidateInputs>()!;
         bool pendingTask = true;
         Message message = new Message();
         while (pendingTask)
@@ -185,7 +185,7 @@ internal class MainPage
                                                         if (message.Result)
                                                         {
                                                             string staffPassword = commonHelperService.GetPassword(Miscellaneous.staff, validateInputs);
-                                                            message = customerService.AuthenticateCustomerAccount(staffBankId, staffBranchId, staffAccountId, staffPassword);
+                                                            message = staffService.AuthenticateStaffAccount(staffBankId, staffBranchId, staffAccountId, staffPassword);
 
                                                             if (message.Result)
                                                             {
@@ -314,8 +314,8 @@ internal class MainPage
                                                                     if (selectedOption == 0)
                                                                     {
                                                                         isManagerActionsPending = false;
-                                                                        customerloginPending = false;
                                                                         inValidAccountId = false;
+                                                                        managerloginPending = false;
                                                                         inValidBranchId = false;
                                                                         inValidBankId = false;
                                                                         break;

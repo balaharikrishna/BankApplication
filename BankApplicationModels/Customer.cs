@@ -24,7 +24,6 @@ namespace BankApplicationModels
         public Gender Gender { get; set; }
         public DateTime PassbookIssueDate { get; set; }
         public List<Transaction> Transactions { get; set; }
-
         public override string ToString()
         {
             return $"\nAccountID: {AccountId}  Name:{Name}  Avl.Bal:{Balance}  PhoneNumber:{PhoneNumber}\nEmailId:{EmailId}  AccountType:{AccountType}  Address:{Address}  DateOfBirth:{DateOfBirth}\nGender:{Gender}  PassbookIssueDate:{PassbookIssueDate}\n";

@@ -152,7 +152,6 @@ namespace BankApplication
                                 }
                             }
                             break;
-
                     }
                 }
             }
@@ -166,7 +165,7 @@ namespace BankApplication
             while (isInvalidBank)
             {
                 Console.WriteLine($"Please Enter {position} BankId:");
-                bankId = Console.ReadLine().ToUpper() ?? string.Empty;
+                bankId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidbankId = _validateInputs.ValidateBankIdFormat(bankId);
                 if (isValidbankId.Result)
                 {
@@ -200,7 +199,7 @@ namespace BankApplication
             {
 
                 Console.WriteLine($"Please Enter {position} BranchId:");
-                branchId = Console.ReadLine() ?? string.Empty.ToUpper();
+                branchId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidBranchId = _validateInputs.ValidateBranchIdFormat(branchId);
                 if (isValidBranchId.Result)
                 {
@@ -215,8 +214,6 @@ namespace BankApplication
                         Console.WriteLine(message.ResultMessage);
                         continue;
                     }
-
-
                 }
                 else
                 {
@@ -236,7 +233,7 @@ namespace BankApplication
             while (isAccountIdPending)
             {
                 Console.WriteLine($"Enter {position} AccountId:");
-                accountId = Console.ReadLine().ToUpper() ?? string.Empty;
+                accountId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidAccount = _validateInputs.ValidateAccountIdFormat(accountId);
                 if (isValidAccount.Result)
                 {
@@ -260,7 +257,7 @@ namespace BankApplication
             while (isInvalidName)
             {
                 Console.WriteLine($"Enter {position} Name:");
-                name = Console.ReadLine().Replace(" ","").ToUpper() ?? string.Empty;
+                name = Console.ReadLine()?.ToUpper().Replace(" ","").ToUpper() ?? string.Empty;
                 Message isValidName = _validateInputs.ValidateNameFormat(name);
                 if (isValidName.Result)
                 {
@@ -291,7 +288,6 @@ namespace BankApplication
                 {
                     isInvalidPassword = false;
                     break;
-
                 }
                 else
                 {
@@ -337,7 +333,7 @@ namespace BankApplication
             while (isInvalidEmail)
             {
                 Console.WriteLine($"Enter {position} Email Id:");
-                emailId = Console.ReadLine().ToUpper() ?? string.Empty;
+                emailId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidEmail = _validateInputs.ValidateEmailIdFormat(emailId);
                 if (isValidEmail.Result)
                 {
@@ -392,7 +388,7 @@ namespace BankApplication
             while (isInvalidAddress)
             {
                 Console.WriteLine($"Enter {position} Address:");
-                address = Console.ReadLine().ToUpper() ?? string.Empty;
+                address = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidAddress = _validateInputs.ValidateAddressFormat(address);
                 if (isValidAddress.Result)
                 {
@@ -529,7 +525,7 @@ namespace BankApplication
             while (isInvalidCurrency)
             {
                 Console.WriteLine("Enter the Currency Name Ex:USD,KWD.");
-                string currencyCode = Console.ReadLine().ToUpper() ?? string.Empty;
+                string currencyCode = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
 
                 if (message.Result)
@@ -563,9 +559,9 @@ namespace BankApplication
             while (isInvalidTransactionId)
             {
                 Console.WriteLine("Enter the Transaction Id");
-                string transactionId = Console.ReadLine().ToUpper() ?? string.Empty;
+                string transactionId = Console.ReadLine()?.ToUpper() ?? string.Empty;
 
-                if (transactionId.Length == 19 && transactionId.Contains("TXN"))
+                if (transactionId.Length == 23 && transactionId.Contains("TXN"))
                 {
                     isInvalidTransactionId = false;
                     result = transactionId;

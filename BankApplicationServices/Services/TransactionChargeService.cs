@@ -1,10 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationServices.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BankApplicationServices.Services
 {
@@ -12,39 +8,35 @@ namespace BankApplicationServices.Services
     {
         private readonly IBranchService _branchService;
         private readonly IFileService _fileService;
-        Message message = new Message();
+        
         List<Bank> banks;
         public TransactionChargeService(IFileService fileService,IBranchService branchService) {
             _fileService = fileService;
             _branchService = branchService;
+            banks = new List<Bank>();
         }
 
-        public List<Bank> GetBankData()
-        {
-            if (_fileService.GetData() != null)
-            {
-                banks = _fileService.GetData();
-            }
-            return banks;
-        }
         public Message AddTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
-            GetBankData();
+            Message message = new Message();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<TransactionCharges> charges = branch.Charges;
-                        if(charges == null)
+                        if(charges is null)
                         {
                             charges= new List<TransactionCharges>();
                         }
-                        if (charges.Count > 0)
+                       
+                        var chargesList = charges.FindAll(c => c.IsDeleted == 1);
+                        if (chargesList.Count == 1)
                         {
                             message.Result = true;
                             message.ResultMessage = "Charges Already Available";
@@ -57,13 +49,14 @@ namespace BankApplicationServices.Services
                                 RtgsOtherBank = rtgsOtherBank,
                                 ImpsSameBank = impsSameBank,
                                 ImpsOtherBank = impsOtherBank,
+                                IsDeleted = 0
                             };
 
                             charges.Add(transactionCharges);
                             branch.Charges = charges;
                             _fileService.WriteFile(banks);
                             message.Result = true;
-                            message.ResultMessage = $"Transaction Charges RtgsSameBank:{rtgsSameBank}, RtgsOtherBank:{rtgsOtherBank}, ImpsSameBank:{impsSameBank}, ImpsOtherBank:{impsOtherBank} Added Successfully";
+                            message.ResultMessage = $"Transaction Charges Added Successfully";
                         }
 
                     }
@@ -91,30 +84,30 @@ namespace BankApplicationServices.Services
                        
                         if (branch.Charges.Count == 1)
                         {
-                            TransactionCharges charges = branch.Charges[0];
-                            if(rtgsOtherBank != 101)
+                            var charges = branch.Charges.Find(c=>c.IsDeleted == 0);
+                            if(rtgsOtherBank != 101 && charges is null)
                             {
                                 charges.RtgsOtherBank = rtgsOtherBank;
                             }
 
-                            if (rtgsSameBank != 101)
+                            if (rtgsSameBank != 101 && charges != null)
                             {
                                 charges.RtgsSameBank = rtgsSameBank;
                             }
 
-                            if (impsSameBank != 101)
+                            if (impsSameBank != 101 && charges != null)
                             {
                                 charges.ImpsSameBank = impsSameBank;
                             }
 
-                            if (impsOtherBank != 101)
+                            if (impsOtherBank != 101 && charges != null )
                             {
                                 charges.ImpsOtherBank = impsOtherBank;
                             }
 
                             _fileService.WriteFile(banks);
                             message.Result = true;
-                            message.ResultMessage = $"Transaction Charges RtgsSameBank:{charges.RtgsSameBank}, RtgsOtherBank:{charges.RtgsOtherBank}, ImpsSameBank:{charges.ImpsSameBank}, ImpsOtherBank:{charges.ImpsOtherBank} Updated Successfully";
+                            message.ResultMessage = "Transaction Charges Updated Successfully";
                         }
                         else
                         {
@@ -147,7 +140,11 @@ namespace BankApplicationServices.Services
 
                         if (branch.Charges.Count == 1)
                         {
-                            branch.Charges.RemoveAt(0);
+                            var  transactionCharges = branch.Charges.Find(c => c.IsDeleted == 0);
+                            if(transactionCharges != null)
+                            {
+                                transactionCharges.IsDeleted = 1;
+                            }
                             _fileService.WriteFile(banks);
                             message.Result = true;
                             message.ResultMessage = "Charges Deleted Successfully";

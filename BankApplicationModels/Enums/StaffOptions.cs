@@ -8,15 +8,15 @@ namespace BankApplicationModels.Enums
 {
     public enum StaffOptions
     {
-        OpenCustomerAccount = 1, //wokring
-        UpdateCustomerAccount = 2, // wokring
-        DeleteCustomerAccount = 3,  //wokring
-        DisplayCustomerTransactionHistory = 4,  //working fne 
-        RevertCustomerTransaction = 5,   //working fine
-        CheckCustomerAccountBalance = 6,  //working
-        GetExchangeRates = 7, //working
-        GetTransactionCharges = 8, //working
-        DepositAmountInCustomerAccount = 9, //working
-        TransferAmount = 10 //working
+        OpenCustomerAccount = 1, 
+        UpdateCustomerAccount = 2, 
+        DeleteCustomerAccount = 3, 
+        DisplayCustomerTransactionHistory = 4,  
+        RevertCustomerTransaction = 5,   
+        CheckCustomerAccountBalance = 6,  
+        GetExchangeRates = 7, 
+        GetTransactionCharges = 8, 
+        DepositAmountInCustomerAccount = 9, 
+        TransferAmount = 10 
     }
 }

@@ -87,110 +87,121 @@ namespace BankApplication
                     bool case2Pending = true;
                     while (case2Pending)
                     {
-                        Console.WriteLine("Enter RtgsSameBank Charge in %");
-                        bool rtgsSameBankPending = true;
-                        ushort rtgsSameBank = 0;
-                        while (rtgsSameBankPending)
-                        {
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsSameBank);
-
-                            if (!isValidValue)
-                            {
-                                Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
-                            }
-                            else if (isValidValue && rtgsSameBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {rtgsSameBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                rtgsSameBankPending = false;
-                                break;
-                            }
-                        }
-
-                        bool rtgsOtherBankPending = true;
-                        ushort rtgsOtherBank = 0;
-                        while (rtgsOtherBankPending)
-                        {
-                            Console.WriteLine("Enter RtgsOtherBank Charge in %");
-
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsOtherBank);
-                            if (!isValidValue)
-                            {
-                                Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
-                            }
-                            else if (isValidValue && rtgsOtherBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {rtgsOtherBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                rtgsOtherBankPending = false;
-                                break;
-                            }
-                        }
-
-                        bool impsSameBankPending = true;
-                        ushort impsSameBank = 0;
-                        while (impsSameBankPending)
-                        {
-                            Console.WriteLine("Enter ImpsSameBank Charge in %");
-
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsSameBank);
-                            if (!isValidValue)
-                            {
-                                Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
-                            }
-                            else if (isValidValue && impsSameBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {impsSameBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                impsSameBankPending = false;
-                                break;
-                            }
-                        }
-
-                        bool impsOtherBankPending = true;
-                        ushort impsOtherBank = 0;
-                        while (impsOtherBankPending)
-                        {
-                            Console.WriteLine("Enter ImpsOtherBank Charge in %");
-
-                            bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsOtherBank);
-                            if (!isValidValue)
-                            {
-                                Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
-                            }
-                            else if (isValidValue && impsOtherBank >= 100)
-                            {
-                                Console.WriteLine($"Entered {impsOtherBank} Value Should not be Greater Than 100%");
-                                continue;
-                            }
-                            else
-                            {
-                                impsOtherBankPending = false;
-                                break;
-                            }
-                        }
-
-                        message = _transactionChargeService.AddTransactionCharges(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank);
+                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
                         if (message.Result)
                         {
-                            Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine("Charges Already Available");
                             Console.WriteLine();
                             case2Pending = false;
                             break;
                         }
                         else
                         {
-                            Console.WriteLine(message.ResultMessage);
-                            continue;
+                            Console.WriteLine("Enter RtgsSameBank Charge in %");
+                            bool rtgsSameBankPending = true;
+                            ushort rtgsSameBank = 0;
+                            while (rtgsSameBankPending)
+                            {
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsSameBank);
+
+                                if (!isValidValue)
+                                {
+                                    Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
+                                }
+                                else if (isValidValue && rtgsSameBank >= 100)
+                                {
+                                    Console.WriteLine($"Entered {rtgsSameBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else
+                                {
+                                    rtgsSameBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            bool rtgsOtherBankPending = true;
+                            ushort rtgsOtherBank = 0;
+                            while (rtgsOtherBankPending)
+                            {
+                                Console.WriteLine("Enter RtgsOtherBank Charge in %");
+
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out rtgsOtherBank);
+                                if (!isValidValue)
+                                {
+                                    Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
+                                }
+                                else if (isValidValue && rtgsOtherBank >= 100)
+                                {
+                                    Console.WriteLine($"Entered {rtgsOtherBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else
+                                {
+                                    rtgsOtherBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            bool impsSameBankPending = true;
+                            ushort impsSameBank = 0;
+                            while (impsSameBankPending)
+                            {
+                                Console.WriteLine("Enter ImpsSameBank Charge in %");
+
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsSameBank);
+                                if (!isValidValue)
+                                {
+                                    Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
+                                }
+                                else if (isValidValue && impsSameBank >= 100)
+                                {
+                                    Console.WriteLine($"Entered {impsSameBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else
+                                {
+                                    impsSameBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            bool impsOtherBankPending = true;
+                            ushort impsOtherBank = 0;
+                            while (impsOtherBankPending)
+                            {
+                                Console.WriteLine("Enter ImpsOtherBank Charge in %");
+
+                                bool isValidValue = ushort.TryParse(Console.ReadLine(), out impsOtherBank);
+                                if (!isValidValue)
+                                {
+                                    Console.WriteLine($"Entered Value should not be Empty and Contain Only Numbers");
+                                }
+                                else if (isValidValue && impsOtherBank >= 100)
+                                {
+                                    Console.WriteLine($"Entered {impsOtherBank} Value Should not be Greater Than 100%");
+                                    continue;
+                                }
+                                else
+                                {
+                                    impsOtherBankPending = false;
+                                    break;
+                                }
+                            }
+
+                            message = _transactionChargeService.AddTransactionCharges(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank);
+                            if (message.Result)
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                Console.WriteLine();
+                                case2Pending = false;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                continue;
+                            }
                         }
                     }
                     break;
@@ -209,18 +220,20 @@ namespace BankApplication
                         string customerDOB = _commonHelperService.GetDateOfBirth(Miscellaneous.customer, _validateInputs);
                         int customerGender = _commonHelperService.GetGender(Miscellaneous.customer, _validateInputs);
 
-                        Message isCustomerAccountOpened = _customerService.OpenCustomerAccount(managerBankId,
+                        message = _customerService.OpenCustomerAccount(managerBankId,
                         managerBranchId, customerName, customerPassword, customerPhoneNumber, customerEmailId,
                         customerAccountType, customerAddress, customerDOB, customerGender);
-                        if (isCustomerAccountOpened.Result)
+                        if (message.Result)
                         {
-                            Console.WriteLine(isCustomerAccountOpened.ResultMessage);
+                            Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
                             case3Pending = false;
                             break;
                         }
                         else
                         {
-                            Console.WriteLine(isCustomerAccountOpened.ResultMessage);
+                            Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
                             continue;
                         }
                     };
@@ -230,10 +243,10 @@ namespace BankApplication
                     bool case4Pending = true;
                     while (case4Pending)
                     {
-                        string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                         message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
                         if (message.Result)
                         {
+                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
                             message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
                             if (message.Result)
                             {
@@ -253,6 +266,7 @@ namespace BankApplication
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -281,6 +295,7 @@ namespace BankApplication
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -308,6 +323,7 @@ namespace BankApplication
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -335,6 +351,7 @@ namespace BankApplication
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -366,6 +383,7 @@ namespace BankApplication
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -393,6 +411,7 @@ namespace BankApplication
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -420,6 +439,7 @@ namespace BankApplication
                                         if (message.Result == false)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -452,6 +472,7 @@ namespace BankApplication
                                         if (message.Result == false)
                                         {
                                             Console.WriteLine(message.ResultMessage);
+                                            Console.WriteLine();
                                             continue;
                                         }
                                         else
@@ -472,12 +493,14 @@ namespace BankApplication
                                 if (message.Result)
                                 {
                                     Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
                                     case4Pending = false;
                                     break;
                                 }
                                 else
                                 {
                                     Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
                                     continue;
                                 }
 
@@ -485,6 +508,7 @@ namespace BankApplication
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
+                                Console.WriteLine();
                                 continue;
                             }
 
@@ -492,6 +516,7 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
                             case4Pending = false;
                             break;
                         }
@@ -511,18 +536,21 @@ namespace BankApplication
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
+                                Console.WriteLine();
                                 case5Pending = false;
                                 break;
                             }
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
+                                Console.WriteLine();
                                 continue;
                             }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
                             case5Pending = false;
                             break;
                         }
@@ -548,6 +576,7 @@ namespace BankApplication
                                     List<string> transactions = _transactionService.GetTransactionHistory(managerBankId, managerBranchId, customerAccountId);
                                     foreach (string transaction in transactions)
                                     {
+                                        Console.WriteLine();
                                         Console.WriteLine(transaction);
                                         Console.WriteLine();
                                     }
@@ -596,17 +625,40 @@ namespace BankApplication
                                 if (message.Result)
                                 {
                                     string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
-                                    string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                                    string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
-
-                                    message = _customerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                    message = _bankService.AuthenticateBankId(toCustomerBankId);
                                     if (message.Result)
                                     {
-                                        string transactionId = _commonHelperService.ValidateTransactionIdFormat();
-                                        message = _transactionService.RevertTransaction(transactionId, managerBankId, managerBranchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                        message = _branchService.AuthenticateBranchId(toCustomerBankId,toCustomerBranchId);
+                                        if (message.Result)
+                                        {
+                                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+
+                                            message = _customerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                            if (message.Result)
+                                            {
+                                                string transactionId = _commonHelperService.ValidateTransactionIdFormat();
+                                                message = _transactionService.RevertTransaction(transactionId, managerBankId, managerBranchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                                Console.WriteLine(message.ResultMessage);
+                                                case7Pending = false;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                    }
+                                    else
+                                    {
                                         Console.WriteLine(message.ResultMessage);
-                                        case5Pending = false;
-                                        break;
+                                        continue;
                                     }
                                 }
                                 else
@@ -615,7 +667,6 @@ namespace BankApplication
                                     case7Pending = false;
                                     break;
                                 }
-
                             }
                             else
                             {
@@ -709,13 +760,15 @@ namespace BankApplication
                         if (message.Result)
                         {
                             Console.WriteLine(message.Data);
+                            Console.WriteLine();
                             case10Pending = false;
                             break;
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
+                            Console.WriteLine();
+                            break;
                         }
                     }
                     break;
@@ -749,14 +802,14 @@ namespace BankApplication
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case8Pending = false;
+                                case11Pending = false;
                                 break;
                             }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            case8Pending = false;
+                            case11Pending = false;
                             break;
                         }
                     }
@@ -783,31 +836,51 @@ namespace BankApplication
                                     while (isInvalidToCustomer)
                                     {
                                         string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
-                                        string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                                        string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
-                                        message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        message = _bankService.AuthenticateBankId(toCustomerBankId);
                                         if (message.Result)
                                         {
-                                            message = _customerService.TransferAmount(managerBankId, managerBranchId, fromCustomerAccountId,
-                                                toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
+                                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                            message = _branchService.AuthenticateBranchId(toCustomerBankId, toCustomerBranchId);
                                             if (message.Result)
                                             {
-                                                Console.WriteLine(message.ResultMessage);
-                                                isInvalidToCustomer = false;
-                                                case12Pending = false;
-                                                break;
+                                                string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+                                                message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                                if (message.Result)
+                                                {
+                                                    message = _customerService.TransferAmount(managerBankId, managerBranchId, fromCustomerAccountId,
+                                                        toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
+                                                    if (message.Result)
+                                                    {
+                                                        Console.WriteLine(message.ResultMessage);
+                                                        isInvalidToCustomer = false;
+                                                        case12Pending = false;
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        Console.WriteLine(message.ResultMessage);
+                                                        continue;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(message.ResultMessage);
+                                                    continue;
+                                                }
                                             }
                                             else
                                             {
                                                 Console.WriteLine(message.ResultMessage);
                                                 continue;
                                             }
+
                                         }
                                         else
                                         {
-                                            Console.WriteLine(message.Result);
+                                            Console.WriteLine(message.ResultMessage);
                                             continue;
                                         }
+                                        
                                     }
 
                                 }
@@ -820,7 +893,7 @@ namespace BankApplication
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case8Pending = false;
+                                case12Pending = false;
                                 break;
                             }
                         }
@@ -977,6 +1050,8 @@ namespace BankApplication
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
+                                case14Pending= false;
+                                break;
                             }
                             else
                             {
@@ -1023,7 +1098,6 @@ namespace BankApplication
                                         }
                                         else
                                         {
-
                                             invalidStaffName = false;
                                             break;
                                         }
@@ -1068,12 +1142,12 @@ namespace BankApplication
                                 while (invalidStaffRole)
                                 {
                                     Console.WriteLine("Choose From Below Menu Options To Update");
-                                    foreach (AccountType option in Enum.GetValues(typeof(StaffRole)))
+                                    foreach (StaffRole option in Enum.GetValues(typeof(StaffRole)))
                                     {
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
                                     bool isValid = ushort.TryParse(Console.ReadLine(), out staffRole);
-                                    if (!isValid || staffRole != 0 || staffRole > 5)
+                                    if (!isValid || staffRole != 0 && staffRole > 5)
                                     {
                                         Console.WriteLine("please Enter a Valid Option");
                                         continue;
@@ -1126,7 +1200,7 @@ namespace BankApplication
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case1Pending = false;
+                                case16Pending = false;
                                 break;
                             }
                             else

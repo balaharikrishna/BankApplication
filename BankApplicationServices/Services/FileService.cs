@@ -43,16 +43,15 @@ namespace BankApplicationServices.Services
             List<Bank> data;
             if(ReadFile() != null && ReadFile() != string.Empty)
             {
-                data =  JsonSerializer.Deserialize<List<Bank>>(ReadFile());
+                data =  JsonSerializer.Deserialize<List<Bank>>(ReadFile()) ?? new List<Bank>();
             }
             else
             {
                 data = new List<Bank>();
                 WriteFile(data);
-                data = JsonSerializer.Deserialize<List<Bank>>(ReadFile());
+                data = JsonSerializer.Deserialize<List<Bank>>(ReadFile()) ?? new List<Bank>();
             }
             return data;
-
         }
     }
 }

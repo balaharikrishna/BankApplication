@@ -1,9 +1,7 @@
 ﻿using BankApplication.IHelperServices;
 using BankApplicationHelperMethods;
 using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
-using BankApplicationServices.Services;
 
 namespace BankApplication
 {
@@ -14,7 +12,7 @@ namespace BankApplication
         ICommonHelperService _commonHelperService;
         IValidateInputs _validateInputs;
         public ReserveBankManagerHelperService(IBankService bankService, IHeadManagerService headManagerService,
-            ICommonHelperService commonHelperService,IValidateInputs validateInputs)
+            ICommonHelperService commonHelperService, IValidateInputs validateInputs)
         {
             _bankService = bankService;
             _headManagerService = headManagerService;
@@ -22,7 +20,7 @@ namespace BankApplication
             _validateInputs = validateInputs;
         }
         Message message = new Message();
-    
+
         public void SelectedOption(ushort Option)
         {
             switch (Option)
@@ -54,7 +52,7 @@ namespace BankApplication
                     {
                         string bankHeadManagerName = _commonHelperService.GetName(Miscellaneous.headManager, _validateInputs);
                         string bankHeadManagerPassword = _commonHelperService.GetPassword(Miscellaneous.headManager, _validateInputs);
-                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank,_bankService,_validateInputs);
+                        string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
 
                         message = _headManagerService.OpenHeadManagerAccount(bankId, bankHeadManagerName, bankHeadManagerPassword);
                         if (message.Result)
@@ -89,29 +87,24 @@ namespace BankApplication
                                 Console.WriteLine(headManagerDetatils);
 
                                 string headManagerName = string.Empty;
-                                bool invalidHeadManagerName = true;
-                                while (invalidHeadManagerName)
+                                while (true)
                                 {
                                     Console.WriteLine("Enter Head Manager Name");
                                     headManagerName = Console.ReadLine() ?? string.Empty;
-                                    if (headManagerName != string.Empty)
+                                    if (string.IsNullOrEmpty(headManagerName))
                                     {
                                         message = _validateInputs.ValidateNameFormat(headManagerName);
                                         if (!message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
-                                            continue;
                                         }
                                         else
                                         {
-
-                                            invalidHeadManagerName = false;
                                             break;
                                         }
                                     }
                                     else
                                     {
-                                        invalidHeadManagerName = false;
                                         break;
                                     }
                                 }
@@ -172,7 +165,7 @@ namespace BankApplication
                         }
                     }
                     break;
-                    
+
                 case 4: //DeleteHeadManager
                     bool bankHeadManagerUpdateStatus = true;
                     while (bankHeadManagerUpdateStatus)

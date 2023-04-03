@@ -128,17 +128,21 @@ namespace BankApplicationServices.Services
                 int bankIndex = banks.FindIndex(bank => bank.BankId == bankId );
                 if (bankIndex > -1)
                 {
-                    List<Currency> rates = banks[bankIndex].Currency.FindAll(cu=>cu.IsDeleted == 0);
-                    for (int i = 0; i < rates.Count; i++)
+                    List<Currency> rates = banks[bankIndex].Currency;
+                    if(rates != null)
                     {
-                        exchangeRates.Add(rates[i].CurrencyCode, rates[i].ExchangeRate);
+                        rates.FindAll(cu => cu.IsDeleted == 0);
+                        for (int i = 0; i < rates.Count; i++)
+                        {
+                            exchangeRates.Add(rates[i].CurrencyCode, rates[i].ExchangeRate);
+                        }
+                        message.Data = JsonConvert.SerializeObject(exchangeRates);
                     }
-                    message.Data = JsonConvert.SerializeObject(exchangeRates);
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"No Currencies Available for BankId:{bankId}";
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"No Currencies Available for BankId:{bankId}";
+                    }
                 }
             }
             return message;

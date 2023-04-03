@@ -35,13 +35,13 @@ namespace BankApplicationServices.Services
                 var bank = banks.FirstOrDefault(b => b.BankId == bankId);
                 if (bank != null)
                 {
-                    List<HeadManager> headManagers = bank.HeadManagers; 
-                    if(headManagers == null)
+                    List<HeadManager> headManagers = bank.HeadManagers;
+                    if (headManagers == null)
                     {
                         headManagers = new List<HeadManager>();
                         headManagers.FindAll(hm => hm.IsActive == 1);
                     }
-                   
+
                     if (headManagers != null && headManagers.Count > 0)
                     {
                         message.Result = true;
@@ -122,9 +122,10 @@ namespace BankApplicationServices.Services
                     AccountId = bankHeadManagerAccountId,
                     IsActive = 1
                 };
-            
-                banks[banks.FindIndex(obj => obj.BankId == bankId)].HeadManagers.Add(headManager);
-           
+
+                headManagers.Add(headManager);
+                banks[banks.FindIndex(obj => obj.BankId == bankId)].HeadManagers = headManagers;
+
                 _fileService.WriteFile(banks);
                 message.Result = true;
                 message.ResultMessage = $"Account Created for {headManagerName} with Account Id:{bankHeadManagerAccountId}";
@@ -176,49 +177,60 @@ namespace BankApplicationServices.Services
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId == bankId)].HeadManagers;
-                var headManager = headManagers.Find(hm => hm.AccountId == headManagerAccountId);
-                if (headManager != null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
+                if (branches != null)
                 {
-                    if (headManagerName != string.Empty)
+                    List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId == bankId)].HeadManagers;
+                    var headManager = headManagers.Find(hm => hm.AccountId == headManagerAccountId);
+                    if (headManager != null)
                     {
-                        headManager.Name = headManagerName;
-                    }
-
-                    if (headManagerPassword != string.Empty)
-                    {
-                        byte[] salt = new byte[32];
-                        salt = headManager.Salt;
-                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
-                        if (Convert.ToBase64String(headManager.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck))
+                        if (headManagerName != string.Empty)
                         {
-                            message.Result = false;
-                            message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                            headManager.Name = headManagerName;
                         }
-                        else
+
+                        if (headManagerPassword != string.Empty)
                         {
-                            salt = _encryptionService.GenerateSalt();
-                            byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
-                            headManager.Salt = salt;
-                            headManager.HashedPassword = hashedPassword;
+                            byte[] salt = new byte[32];
+                            salt = headManager.Salt;
+                            byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
+                            if (Convert.ToBase64String(headManager.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck))
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                            }
+                            else
+                            {
+                                salt = _encryptionService.GenerateSalt();
+                                byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
+                                headManager.Salt = salt;
+                                headManager.HashedPassword = hashedPassword;
+                                message.Result = true;
+                                message.ResultMessage = "Updated Password Sucessfully";
+
+                            }
+                        }
+                        if (headManagerName == string.Empty && headManagerPassword == string.Empty)
+                        {
                             message.Result = true;
-                            message.ResultMessage = "Updated Password Sucessfully";
-
+                            message.ResultMessage = $"No Changes Added.";
                         }
-                    }
-                    if (headManagerName == string.Empty && headManagerPassword == string.Empty)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = $"No Changes Added.";
-                    }
 
-                    _fileService.WriteFile(banks);
+                        _fileService.WriteFile(banks);
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"Head Manager: {headManagerName} with AccountId:{headManagerAccountId} Doesn't Exist";
+                    }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = $"Head Manager: {headManagerName} with AccountId:{headManagerAccountId} Doesn't Exist";
+                    message.ResultMessage = "No Branches Available in Bank";
+
                 }
+
             }
             return message;
         }
@@ -228,38 +240,69 @@ namespace BankApplicationServices.Services
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId == bankId)].HeadManagers;
-                var headManager = headManagers.Find(hm => hm.AccountId == headManagerAccountId);
-                if (headManager != null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
+                if (branches != null)
                 {
-                    headManager.IsActive = 0;
-                    message.Result = true;
-                    message.ResultMessage = $"Deleted AccountId:{headManagerAccountId} Successfully.";
-                    _fileService.WriteFile(banks);
+                    List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId == bankId)].HeadManagers;
+                    var headManager = headManagers.Find(hm => hm.AccountId == headManagerAccountId);
+                    if (headManager != null)
+                    {
+                        headManager.IsActive = 0;
+                        message.Result = true;
+                        message.ResultMessage = $"Deleted AccountId:{headManagerAccountId} Successfully.";
+                        _fileService.WriteFile(banks);
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"{headManagerAccountId} Doesn't Exist.";
+                    }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = $"{headManagerAccountId} Doesn't Exist.";
-                }
+                    message.ResultMessage = "No Branches Available in Bank";
+                } 
             }
             return message;
         }
 
         public string GetHeadManagerDetails(string bankId, string headManagerAccountId)
         {
+            string data = "";
             GetBankData();
-            message = IsHeadManagerExist(bankId, headManagerAccountId);
-            string headManagerDetails = string.Empty;
+            message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(b => b.BankId == bankId);
-                int headManagerIndex = banks[bankIndex].HeadManagers.FindIndex(hm => hm.AccountId == headManagerAccountId);
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
+                if (branches != null)
+                {
+                    message = IsHeadManagerExist(bankId, headManagerAccountId);
+                    string headManagerDetails = string.Empty;
+                    if (message.Result)
+                    {
+                        int bankIndex = banks.FindIndex(b => b.BankId == bankId);
+                        int headManagerIndex = banks[bankIndex].HeadManagers.FindIndex(hm => hm.AccountId == headManagerAccountId);
 
-                HeadManager details = banks[bankIndex].HeadManagers[headManagerIndex];
-                headManagerDetails = details.ToString() ?? string.Empty;
+                        HeadManager details = banks[bankIndex].HeadManagers[headManagerIndex];
+                        headManagerDetails = details.ToString() ?? string.Empty;
+                        data = headManagerDetails;
+                    }
+                    else
+                    {
+                        data = "Head Manager Doesnt Exist";
+                    }
+                }
+                else
+                {
+                    data = "No Branches Available in Bank";
+                }
             }
-            return headManagerDetails;
+            else
+            {
+                data = "Invalid BanKId";
+            }
+            return data;
         }
     }
 }

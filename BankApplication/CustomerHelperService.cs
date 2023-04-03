@@ -2,21 +2,22 @@
 using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
+using Newtonsoft.Json;
 
 namespace BankApplication
 {
     public class CustomerHelperService : ICustomerHelperService
     {
-        ICustomerService _CustomerService;
+        ICustomerService _customerService;
         IBankService _bankService;
         IBranchService _branchService;
         ITransactionService _transactionService;
         ICommonHelperService _commonHelperService;
         IValidateInputs _validateInputs;
         public CustomerHelperService(ICustomerService customerService, IBankService bankService, IBranchService branchService,
-            ITransactionService transactionService,ICommonHelperService commonHelperService,IValidateInputs validateInputs)
+            ITransactionService transactionService, ICommonHelperService commonHelperService, IValidateInputs validateInputs)
         {
-            _CustomerService = customerService;
+            _customerService = customerService;
             _bankService = bankService;
             _branchService = branchService;
             _transactionService = transactionService;
@@ -32,7 +33,7 @@ namespace BankApplication
                     bool case1Pending = true;
                     while (case1Pending)
                     {
-                        Message isBalanceFetchSuccesful = _CustomerService.CheckAccountBalance(bankId, branchId, accountId);
+                        Message isBalanceFetchSuccesful = _customerService.CheckAccountBalance(bankId, branchId, accountId);
                         if (isBalanceFetchSuccesful.Result)
                         {
                             Console.WriteLine(isBalanceFetchSuccesful.ResultMessage);
@@ -56,7 +57,6 @@ namespace BankApplication
                         {
                             Console.WriteLine();
                             Console.WriteLine(transaction);
-                            Console.WriteLine();
                         }
                         case2Pending = false;
                         break;
@@ -67,22 +67,24 @@ namespace BankApplication
                     bool case3Pending = true;
                     while (case3Pending)
                     {
-                        Message message = _bankService.GetExchangeRates(bankId);
-                        Dictionary<string, decimal> exchangeRates = message.Data.Cast<KeyValuePair<string, decimal>>().ToDictionary(x => x.Key, x => x.Value);
+                        message = _bankService.GetExchangeRates(bankId);
 
-                        if (message.Result)
+                        Dictionary<string, decimal>? exchangeRates = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(message.Data);
+
+                        if (exchangeRates != null)
                         {
                             Console.WriteLine("Available Exchange Rates:");
                             foreach (KeyValuePair<string, decimal> rates in exchangeRates)
                             {
-                                Console.WriteLine($"{rates.Key}:{rates.Value}Rupees");
+                                Console.WriteLine($"{rates.Key} : {rates.Value} Rupees");
                             }
+                            Console.WriteLine();
                             case3Pending = false;
                             break;
                         }
                         else
                         {
-                            Console.WriteLine(message.Result);
+                            Console.WriteLine(message.ResultMessage);
                             continue;
                         }
                     }
@@ -92,16 +94,19 @@ namespace BankApplication
                     bool case4Pending = true;
                     while (case4Pending)
                     {
-                        Message message = _branchService.GetTransactionCharges(bankId, branchId);
+                        message = _branchService.GetTransactionCharges(bankId, branchId);
                         if (message.Result)
                         {
                             Console.WriteLine(message.Data);
+                            Console.WriteLine();
+                            case4Pending = false;
                             break;
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            continue;
+                            Console.WriteLine();
+                            break;
                         }
                     }
                     break;
@@ -115,7 +120,7 @@ namespace BankApplication
                         bool result = decimal.TryParse(Console.ReadLine(), out amount);
                         if (result)
                         {
-                            Message isAmountWithdrawn = _CustomerService.WithdrawAmount(bankId, branchId, accountId, amount);
+                            Message isAmountWithdrawn = _customerService.WithdrawAmount(bankId, branchId, accountId, amount);
                             if (isAmountWithdrawn.Result)
                             {
                                 Console.WriteLine(isAmountWithdrawn.ResultMessage);
@@ -140,37 +145,67 @@ namespace BankApplication
                     bool case6Pending = true;
                     while (case6Pending)
                     {
+                        string fromCustomerAccountId = accountId;
                         int transferMethod = _commonHelperService.ValidateTransferMethod();
                         decimal amount = _commonHelperService.ValidateAmount();
+                        message = _customerService.IsAccountExist(bankId, branchId, fromCustomerAccountId);
 
-                        bool isInvalidToCustomer = true;
-                        while (isInvalidToCustomer)
+                        if (message.Result)
                         {
-                            string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService,_validateInputs);
-                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                            string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
-                            Message isToCustomerAccountExist = _CustomerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
-                            if (isToCustomerAccountExist.Result)
+                            bool isInvalidToCustomer = true;
+                            while (isInvalidToCustomer)
                             {
-                                Message isTransferSuccessful = _CustomerService.TransferAmount(bankId, branchId, accountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
-                                if (isTransferSuccessful.Result)
+                                string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                                message = _bankService.AuthenticateBankId(toCustomerBankId);
+                                if (message.Result)
                                 {
-                                    Console.WriteLine(isTransferSuccessful.ResultMessage);
-                                    isInvalidToCustomer = false;
-                                    case6Pending = false;
-                                    break;
+                                    string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                    message = _branchService.AuthenticateBranchId(toCustomerBankId, toCustomerBranchId);
+                                    if (message.Result)
+                                    {
+                                        string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+                                        message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        if (message.Result)
+                                        {
+                                            message = _customerService.TransferAmount(bankId, branchId, fromCustomerAccountId,
+                                                toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
+                                            if (message.Result)
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                isInvalidToCustomer = false;
+                                                case6Pending = false;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(message.ResultMessage);
+                                        continue;
+                                    }
+
                                 }
                                 else
                                 {
-                                    Console.WriteLine(isTransferSuccessful.ResultMessage);
+                                    Console.WriteLine(message.ResultMessage);
                                     continue;
                                 }
                             }
-                            else
-                            {
-                                Console.WriteLine($"Customer Account ID:{toCustomerAccountId} with BankId:{toCustomerBankId} && BranchId:{toCustomerBranchId} is Not Mathcing with Records.Please try again.");
-                                continue;
-                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            continue;
                         }
 
                     }
@@ -179,16 +214,34 @@ namespace BankApplication
                     bool case7Pending = true;
                     while (case7Pending)
                     {
-                        string passbookDetatils = _CustomerService.GetPassbook(bankId, branchId, accountId);
-                        Console.WriteLine("Passbook Details:");
-                        Console.WriteLine(passbookDetatils);
-                        case7Pending = false;
-                        break;
+                        message = _customerService.IsCustomersExist(bankId, branchId);
+                        if (message.Result)
+                        { 
+                            message = _customerService.IsAccountExist(bankId, branchId, accountId);
+                            if (message.Result)
+                            {
+                                string passbookDetatils = _customerService.GetPassbook(bankId, branchId, accountId);
+                                Console.WriteLine("Passbook Details:");
+                                Console.WriteLine(passbookDetatils);
+                                case7Pending = false;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                case6Pending = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            case6Pending = false;
+                            break;
+                        }
                     }
                     break;
-
             }
-
         }
     }
 }

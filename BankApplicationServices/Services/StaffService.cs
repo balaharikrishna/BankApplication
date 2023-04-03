@@ -316,7 +316,7 @@ namespace BankApplicationServices.Services
                 int branchIndex = banks[bankIndex].Branches.FindIndex(br => br.BranchId == branchId);
                 int staffIndex = banks[bankIndex].Branches[branchIndex].Staffs.FindIndex(c => c.AccountId == staffAccountId);
                 Staff details = banks[bankIndex].Branches[branchIndex].Staffs[staffIndex];
-                staffDetails =  details.ToString()??string.Empty;
+                staffDetails =  details.ToString();
             }
             return staffDetails;
         }

@@ -1,6 +1,5 @@
 ﻿using BankApplicationModels.Enums;
-using System.Transactions;
-using TransactionStatus = BankApplicationModels.Enums.TransactionStatus;
+
 
 namespace BankApplicationModels
 {
@@ -15,14 +14,13 @@ namespace BankApplicationModels
         public TransactionType TransactionType { get; set; }
         public string ToCustomerAccountId { get; set; }
         public DateTime TransactionDate { get; set; }
-        public TransactionStatus TransactionStatus { get; set; }
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public decimal Balance { get; set; }
 
         public override string ToString()
         {
-            return $"{TransactionId}: {TransactionType} - {TransactionStatus} " +
+            return $"{TransactionId}: {TransactionType} " +
          $"From BankId:{FromCustomerBankId}-BranchId:{FromCustomerBranchId}-AccountId:{FromCustomerAccountId} " +
          $"To BankId:{ToCustomerBankId}-BranchId:{ToCustomerBranchId}-AccountId:{ToCustomerAccountId} " +
          $"on {TransactionDate}: Debited Amount:{Debit}, Credited Amount:{Credit}, Balance:{Balance}";

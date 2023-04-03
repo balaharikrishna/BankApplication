@@ -1,9 +1,7 @@
 ﻿using BankApplication.IHelperServices;
 using BankApplicationHelperMethods;
 using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
-using BankApplicationServices.Services;
 
 namespace BankApplication
 {
@@ -16,7 +14,7 @@ namespace BankApplication
         IValidateInputs _validateInputs;
         IBankService _bankService;
         public HeadManagerHelperService(IBranchService branchService, ICommonHelperService commonHelperService,
-            IManagerService managerService,ICurrencyService currencyService,IValidateInputs validateInputs,IBankService bankService)
+            IManagerService managerService, ICurrencyService currencyService, IValidateInputs validateInputs, IBankService bankService)
         {
             _branchService = branchService;
             _commonHelperService = commonHelperService;
@@ -27,8 +25,6 @@ namespace BankApplication
         }
         public void SelectedOption(ushort Option, string headManagerBankId)
         {
-            Message message = new Message();
-
             switch (Option)
             {
                 case 1: //CreateBranch
@@ -39,7 +35,7 @@ namespace BankApplication
                         string branchPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.branch, _validateInputs);
                         string branchAddress = _commonHelperService.GetAddress(Miscellaneous.branch, _validateInputs);
 
-                        message = _branchService.CreateBranch(headManagerBankId,branchName, branchPhoneNumber, branchAddress);
+                        Message message = _branchService.CreateBranch(headManagerBankId, branchName, branchPhoneNumber, branchAddress);
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -57,10 +53,11 @@ namespace BankApplication
                     bool OpenManagerAccountPending = true;
                     while (OpenManagerAccountPending)
                     {
-                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
-                        message = _managerService.IsManagersExist(headManagerBankId, branchId);
+                        Message message = _branchService.IsBranchesExist(headManagerBankId);
                         if (message.Result)
                         {
+                            string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
+
                             string branchManagerName = _commonHelperService.GetName(Miscellaneous.branchManager, _validateInputs);
                             string branchManagerPassword = _commonHelperService.GetPassword(Miscellaneous.branchManager, _validateInputs);
 
@@ -75,11 +72,12 @@ namespace BankApplication
                                 Console.WriteLine(message.ResultMessage);
                                 continue;
                             }
+
                         }
                         else
                         {
-                            Console.WriteLine(message.ResultMessage);
                             OpenManagerAccountPending = false;
+                            Console.WriteLine(message.ResultMessage);
                             break;
                         }
                     }
@@ -89,81 +87,131 @@ namespace BankApplication
                     bool case3Pending = true;
                     while (case3Pending)
                     {
-                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
-                        message = _managerService.IsManagersExist(headManagerBankId, branchId);
+                        message = _branchService.IsBranchesExist(headManagerBankId);
                         if (message.Result)
                         {
-                            string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
-
-                            message = _managerService.IsAccountExist(headManagerBankId, branchId, managerAccountId);
+                            string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
+                            message = _managerService.IsManagersExist(headManagerBankId, branchId);
                             if (message.Result)
                             {
-                                string managerDetatils = _managerService.GetManagerDetails(headManagerBankId, branchId, managerAccountId);
-                                Console.WriteLine("Manager Details:");
-                                Console.WriteLine(managerDetatils);
+                                string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
 
-                                string managerName = string.Empty;
-                                bool invalidManagerName = true;
-                                while (invalidManagerName)
+                                message = _managerService.IsAccountExist(headManagerBankId, branchId, managerAccountId);
+                                if (message.Result)
                                 {
-                                    Console.WriteLine("Update Manager Name");
-                                    managerName = Console.ReadLine() ?? string.Empty;
-                                    if (managerName != string.Empty)
+                                    string managerDetatils = _managerService.GetManagerDetails(headManagerBankId, branchId, managerAccountId);
+                                    Console.WriteLine("Manager Details:");
+                                    Console.WriteLine(managerDetatils);
+
+                                    string managerName = string.Empty;
+                                    bool invalidManagerName = true;
+                                    while (invalidManagerName)
                                     {
-                                        message = _validateInputs.ValidateNameFormat(managerName);
-                                        if (!message.Result)
+                                        Console.WriteLine("Update Manager Name");
+                                        managerName = Console.ReadLine() ?? string.Empty;
+                                        if (managerName != string.Empty)
                                         {
-                                            Console.WriteLine(message.ResultMessage);
-                                            continue;
+                                            message = _validateInputs.ValidateNameFormat(managerName);
+                                            if (!message.Result)
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                            else
+                                            {
+
+                                                invalidManagerName = false;
+                                                break;
+                                            }
                                         }
                                         else
                                         {
-
                                             invalidManagerName = false;
                                             break;
                                         }
                                     }
-                                    else
-                                    {
-                                        invalidManagerName = false;
-                                        break;
-                                    }
-                                }
 
-                                string managerPassword = string.Empty;
-                                bool invalidManagerPassword = true;
-                                while (invalidManagerPassword)
-                                {
-                                    Console.WriteLine("Update Staff Password");
-                                    managerPassword = Console.ReadLine() ?? string.Empty;
-                                    if (managerPassword != string.Empty)
+                                    string managerPassword = string.Empty;
+                                    bool invalidManagerPassword = true;
+                                    while (invalidManagerPassword)
                                     {
-                                        message = _validateInputs.ValidatePasswordFormat(managerPassword);
-                                        if (!message.Result)
+                                        Console.WriteLine("Update Staff Password");
+                                        managerPassword = Console.ReadLine() ?? string.Empty;
+                                        if (managerPassword != string.Empty)
                                         {
-                                            Console.WriteLine(message.ResultMessage);
-                                            continue;
+                                            message = _validateInputs.ValidatePasswordFormat(managerPassword);
+                                            if (!message.Result)
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                            else
+                                            {
+
+                                                invalidManagerPassword = false;
+                                                break;
+                                            }
                                         }
                                         else
                                         {
-
                                             invalidManagerPassword = false;
                                             break;
                                         }
                                     }
-                                    else
+
+                                    message = _managerService.UpdateManagerAccount(headManagerBankId, branchId, managerAccountId, managerName, managerPassword);
+
+                                    if (message.Result)
                                     {
-                                        invalidManagerPassword = false;
+                                        Console.WriteLine(message.ResultMessage);
+                                        case3Pending = false;
                                         break;
                                     }
+                                    else
+                                    {
+                                        Console.WriteLine(message.ResultMessage);
+                                        continue;
+                                    }
                                 }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                case3Pending = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            case3Pending = false;
+                            break;
+                        }
+                    }
+                    break;
 
-                                message = _managerService.UpdateManagerAccount(headManagerBankId, branchId, managerAccountId, managerName, managerPassword);
+                case 4://DeleteManagerAccount
+                    bool deleteManagerAccountPending = true;
+                    while (deleteManagerAccountPending)
+                    {
+                        message = _branchService.IsBranchesExist(headManagerBankId);
+                        if (message.Result)
+                        {
+                            string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
+                            message = _managerService.IsManagersExist(headManagerBankId, branchId);
+                            if (message.Result)
+                            {
+                                string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
 
+                                message = _managerService.DeleteManagerAccount(headManagerBankId, branchId, managerAccountId);
                                 if (message.Result)
                                 {
                                     Console.WriteLine(message.ResultMessage);
-                                    case3Pending = false;
                                     break;
                                 }
                                 else
@@ -175,50 +223,19 @@ namespace BankApplication
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            case3Pending = false;
-                            break;
-                        }
-
-                    }
-                    break;
-
-                case 4://DeleteManagerAccount
-                    bool deleteManagerAccountPending = true;
-                    while (deleteManagerAccountPending)
-                    {
-                        string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
-                        message = _managerService.IsManagersExist(headManagerBankId, branchId);
-                        if (message.Result)
-                        {
-                            string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
-
-                            message = _managerService.DeleteManagerAccount(headManagerBankId, branchId, managerAccountId);
-                            if (message.Result)
-                            {
-                                Console.WriteLine(message.ResultMessage);
+                                deleteManagerAccountPending = false;
                                 break;
                             }
-                            else
-                            {
-                                Console.WriteLine(message.ResultMessage);
-                                continue;
-                            }
-                        } 
+                        }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
                             deleteManagerAccountPending = false;
                             break;
                         }
-                            
                     }
                     break;
+
                 case 5: //AddCurrency with exchange Rates
                     bool addExchangeRatesPendingStatus = true;
                     while (addExchangeRatesPendingStatus)
@@ -227,7 +244,7 @@ namespace BankApplication
                         while (CurrencyCodePending)
                         {
                             Console.WriteLine("Please Enter currency Code");
-                            string currencyCode = Console.ReadLine().ToUpper() ?? string.Empty;
+                            string currencyCode = Console.ReadLine()?.ToUpper() ?? string.Empty;
                             message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
                             if (message.Result)
                             {
@@ -278,7 +295,7 @@ namespace BankApplication
                 case 6: //UpdateCurrency with exchange Rates
                     bool UpdateExchangeRatesPendingStatus = true;
                     while (UpdateExchangeRatesPendingStatus)
-                    { 
+                    {
                         message = _bankService.GetExchangeRates(headManagerBankId);
                         if (message.Result)
                         {
@@ -391,7 +408,7 @@ namespace BankApplication
                             deleteExchangeRatesPendingStatus = false;
                             break;
                         }
-                            
+
                     }
                     break;
             }

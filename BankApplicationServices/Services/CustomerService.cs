@@ -575,46 +575,51 @@ namespace BankApplicationServices.Services
         {
             GetBankData();
             Message fromCustomer = IsAccountExist(bankId, branchId, customerAccountId);
-            Message toCustomer = IsAccountExist(toBankId, toBranchId, toCustomerAccountId);
             int bankInterestRate = 0;
             int fromBankIndex = banks.FindIndex(b => b.BankId == bankId);
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == branchId);
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == customerAccountId);
+            Message toCustomer = IsAccountExist(toBankId, toBranchId, toCustomerAccountId);
             int toBankIndex = banks.FindIndex(b => b.BankId == toBankId);
             int toBranchIndex = banks[toBankIndex].Branches.FindIndex(br => br.BranchId == toBranchId);
             int toCustomerIndex = banks[toBankIndex].Branches[toBranchIndex].Customers.FindIndex(c => c.AccountId == toCustomerAccountId);
             if (fromCustomer.Result && toCustomer.Result)
             {
                 if (bankId.Substring(0, 3) == toBankId.Substring(0, 3))
-
+                {
                     if (transferMethod == 1)
                     {
-                        bankInterestRate = banks[fromBankIndex].Branches[fromBranchIndex].Charges[0].RtgsSameBank;
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
+                        if (charges != null) bankInterestRate = charges.RtgsSameBank;
                     }
                     else if (transferMethod == 2)
                     {
-                        bankInterestRate = banks[fromBankIndex].Branches[fromBranchIndex].Charges[0].ImpsSameBank;
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
+                        if (charges != null) bankInterestRate = charges.ImpsSameBank;
                     }
+                }
+                else if (bankId.Substring(0, 3) != toBankId.Substring(0, 3))
+                {
+                    if (transferMethod == 1)
+                    {
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
+                        if (charges != null) bankInterestRate = charges.RtgsOtherBank;
+                    }
+                    else if (transferMethod == 2)
+                    {
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
+                        if (charges != null) bankInterestRate = charges.ImpsOtherBank;
+                    }
+                }
 
             }
-            else if (bankId.Substring(0, 3) != toBankId.Substring(0, 3))
-            {
-                if (transferMethod == 1)
-                {
-                    bankInterestRate = banks[fromBankIndex].Branches[fromBranchIndex].Charges[0].RtgsOtherBank;
-                }
-                else if (transferMethod == 2)
-                {
-                    bankInterestRate = banks[fromBankIndex].Branches[fromBranchIndex].Charges[0].ImpsOtherBank;
-                }
-            }
-
+            
             decimal transferAmountInterest = transferAmount * (bankInterestRate / 100.0m);
             decimal transferAmountWithInterest = transferAmount + transferAmountInterest;
 
             message = CheckAccountBalance(bankId, branchId, customerAccountId);
             decimal fromCustomerBalanace = decimal.Parse(message.Data);
-            if (fromCustomerBalanace > transferAmountInterest + transferAmount)
+            if (fromCustomerBalanace >= transferAmountInterest + transferAmount)
             {
                 banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Balance -= transferAmountWithInterest;
                 banks[toBankIndex].Branches[toBranchIndex].Customers[toCustomerIndex].Balance += transferAmount;

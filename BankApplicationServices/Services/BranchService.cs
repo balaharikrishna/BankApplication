@@ -7,12 +7,11 @@ namespace BankApplicationServices.Services
     {
         private readonly IFileService _fileService;
         private readonly IBankService _bankService;
-        List<Bank> banks;
+        List<Bank> banks ;
         public BranchService(IFileService fileService, IBankService bankService)
         {
             _fileService = fileService;
             _bankService = bankService;
-
         }
         public List<Bank> GetBankData()
         {
@@ -26,7 +25,7 @@ namespace BankApplicationServices.Services
 
         public Message IsBranchesExist(string bankId)
         {
-            GetBankData();
+            banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
@@ -39,7 +38,7 @@ namespace BankApplicationServices.Services
                         branches = new List<Branch>();
                         branches.FindAll(br => br.IsActive == 1);
                     }
-                    if (branches != null && branches.Count >1)
+                    if (branches != null && branches.Count >=1)
                     {
                         message.Result = true;
                         message.ResultMessage = "Branches Exist";
@@ -199,19 +198,22 @@ namespace BankApplicationServices.Services
                     var branchData = branches.Find(br => br.BranchId == branchId);
                     if (branchData != null)
                     {
-                        TransactionCharges transactionCharges = branchData.Charges[0];
-                        if (transactionCharges != null)
+                       List<TransactionCharges> transactionCharges = branchData.Charges;
+                       if(transactionCharges != null )
                         {
-                            message.Result = true;
-                            message.Data = transactionCharges.ToString();
-                            message.ResultMessage = $"Transaction Charges Available";
+                            var charge =  transactionCharges.Find(c => c.IsDeleted == 0);
+                            if (charge != null)
+                            {
+                                message.Result = true;
+                                message.Data = charge.ToString();
+                                message.ResultMessage = $"Transaction Charges Available";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = $"Transaction Charges Not Available";
+                            }
                         }
-                        else
-                        {
-                            message.Result = true;
-                            message.ResultMessage = $"Transaction Charges Not Available";
-                        }
-
                     }
                     
                 }

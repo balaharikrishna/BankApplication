@@ -5,7 +5,7 @@ namespace BankApplication
     internal static class Miscellaneous
     {
         //positions/keywords
-        public static string customer = "Customer";
+        public static readonly string customer = "Customer";
         public static string toCustomer = "ToCustomer";
         public static string staff = "Staff";
         public static string branchManager = "Branch Manager";

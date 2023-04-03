@@ -168,7 +168,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateGenderFormat(int gender)
         {
-            if (gender < 1 && gender > 3)
+            if (gender < 1 || gender > 3)
             {
                 message.Result = false;
                 message.ResultMessage = $"Entered '{gender}' is Invalid, Please Select Either 1 , 2 or 3";

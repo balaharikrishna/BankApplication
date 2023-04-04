@@ -9,7 +9,9 @@ namespace BankApplicationHelperMethods
         private readonly Regex regex = new("^[a-zA-Z]+$");
         private readonly Regex phoneNumberRegex = new("^\\d{10}$");
         private readonly Regex emailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        private readonly Regex dateRegex = new(@"^(0[1-9]|[1-2][0-9]|3[0-1])/(0[1-9]|1[0-2])/(\d{4})$");// Enter a date(DD/MM/YYYY)
+        //private readonly Regex dateRegex = new(@"^(0[1-9]|[1-2][0-9]|3[0-1])/(0[1-9]|1[0-2])/(\d{4})$");// Enter a date(DD/MM/YYYY)
+        private readonly Regex dateRegex = new(@"^(\d{4})/(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1])$");// Enter a date(YYYY/MM/DD)
+
         public Message ValidateBankIdFormat(string bankId)
         {
             Message message = new();
@@ -26,6 +28,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+        
         public Message ValidateBranchIdFormat(string branchId)
         {
             Message message = new();
@@ -41,6 +44,8 @@ namespace BankApplicationHelperMethods
             }
             return message;
         }
+
+        
         public Message ValidateAccountIdFormat(string accountId)
         {
             Message message = new();
@@ -56,6 +61,8 @@ namespace BankApplicationHelperMethods
             }
             return message;
         }
+
+        
         public Message ValidateNameFormat(string name)
         {
             Message message = new();
@@ -73,6 +80,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+        
         public Message ValidatePasswordFormat(string password)
         {
             Message message = new();
@@ -107,6 +115,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+        
         public Message ValidateEmailIdFormat(string emailId)
         {
             Message message = new();
@@ -124,6 +133,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+       
         public Message ValidateAccountTypeFormat(int accountType)
         {
             Message message = new();
@@ -140,6 +150,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+        
         public Message ValidateAddressFormat(string address)
         {
             Message message = new();
@@ -156,6 +167,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+        
         public Message ValidateDateOfBirthFormat(string dateOfBirth)
         {
             Message message = new();
@@ -173,6 +185,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
+        
         public Message ValidateGenderFormat(int gender)
         {
             Message message = new();

@@ -18,36 +18,29 @@ namespace BankApplicationServices.Services
             _encryptionService = encryptionService;
             _branchService = branchService;
             _transactionService = transactionService;
+            banks = new List<Bank>();
         }
-        public List<Bank> GetBankData()
-        {
-            if (_fileService.GetData() != null)
-            {
-                banks = _fileService.GetData();
-            }
-            return banks;
-        }
-        Message message = new Message();
-
+        
         public Message IsCustomersExist(string bankId, string branchId)
         {
-            GetBankData();
+            Message message = new ();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers == null)
+                        if (customers is null)
                         {
                             customers = new List<Customer>();
                             customers.FindAll(c => c.IsActive == 1);
                         }
-                        if (customers != null && customers.Count > 0)
+                        if (customers is not null && customers.Count > 0)
                         {
                             message.Result = true;
                             message.ResultMessage = "Customers Exist in Branch";
@@ -58,34 +51,51 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
+
             return message;
         }
         public Message AuthenticateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerPassword)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        if (customers is not null)
                         {
                             byte[] salt = new byte[32];
-                            var customer = customers.Find(m => m.AccountId == customerAccountId);
-                            if (customer != null)
+                            var customer = customers.Find(m => m.AccountId.Equals(customerAccountId));
+                            if (customer is not null)
                             {
                                 salt = customer.Salt;
                             }
 
                             byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                            bool isCustomerAvilable = customers.Any(m => m.AccountId == customerAccountId && Convert.ToBase64String(m.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck) && m.IsActive == 1);
+                            bool isCustomerAvilable = customers.Any(m => m.AccountId.Equals(customerAccountId) && Convert.ToBase64String(m.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)) && m.IsActive == 1);
                             if (isCustomerAvilable)
                             {
                                 message.Result = true;
@@ -103,27 +113,44 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
+
             return message;
         }
 
         public Message IsAccountExist(string bankId, string branchId, string customerAccountId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        if (customers is not null)
                         {
-                            bool isCustomerAvilable = customers.Any(m => m.AccountId == customerAccountId && m.IsActive == 1);
+                            bool isCustomerAvilable = customers.Any(m => m.AccountId.Equals(customerAccountId) && m.IsActive == 1);
                             if (isCustomerAvilable)
                             {
                                 message.Result = true;
@@ -141,8 +168,24 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
+
             return message;
         }
 
@@ -150,41 +193,38 @@ namespace BankApplicationServices.Services
           string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress,
           string customerDateOfBirth, int customerGender)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
                 List<Customer>? customers = null;
-                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
-                if (branches != null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
+                if (branches is not null)
                 {
-                    customers = branches[branches.FindIndex(br => br.BranchId == branchId)].Customers;
+                    customers = branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Customers;
                 }
 
-                if (customers == null)
-                {
-                    customers = new List<Customer>();
-                }
+                customers ??= new List<Customer>();
 
-                bool isCustomerAlreadyAvailabe = customers.Any(m => m.Name == customerName && m.IsActive == 1); ;
+                bool isCustomerAlreadyAvailabe = customers.Any(m => m.Name.Equals(customerName) && m.IsActive == 1); ;
                 if (!isCustomerAlreadyAvailabe)
                 {
-                    DateTime currentDate = DateTime.Now;
-                    string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
+                    string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string UserFirstThreeCharecters = customerName.Substring(0, 3);
                     string customerAccountId = UserFirstThreeCharecters + date;
 
                     byte[] salt = _encryptionService.GenerateSalt();
                     byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
 
-                    Customer customer = new Customer()
+                    Customer customer = new()
                     {
                         Name = customerName,
                         AccountType = (AccountType)customerAccountType,
                         Salt = salt,
                         HashedPassword = hashedPassword,
                         AccountId = customerAccountId,
-                        PassbookIssueDate = currentDate,
+                        PassbookIssueDate = date,
                         Address = customerAddress,
                         DateOfBirth = customerDateOfBirth,
                         Gender = (Gender)customerGender,
@@ -194,9 +234,9 @@ namespace BankApplicationServices.Services
                     };
 
                     customers.Add(customer);
-                    if (branches != null)
+                    if (branches is not null)
                     {
-                        banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches[branches.FindIndex(br => br.BranchId == branchId)].Customers = customers;
+                        banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].Branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Customers = customers;
                     }
                     _fileService.WriteFile(banks);
                     message.Result = true;
@@ -208,26 +248,31 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"Customer: {customerName} Already Existed";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
             return message;
         }
 
-
         public Message AuthenticateToCustomerAccount(string bankId, string branchId, string customerAccountId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        if (customers is not null)
                         {
-                            bool isToCustomerAvilable = customers.Any(m => m.AccountId == customerAccountId && m.IsActive == 1);
+                            bool isToCustomerAvilable = customers.Any(m => m.AccountId.Equals(customerAccountId) && m.IsActive == 1);
                             if (isToCustomerAvilable)
                             {
                                 message.Result = true;
@@ -245,7 +290,22 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
             }
             return message;
         }
@@ -253,36 +313,37 @@ namespace BankApplicationServices.Services
           string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress,
           string customerDateOfBirth, int customerGender)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
                 List<Customer>? customers = null;
                 Customer? customer = null;
-                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
-                if (branches != null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
+                if (branches is not null)
                 {
-                    customers = branches[branches.FindIndex(br => br.BranchId == branchId)].Customers;
-                    if (customers != null)
+                    customers = branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Customers;
+                    if (customers is not null)
                     {
-                        customer = customers.Find(m => m.AccountId == customerAccountId && m.IsActive == 1);
+                        customer = customers.Find(m => m.AccountId.Equals(customerAccountId) && m.IsActive == 1);
                     }
                 }
 
-                if (customer != null)
+                if (customer is not null)
                 {
                     bool doAllInputsValid = true;
-                    if (customerName != string.Empty)
+                    if (!string.IsNullOrEmpty(customerName))
                     {
                         customer.Name = customerName;
                     }
 
-                    if (customerPassword != string.Empty)
+                    if (!string.IsNullOrEmpty(customerPassword))
                     {
                         byte[] salt = new byte[32];
                         salt = customer.Salt;
                         byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                        if (Convert.ToBase64String(customer.HashedPassword) == Convert.ToBase64String(hashedPasswordToCheck))
+                        if (Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                         {
                             doAllInputsValid = false;
                             message.Result = false;
@@ -298,32 +359,32 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = "Updated Password Sucessfully";
                         }
                     }
-                    if (customerPhoneNumber != string.Empty)
+                    if (!string.IsNullOrEmpty(customerPhoneNumber))
                     {
                         customer.PhoneNumber = customerPhoneNumber;
                     }
 
-                    if (customerEmailId != string.Empty)
+                    if (!string.IsNullOrEmpty(customerEmailId))
                     {
                         customer.EmailId = customerEmailId;
                     }
 
-                    if (customerAccountType != 0)
+                    if (customerAccountType is not 0)
                     {
                         customer.AccountType = (AccountType)customerAccountType;
                     }
 
-                    if (customerAddress != string.Empty)
+                    if (!string.IsNullOrEmpty(customerAddress))
                     {
                         customer.Address = customerAddress;
                     }
 
-                    if (customerDateOfBirth != string.Empty)
+                    if (!string.IsNullOrEmpty(customerDateOfBirth))
                     {
                         customer.DateOfBirth = customerDateOfBirth;
                     }
 
-                    if (customerGender != 0)
+                    if (customerGender is not 0)
                     {
                         customer.Gender = (Gender)customerGender;
                     }
@@ -341,13 +402,18 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"Customer: {customerName} with AccountId:{customerAccountId} Doesn't Exist";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
             return message;
-
         }
 
         public Message DeleteCustomerAccount(string bankId, string branchId, string customerAccountId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
@@ -376,34 +442,39 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"{customerAccountId} Doesn't Exist.";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
             return message;
         }
 
         public Message DepositAmount(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode)
         {
-            GetBankData();
-            int transactionStatus = 2;
+            Message message = new();
+            banks = _fileService.GetData();
             bool isCurrencyAvailable = false;
-            Currency currency = new Currency();
+            Currency currency = new();
             message = IsAccountExist(bankId, branchId, customerAccountId);
             if (message.Result)
             {
                 if (depositAmount > 0)
                 {
                     decimal exchangedAmount = 0;              
-                    if (currency.DefaultCurrencyCode == currencyCode)
+                    if (currency.DefaultCurrencyCode.Equals(currencyCode))
                     {
                         exchangedAmount = depositAmount * currency.ExchangeRate;
                     }
-                    else if (currency.CurrencyCode != currencyCode)
+                    else if (!currency.CurrencyCode.Equals(currencyCode))
                     {
-                        isCurrencyAvailable = banks[banks.FindIndex(bk => bk.BankId == bankId)].Currency.Any(cur => cur.CurrencyCode == currencyCode);
+                        isCurrencyAvailable = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency.Any(cur => cur.CurrencyCode.Equals(currencyCode));
                         if (isCurrencyAvailable)
                         {
-                            int currenyCodeIndex = banks[banks.FindIndex(bk => bk.BankId == bankId)].Currency.FindIndex(cur => cur.CurrencyCode == currencyCode);
+                            int currenyCodeIndex = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency.FindIndex(cur => cur.CurrencyCode.Equals(currencyCode));
                             if (currenyCodeIndex != -1)
                             {
-                                decimal exchangeRateValue = banks[banks.FindIndex(bk => bk.BankId == bankId)].Currency[currenyCodeIndex].ExchangeRate;
+                                decimal exchangeRateValue = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency[currenyCodeIndex].ExchangeRate;
                                 exchangedAmount = depositAmount * exchangeRateValue;
                             }
                             else
@@ -411,7 +482,6 @@ namespace BankApplicationServices.Services
                                 message.Result = false;
                                 message.ResultMessage = "Currency code not available in the bank.please add Currencies with exchange Rates.";
                             }
-
                         }
                         else
                         {
@@ -423,36 +493,63 @@ namespace BankApplicationServices.Services
                     if (exchangedAmount > 0)
                     {
                         message = CheckAccountBalance(bankId, branchId, customerAccountId);
-                        decimal avlbalance;
-                        bool isBalanceAvailable = decimal.TryParse(message.Data, out avlbalance);
+                        bool isBalanceAvailable = decimal.TryParse(message.Data, out decimal avlbalance);
                         avlbalance += exchangedAmount;
 
-                        var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                        if (bank != null)
+                        var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                        if (bank is not null)
                         {
-                            var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                            if (branch != null)
+                            var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                            if (branch is not null)
                             {
                                 List<Customer> customers = branch.Customers;
-                                if (customers != null)
+                                if (customers is not null)
                                 {
-                                    var customer = customers.Find(m => m.AccountId == customerAccountId);
-                                    if (customer != null)
+                                    var customer = customers.Find(m => m.AccountId.Equals(customerAccountId));
+                                    if (customer is not null)
                                     {
                                         customer.Balance = avlbalance;
                                         _fileService.WriteFile(banks);
                                         message.Result = true;
                                         message.ResultMessage = $"Amount:'{exchangedAmount}' Added Succesfully";
-                                        transactionStatus = 1;
-                                        _transactionService.TransactionHistory(bankId, branchId, customerAccountId, 0, exchangedAmount, customer.Balance, 1, transactionStatus);
+                                        _transactionService.TransactionHistory(bankId, branchId, customerAccountId, 0, exchangedAmount, customer.Balance, 1);
+                                    }
+                                    else
+                                    {
+                                        message.Result = false;
+                                        message.ResultMessage = "Customer Doest Exist";
                                     }
                                 }
+                                else
+                                {
+                                    message.Result = false;
+                                    message.ResultMessage = "No Customers Available";
+                                }
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Branch Not Found";
                             }
                         }
-
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Bank Not Found";
+                        }
                     }
-
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Amount less than 0";
+                    }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Amount less than 0";
+                }
+
             }
             else
             {
@@ -464,107 +561,180 @@ namespace BankApplicationServices.Services
 
         public Message CheckAccountBalance(string bankId, string branchId, string customerAccountId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = IsAccountExist(bankId, branchId, customerAccountId);
             decimal customerBalance = 0;
 
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        if (customers is not null)
                         {
-                            var customer = customers.Find(c => c.AccountId == customerAccountId);
-                            if (customer != null)
+                            var customer = customers.Find(c => c.AccountId.Equals(customerAccountId));
+                            if (customer is not null)
                             {
                                 customerBalance = customer.Balance;
                                 message.Result = true;
                                 message.ResultMessage = $"Available Balance :{customerBalance}";
                                 message.Data = $"{customerBalance}";
                             }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Customer Doest Exist";
+                            }
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "No Customers Available";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Customer Doest Exist";
+            }
+
             return message;
         }
 
         public Message CheckToCustomerAccountBalance(string bankId, string branchId, string customerAccountId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = IsAccountExist(bankId, branchId, customerAccountId);
             decimal customerBalance = 0;
 
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        if (customers is not null)
                         {
-                            var customer = customers.Find(c => c.AccountId == customerAccountId);
-                            if (customer != null)
+                            var customer = customers.Find(c => c.AccountId.Equals(customerAccountId));
+                            if (customer is not null)
                             {
                                 customerBalance = customer.Balance;
                                 message.Result = true;
                                 message.ResultMessage = $"Available Balance :{customerBalance}";
                                 message.Data = $"{customerBalance}";
                             }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Customer Doest Exist";
+                            }
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "No Customers Available";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Customer Doest Exist";
+            }
+
             return message;
         }
 
         public Message WithdrawAmount(string bankId, string branchId, string customerAccountId, decimal withDrawAmount)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = CheckAccountBalance(bankId, branchId, customerAccountId);
-            decimal balance;
-            decimal.TryParse(message.Data, out balance);
+            bool isValid = decimal.TryParse(message.Data, out decimal balance);
             if (balance == 0)
             {
                 message.Result = false;
                 message.ResultMessage = "Failed ! Account Balance: 0 Rupees";
             }
-            else if (balance < withDrawAmount)
+            else if (isValid && balance < withDrawAmount)
             {
                 message.Result = false;
                 message.ResultMessage = $"Insufficient funds !! Aval.Bal is {balance} Rupees";
             }
             else
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
                         List<Customer> customers = branch.Customers;
-                        if (customers != null)
+                        if (customers is not null)
                         {
-                            var customer = customers.Find(c => c.AccountId == customerAccountId);
-                            if (customer != null)
+                            var customer = customers.Find(c => c.AccountId.Equals(customerAccountId));
+                            if (customer is not null)
                             {
                                 customer.Balance -= withDrawAmount;
                                 _fileService.WriteFile(banks);
                                 message.Result = true;
                                 message.ResultMessage = $"Withdraw Successful!! Aval.Bal is {customer.Balance}Rupees";
-                                int transactionStatus = 1;
-                                _transactionService.TransactionHistory(bankId, branchId, customerAccountId, withDrawAmount, 0, customer.Balance, 2, transactionStatus);
+                                _transactionService.TransactionHistory(bankId, branchId, customerAccountId, withDrawAmount, 0, customer.Balance, 2);
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Customer Doest Exist";
                             }
                         }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "No Customers Available";
+                        }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
             return message;
@@ -573,45 +743,82 @@ namespace BankApplicationServices.Services
         public Message TransferAmount(string bankId, string branchId, string customerAccountId, string toBankId,
             string toBranchId, string toCustomerAccountId, decimal transferAmount, int transferMethod)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             Message fromCustomer = IsAccountExist(bankId, branchId, customerAccountId);
             int bankInterestRate = 0;
-            int fromBankIndex = banks.FindIndex(b => b.BankId == bankId);
-            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == branchId);
-            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == customerAccountId);
+            int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(bankId));
+            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(branchId));
+            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(customerAccountId));
             Message toCustomer = IsAccountExist(toBankId, toBranchId, toCustomerAccountId);
-            int toBankIndex = banks.FindIndex(b => b.BankId == toBankId);
-            int toBranchIndex = banks[toBankIndex].Branches.FindIndex(br => br.BranchId == toBranchId);
-            int toCustomerIndex = banks[toBankIndex].Branches[toBranchIndex].Customers.FindIndex(c => c.AccountId == toCustomerAccountId);
+            int toBankIndex = banks.FindIndex(b => b.BankId.Equals(toBankId));
+            int toBranchIndex = banks[toBankIndex].Branches.FindIndex(br => br.BranchId.Equals(toBranchId));
+            int toCustomerIndex = banks[toBankIndex].Branches[toBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(toCustomerAccountId));
             if (fromCustomer.Result && toCustomer.Result)
             {
-                if (bankId.Substring(0, 3) == toBankId.Substring(0, 3))
+                if (bankId.Substring(0, 3).Equals(toBankId.Substring(0, 3)))
                 {
                     if (transferMethod == 1)
                     {
-                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
-                        if (charges != null) bankInterestRate = charges.RtgsSameBank;
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsActive == 1);
+                        if (charges is not null)
+                        {
+                            bankInterestRate = charges.RtgsSameBank;
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Chareges Not Available";
+                        }
                     }
                     else if (transferMethod == 2)
                     {
-                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
-                        if (charges != null) bankInterestRate = charges.ImpsSameBank;
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsActive == 1);
+                        if (charges is not null)
+                        {
+                            bankInterestRate = charges.ImpsSameBank;
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Chareges Not Available";
+                        }
                     }
                 }
                 else if (bankId.Substring(0, 3) != toBankId.Substring(0, 3))
                 {
                     if (transferMethod == 1)
                     {
-                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
-                        if (charges != null) bankInterestRate = charges.RtgsOtherBank;
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsActive == 1);
+                        if (charges is not null)
+                        {
+                            bankInterestRate = charges.RtgsOtherBank;
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Chareges Not Available";
+                        }
                     }
                     else if (transferMethod == 2)
                     {
-                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsDeleted == 0);
-                        if (charges != null) bankInterestRate = charges.ImpsOtherBank;
+                        var charges = banks[fromBankIndex].Branches[fromBranchIndex].Charges.Find(c => c.IsActive == 1);
+                        if (charges is not null)
+                        {
+                            bankInterestRate = charges.ImpsOtherBank;
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Chareges Not Available";
+                        }
                     }
                 }
-
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Account Doesn't Exist";
             }
             
             decimal transferAmountInterest = transferAmount * (bankInterestRate / 100.0m);
@@ -629,7 +836,7 @@ namespace BankApplicationServices.Services
 
                 message = CheckToCustomerAccountBalance(toBankId, toBranchId, toCustomerAccountId);
                 decimal toCustomerBalance = decimal.Parse(message.Data);
-                _transactionService.TransactionHistory(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, 3, 1);
+                _transactionService.TransactionHistory(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, 3);
                 message.Result = true;
                 message.ResultMessage = $"Transfer of {transferAmount} Rupees Sucessfull.,Deducted Amout :{transferAmount + transferAmountInterest}, Avl.Bal: {fromCustomerBalanace}";
             }
@@ -643,13 +850,14 @@ namespace BankApplicationServices.Services
         }
         public string GetPassbook(string bankId, string branchId, string customerAccountId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = IsAccountExist(bankId, branchId, customerAccountId);
             if (message.Result)
             {
-                int fromBankIndex = banks.FindIndex(b => b.BankId == bankId);
-                int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId == branchId);
-                int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId == customerAccountId);
+                int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(bankId));
+                int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(branchId));
+                int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(customerAccountId));
 
                 Customer details = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex];
                 return details.ToString();
@@ -658,7 +866,6 @@ namespace BankApplicationServices.Services
             {
                 return string.Empty;
             }
-
         }
     }
 }

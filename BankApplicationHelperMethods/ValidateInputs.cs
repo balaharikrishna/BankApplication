@@ -5,15 +5,14 @@ namespace BankApplicationHelperMethods
 {
     public class ValidateInputs : IValidateInputs
     {
-        Message message = new Message();
-
-        private Regex passwordRegex = new Regex("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
-        private Regex regex = new Regex("^[a-zA-Z]+$");
-        private Regex phoneNumberRegex = new Regex("^\\d{10}$");
-        private Regex emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        private Regex dateRegex = new Regex(@"^(0[1-9]|[1-2][0-9]|3[0-1])/(0[1-9]|1[0-2])/(\d{4})$");// Enter a date(DD/MM/YYYY)
+        private readonly Regex passwordRegex = new("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
+        private readonly Regex regex = new("^[a-zA-Z]+$");
+        private readonly Regex phoneNumberRegex = new("^\\d{10}$");
+        private readonly Regex emailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        private readonly Regex dateRegex = new(@"^(0[1-9]|[1-2][0-9]|3[0-1])/(0[1-9]|1[0-2])/(\d{4})$");// Enter a date(DD/MM/YYYY)
         public Message ValidateBankIdFormat(string bankId)
         {
+            Message message = new();
             if (bankId.Length != 12)
             {
                 message.Result = false;
@@ -29,6 +28,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateBranchIdFormat(string branchId)
         {
+            Message message = new();
             if (branchId.Length != 17)
             {
                 message.Result = false;
@@ -43,6 +43,7 @@ namespace BankApplicationHelperMethods
         }
         public Message ValidateAccountIdFormat(string accountId)
         {
+            Message message = new();
             if (accountId.Length != 17)
             {
                 message.Result = false;
@@ -57,6 +58,7 @@ namespace BankApplicationHelperMethods
         }
         public Message ValidateNameFormat(string name)
         {
+            Message message = new();
             bool isValidName = regex.IsMatch(name);
             if (!isValidName)
             {
@@ -73,6 +75,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidatePasswordFormat(string password)
         {
+            Message message = new();
             bool isValidPassword = passwordRegex.IsMatch(password);
             if (!isValidPassword)
             {
@@ -89,6 +92,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidatePhoneNumberFormat(string phoneNumber)
         {
+            Message message = new();
             bool isValidPhoneNumber = phoneNumberRegex.IsMatch(phoneNumber);
             if (!isValidPhoneNumber)
             {
@@ -105,6 +109,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateEmailIdFormat(string emailId)
         {
+            Message message = new();
             bool isValidemail = emailRegex.IsMatch(emailId);
             if (!isValidemail)
             {
@@ -121,6 +126,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateAccountTypeFormat(int accountType)
         {
+            Message message = new();
             if (accountType != 1 && accountType != 2)
             {
                 message.Result = false;
@@ -136,8 +142,8 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateAddressFormat(string address)
         {
-
-            if (address == string.Empty || address.Length < 10)
+            Message message = new();
+            if (string.IsNullOrEmpty(address) || address.Length < 10)
             {
                 message.Result = false;
                 message.ResultMessage = $"Entered Address '{address}'., Address Should not be Empty or Less Than 10 Charecters.";
@@ -152,6 +158,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateDateOfBirthFormat(string dateOfBirth)
         {
+            Message message = new();
             bool isValidDob = dateRegex.IsMatch(dateOfBirth);
             if (!isValidDob)
             {
@@ -168,6 +175,7 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateGenderFormat(int gender)
         {
+            Message message = new();
             if (gender < 1 || gender > 3)
             {
                 message.Result = false;
@@ -183,7 +191,8 @@ namespace BankApplicationHelperMethods
 
         public Message ValidateCurrencyCodeFormat(string currencyCode)
         {
-            if (currencyCode == null || currencyCode.Length != 3 && currencyCode.Length != 4)
+            Message message = new();
+            if (currencyCode is null || currencyCode.Length != 3 && currencyCode.Length != 4)
             {
                 message.Result = false;
                 message.ResultMessage = $"Entered CurrencyCode '{currencyCode}' Should Not be NUll & Should be 3 or 4 Charecters only";

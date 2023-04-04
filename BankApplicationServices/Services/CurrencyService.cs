@@ -11,51 +11,48 @@ namespace BankApplicationServices.Services
         public CurrencyService(IFileService fileService, IBankService bankService) {
             _bankService = bankService;
             _fileService = fileService;
+            banks = new List<Bank>();
         }
-        public List<Bank> GetBankData()
-        {
-            if (_fileService.GetData() != null)
-            {
-                banks = _fileService.GetData();
-            }
-            return banks;
-        }
-        Message message = new Message();
+     
         public Message AddCurrency(string bankId, string currencyCode, decimal exchangeRate)
         {
-            GetBankData();
-           message =  _bankService.AuthenticateBankId(bankId);
+            Message message = new();
+            banks = _fileService.GetData();
+            message =  _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                Currency currency = new Currency()
+                Currency currency = new()
                 {
                     ExchangeRate = exchangeRate,
                     CurrencyCode = currencyCode
                 };
-                int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+                int bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
                 List<Currency> currencies = banks[bankIndex].Currency;
-                if (currencies == null)
-                {
-                    currencies = new List<Currency>();
-                }
+                currencies ??= new List<Currency>();
                 currencies.Add(currency);
                 banks[bankIndex].Currency = currencies;
                 _fileService.WriteFile(banks);
                 message.Result = true;
                 message.ResultMessage = $"Added Currency Code:{currencyCode} with Exchange Rate:{exchangeRate}";
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BankId Authentication Failed";
+            }
             return message;
         }
 
         public Message UpdateCurrency(string bankId, string currencyCode, decimal exchangeRate)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId == bankId)].Currency;
-                var currency = currencies.Find(ck => ck.CurrencyCode == currencyCode);
-                if (currency != null)
+                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency;
+                var currency = currencies.Find(ck => ck.CurrencyCode.Equals(currencyCode));
+                if (currency is not null)
                 {
                     currency.ExchangeRate = exchangeRate;
                     message.Result = true;
@@ -68,19 +65,25 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"Currency Code :{currencyCode} not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
             return message;
         }
         public Message DeleteCurrency(string bankId, string currencyCode)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId == bankId)].Currency;
-                var currency = currencies.Find(ck => ck.CurrencyCode == currencyCode);
-                if (currency != null)
+                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency;
+                var currency = currencies.Find(ck => ck.CurrencyCode.Equals(currencyCode));
+                if (currency is not null)
                 {
-                    currency.IsDeleted = 1;
+                    currency.IsActive = 0;
                     message.Result = true;
                     message.ResultMessage = $"Currency Code :{currencyCode} Deleted Successfully.";
                     _fileService.WriteFile(banks);
@@ -91,21 +94,24 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"Currency Code :{currencyCode} not Found";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
+            }
             return message;
         }
 
         public  Message ValidateCurrency(string bankId, string currencyCode)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId == bankId)].Currency.FindAll(cr=>cr.IsDeleted == 0);
-                if(currencies == null)
-                {
-                    currencies= new List<Currency>();
-                }
-                bool currency = currencies.Any(ck => ck.CurrencyCode == currencyCode);
+                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency.FindAll(cr=>cr.IsActive == 1);
+                currencies ??= new List<Currency>();
+                bool currency = currencies.Any(ck => ck.CurrencyCode.Equals(currencyCode));
                 if (currency)
                 {
                     message.Result = true;
@@ -116,6 +122,11 @@ namespace BankApplicationServices.Services
                     message.Result = false;
                     message.ResultMessage = $"Currency Code:'{currencyCode}' doesn't Exist";
                 }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BranchId Authentication Failed";
             }
             return message;
         }

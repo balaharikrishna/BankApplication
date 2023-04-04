@@ -7,38 +7,29 @@ namespace BankApplicationServices.Services
     {
         private readonly IFileService _fileService;
         private readonly IBankService _bankService;
-        List<Bank> banks ;
+        List<Bank> banks;
         public BranchService(IFileService fileService, IBankService bankService)
         {
             _fileService = fileService;
             _bankService = bankService;
+            banks = new List<Bank>();
         }
-        public List<Bank> GetBankData()
-        {
-            if (_fileService.GetData() != null)
-            {
-                banks = _fileService.GetData();
-            }
-            return banks;
-        }
-        Message message = new Message();
 
         public Message IsBranchesExist(string bankId)
         {
+            Message message = new();
             banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+                int bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
                 if (bankIndex >= 0)
                 {
                     List<Branch> branches = banks[bankIndex].Branches;
-                    if(branches == null)
-                    {
-                        branches = new List<Branch>();
-                        branches.FindAll(br => br.IsActive == 1);
-                    }
-                    if (branches != null && branches.Count >=1)
+                    branches ??= new List<Branch>();
+                    branches.FindAll(br => br.IsActive == 1);
+
+                    if (branches is not null && branches.Count >= 1)
                     {
                         message.Result = true;
                         message.ResultMessage = "Branches Exist";
@@ -49,6 +40,16 @@ namespace BankApplicationServices.Services
                         message.ResultMessage = $"No Branches Available for {bankId}";
                     }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Bank Authentication Failed";
             }
 
             return message;
@@ -56,19 +57,20 @@ namespace BankApplicationServices.Services
 
         public Message AuthenticateBranchId(string bankId, string branchId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+                int bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
                 if (bankIndex >= 0)
                 {
                     List<Branch> branches = banks[bankIndex].Branches;
-                    if (branches != null)
+                    if (branches is not null)
                     {
 
-                        var branchData = branches.Find(br => br.BranchId == branchId && br.IsActive == 1);
-                        if (branchData != null)
+                        var branchData = branches.Find(br => br.BranchId.Equals(branchId) && br.IsActive == 1);
+                        if (branchData is not null)
                         {
                             Branch branch = branchData;
                             message.Result = true;
@@ -80,26 +82,38 @@ namespace BankApplicationServices.Services
                             message.ResultMessage = $"BranchId:{branchId} Not Found!";
                         }
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "No Branches Available";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
                 }
             }
-
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Bank Authentication Failed";
+            }
             return message;
         }
 
         public Message CreateBranch(string bankId, string branchName, string branchPhoneNumber, string branchAddress)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
                 bool isBranchAlreadyRegistered = false;
-                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
-                if (branches == null)
-                {
-                    branches = new List<Branch>();
-                }
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
+                branches ??= new List<Branch>();
 
-                isBranchAlreadyRegistered = branches.Any(branch => branch.BranchName == branchName);
+                isBranchAlreadyRegistered = branches.Any(branch => branch.BranchName.Equals(branchName));
 
                 if (isBranchAlreadyRegistered)
                 {
@@ -108,12 +122,11 @@ namespace BankApplicationServices.Services
                 }
                 else
                 {
-                    DateTime currentDate = DateTime.Now;
-                    string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
+                    string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string branchNameFirstThreeCharecters = branchName.Substring(0, 3);
                     string branchId = branchNameFirstThreeCharecters + date;
 
-                    Branch branch = new Branch();
+                    Branch branch = new();
                     {
                         branch.BranchName = branchName;
                         branch.BranchId = branchId;
@@ -122,25 +135,31 @@ namespace BankApplicationServices.Services
                         branch.IsActive = 1;
                     }
                     branches.Add(branch);
-                    banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches = branches;
+                    banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches = branches;
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Branch Created Successfully with BranchName:{branchName} & BranchId:{branchId}";
                 }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Bank Authentication Failed";
             }
             return message;
         }
 
         public Message UpdateBranch(string bankId, string branchId, string branchName, string branchPhoneNumber, string branchAddress)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+                int bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
                 List<Branch> branches = banks[bankIndex].Branches;
-                var branchData = branches.Find(br => br.BranchId == branchId);
-                if (branchData != null)
+                var branchData = branches.Find(br => br.BranchId.Equals(branchId));
+                if (branchData is not null)
                 {
                     Branch branch = branchData;
 
@@ -162,47 +181,68 @@ namespace BankApplicationServices.Services
                     message.Result = true;
                     message.ResultMessage = $"Updated BranchId:{branchId} with Branch Name:{branch.BranchName},Branch Phone Number:{branch.BranchPhoneNumber},Branch Address:{branch.BranchAddress}";
                 }
-
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Branch Not Found";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Branch Authentication Failed";
             }
             return message;
         }
         public Message DeleteBranch(string bankId, string branchId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bk => bk.BankId == bankId);
+                int bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
                 List<Branch> branches = banks[bankIndex].Branches;
-                var branchData = branches.Find(br => br.BranchId == branchId);
-                if (branchData != null)
+                var branchData = branches.Find(br => br.BranchId.Equals(branchId));
+                if (branchData is not null)
                 {
                     branchData.IsActive = 0;
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Deleted BranchId:{branchId} Successfully";
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Branch Not Found";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Branch Authentication Failed";
             }
             return message;
         }
 
         public Message GetTransactionCharges(string bankId, string branchId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId == bankId)].Branches;
-                if (branches != null)
+                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
+                if (branches is not null)
                 {
-                    var branchData = branches.Find(br => br.BranchId == branchId);
-                    if (branchData != null)
+                    var branchData = branches.Find(br => br.BranchId.Equals(branchId));
+                    if (branchData is not null)
                     {
-                       List<TransactionCharges> transactionCharges = branchData.Charges;
-                       if(transactionCharges != null )
+                        List<TransactionCharges> transactionCharges = branchData.Charges;
+                        if (transactionCharges is not null)
                         {
-                            var charge =  transactionCharges.Find(c => c.IsDeleted == 0);
-                            if (charge != null)
+                            var charge = transactionCharges.Find(c => c.IsActive == 1);
+                            if (charge is not null)
                             {
                                 message.Result = true;
                                 message.Data = charge.ToString();
@@ -214,9 +254,28 @@ namespace BankApplicationServices.Services
                                 message.ResultMessage = $"Transaction Charges Not Available";
                             }
                         }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "TransactionCharges Not Found";
+                        }
                     }
-                    
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found";
+                    }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "No Branches Available.";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Branch Authentication Failed";
             }
             return message;
         }

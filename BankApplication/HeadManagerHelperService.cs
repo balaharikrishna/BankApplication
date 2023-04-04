@@ -7,12 +7,12 @@ namespace BankApplication
 {
     internal class HeadManagerHelperService : IHeadManagerHelperService
     {
-        IBranchService _branchService;
-        ICommonHelperService _commonHelperService;
-        IManagerService _managerService;
-        ICurrencyService _currencyService;
-        IValidateInputs _validateInputs;
-        IBankService _bankService;
+        readonly IBranchService _branchService;
+        readonly ICommonHelperService _commonHelperService;
+        readonly IManagerService _managerService;
+        readonly ICurrencyService _currencyService;
+        readonly IValidateInputs _validateInputs;
+        readonly IBankService _bankService;
         public HeadManagerHelperService(IBranchService branchService, ICommonHelperService commonHelperService,
             IManagerService managerService, ICurrencyService currencyService, IValidateInputs validateInputs, IBankService bankService)
         {
@@ -28,8 +28,7 @@ namespace BankApplication
             switch (Option)
             {
                 case 1: //CreateBranch
-                    bool branchPendingStatus = true;
-                    while (branchPendingStatus)
+                    while (true)
                     {
                         string branchName = _commonHelperService.GetName(Miscellaneous.branch, _validateInputs);
                         string branchPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.branch, _validateInputs);
@@ -50,14 +49,12 @@ namespace BankApplication
                     break;
 
                 case 2: //OpenManagerAcccount
-                    bool OpenManagerAccountPending = true;
-                    while (OpenManagerAccountPending)
+                    while (true)
                     {
                         Message message = _branchService.IsBranchesExist(headManagerBankId);
                         if (message.Result)
                         {
                             string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
-
                             string branchManagerName = _commonHelperService.GetName(Miscellaneous.branchManager, _validateInputs);
                             string branchManagerPassword = _commonHelperService.GetPassword(Miscellaneous.branchManager, _validateInputs);
 
@@ -76,7 +73,6 @@ namespace BankApplication
                         }
                         else
                         {
-                            OpenManagerAccountPending = false;
                             Console.WriteLine(message.ResultMessage);
                             break;
                         }
@@ -84,9 +80,9 @@ namespace BankApplication
                     break;
 
                 case 3: //UpdateManagerAccount 
-                    bool case3Pending = true;
-                    while (case3Pending)
+                    while (true)
                     {
+                        Message message = new();
                         message = _branchService.IsBranchesExist(headManagerBankId);
                         if (message.Result)
                         {
@@ -103,13 +99,12 @@ namespace BankApplication
                                     Console.WriteLine("Manager Details:");
                                     Console.WriteLine(managerDetatils);
 
-                                    string managerName = string.Empty;
-                                    bool invalidManagerName = true;
-                                    while (invalidManagerName)
+                                    string managerName;
+                                    while (true)
                                     {
                                         Console.WriteLine("Update Manager Name");
                                         managerName = Console.ReadLine() ?? string.Empty;
-                                        if (managerName != string.Empty)
+                                        if (!string.IsNullOrEmpty(managerName))
                                         {
                                             message = _validateInputs.ValidateNameFormat(managerName);
                                             if (!message.Result)
@@ -119,25 +114,21 @@ namespace BankApplication
                                             }
                                             else
                                             {
-
-                                                invalidManagerName = false;
                                                 break;
                                             }
                                         }
                                         else
                                         {
-                                            invalidManagerName = false;
                                             break;
                                         }
                                     }
 
-                                    string managerPassword = string.Empty;
-                                    bool invalidManagerPassword = true;
-                                    while (invalidManagerPassword)
+                                    string managerPassword;
+                                    while (true)
                                     {
                                         Console.WriteLine("Update Staff Password");
                                         managerPassword = Console.ReadLine() ?? string.Empty;
-                                        if (managerPassword != string.Empty)
+                                        if (!string.IsNullOrEmpty(managerPassword))
                                         {
                                             message = _validateInputs.ValidatePasswordFormat(managerPassword);
                                             if (!message.Result)
@@ -147,14 +138,11 @@ namespace BankApplication
                                             }
                                             else
                                             {
-
-                                                invalidManagerPassword = false;
-                                                break;
+                                               break;
                                             }
                                         }
                                         else
                                         {
-                                            invalidManagerPassword = false;
                                             break;
                                         }
                                     }
@@ -164,7 +152,6 @@ namespace BankApplication
                                     if (message.Result)
                                     {
                                         Console.WriteLine(message.ResultMessage);
-                                        case3Pending = false;
                                         break;
                                     }
                                     else
@@ -182,23 +169,21 @@ namespace BankApplication
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case3Pending = false;
                                 break;
                             }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            case3Pending = false;
                             break;
                         }
                     }
                     break;
 
                 case 4://DeleteManagerAccount
-                    bool deleteManagerAccountPending = true;
-                    while (deleteManagerAccountPending)
+                    while (true)
                     {
+                        Message message = new();
                         message = _branchService.IsBranchesExist(headManagerBankId);
                         if (message.Result)
                         {
@@ -223,64 +208,48 @@ namespace BankApplication
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                deleteManagerAccountPending = false;
                                 break;
                             }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            deleteManagerAccountPending = false;
                             break;
                         }
                     }
                     break;
 
                 case 5: //AddCurrency with exchange Rates
-                    bool addExchangeRatesPendingStatus = true;
-                    while (addExchangeRatesPendingStatus)
+                    while (true)
                     {
-                        bool CurrencyCodePending = true;
-                        while (CurrencyCodePending)
+                        Message message = new();
+                        Console.WriteLine("Please Enter currency Code");
+                        string currencyCode = Console.ReadLine()?.ToUpper() ?? string.Empty;
+                        message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
+                        if (message.Result)
                         {
-                            Console.WriteLine("Please Enter currency Code");
-                            string currencyCode = Console.ReadLine()?.ToUpper() ?? string.Empty;
-                            message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
-                            if (message.Result)
+                            message = _currencyService.ValidateCurrency(headManagerBankId, currencyCode);
+                            if (!message.Result)
                             {
-                                message = _currencyService.ValidateCurrency(headManagerBankId, currencyCode);
-                                if (!message.Result)
+                                while (true)
                                 {
-                                    bool exchangeRatePending = true;
-                                    while (exchangeRatePending)
-                                    {
-                                        Console.WriteLine("Please Enter Exchange Rate as Per INR");
-                                        decimal exchangeRate = 0;
-                                        bool isValid = decimal.TryParse(Console.ReadLine(), out exchangeRate);
+                                    Console.WriteLine("Please Enter Exchange Rate as Per INR");
+                                    bool isValid = decimal.TryParse(Console.ReadLine(), out decimal exchangeRate);
 
-                                        if (isValid && exchangeRate == 0)
+                                    if (isValid && exchangeRate == 0)
+                                    {
+                                        Console.WriteLine($"Provided '{exchangeRate}' Should Not be zero or Empty");
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        message = _currencyService.AddCurrency(headManagerBankId, currencyCode, exchangeRate);
+                                        if (message.Result)
                                         {
-                                            Console.WriteLine($"Provided '{exchangeRate}' Should Not be zero or Empty");
-                                            continue;
-                                        }
-                                        else
-                                        {
-                                            message = _currencyService.AddCurrency(headManagerBankId, currencyCode, exchangeRate);
-                                            if (message.Result)
-                                            {
-                                                Console.WriteLine(message.ResultMessage);
-                                                exchangeRatePending = false;
-                                                CurrencyCodePending = false;
-                                                addExchangeRatesPendingStatus = false;
-                                                break;
-                                            }
+                                            Console.WriteLine(message.ResultMessage);
+                                            break;
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    Console.WriteLine(message.ResultMessage);
-                                    continue;
                                 }
                             }
                             else
@@ -289,19 +258,23 @@ namespace BankApplication
                                 continue;
                             }
                         }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            continue;
+                        }
                     }
-                    break;
+
 
                 case 6: //UpdateCurrency with exchange Rates
-                    bool UpdateExchangeRatesPendingStatus = true;
-                    while (UpdateExchangeRatesPendingStatus)
+                    while (true)
                     {
+                        Message message = new();
                         message = _bankService.GetExchangeRates(headManagerBankId);
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
-                            bool CurrencyCodePending = true;
-                            while (CurrencyCodePending)
+                            while (true)
                             {
                                 Console.WriteLine("Please Enter currency Code");
                                 string currencyCode = Console.ReadLine() ?? string.Empty;
@@ -311,12 +284,10 @@ namespace BankApplication
                                     message = _currencyService.ValidateCurrency(headManagerBankId, currencyCode);
                                     if (message.Result)
                                     {
-                                        bool exchangeRatePending = true;
-                                        while (exchangeRatePending)
+                                        while (true)
                                         {
                                             Console.WriteLine("Please Enter Exchange Rate as Per INR");
-                                            decimal exchangeRate = 0;
-                                            bool isValid = decimal.TryParse(Console.ReadLine(), out exchangeRate);
+                                            bool isValid = decimal.TryParse(Console.ReadLine(), out decimal exchangeRate);
 
                                             if (isValid && exchangeRate == 0)
                                             {
@@ -329,11 +300,7 @@ namespace BankApplication
                                                 if (message.Result)
                                                 {
                                                     Console.WriteLine(message.ResultMessage);
-                                                    exchangeRatePending = false;
-                                                    CurrencyCodePending = false;
-                                                    UpdateExchangeRatesPendingStatus = false;
                                                     break;
-
                                                 }
                                             }
                                         }
@@ -354,21 +321,19 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            UpdateExchangeRatesPendingStatus = false;
                             break;
                         }
                     }
                     break;
 
                 case 7: //DeleteExchangeRates
-                    bool deleteExchangeRatesPendingStatus = true;
-                    while (deleteExchangeRatesPendingStatus)
+                    while (true)
                     {
+                        Message message = new();
                         message = _bankService.GetExchangeRates(headManagerBankId);
                         if (message.Result)
                         {
-                            bool CurrencyCodePending = true;
-                            while (CurrencyCodePending)
+                            while (true)
                             {
                                 Console.WriteLine("Please Enter currency Code");
                                 string currencyCode = Console.ReadLine() ?? string.Empty;
@@ -382,11 +347,7 @@ namespace BankApplication
                                         if (message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
-
-                                            CurrencyCodePending = false;
-                                            deleteExchangeRatesPendingStatus = false;
                                             break;
-
                                         }
                                     }
                                     else
@@ -405,10 +366,8 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            deleteExchangeRatesPendingStatus = false;
                             break;
                         }
-
                     }
                     break;
             }

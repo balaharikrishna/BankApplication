@@ -9,23 +9,17 @@ namespace BankApplication
 {
     public class CommonHelperService : ICommonHelperService
     {
-       
-        Message message = new Message();
-
         private string bankId = string.Empty;
         private string branchId = string.Empty;
 
         //It takes the menu options and Process It To and Fro.
         public ushort GetOption(string position)
         {
-            ushort result = 0;
-            bool isInvalidOption = true;
-            while (isInvalidOption)
+            while (true)
             {
                 Console.WriteLine("Please Enter the Option");
-                ushort Option;
-                bool isValidOption = ushort.TryParse(Console.ReadLine(), out Option);
-                if (isValidOption == false)
+                bool isValidOption = ushort.TryParse(Console.ReadLine(), out ushort Option);
+                if (!isValidOption)
                 {
                     Console.WriteLine("Option should contain only Positive Numbers.");
                     continue;
@@ -36,133 +30,88 @@ namespace BankApplication
                     switch (position)
                     {
                         case "Main Page":
-                            bool invalidMainPageOption = true;
-                            while (invalidMainPageOption)
+                            while (true)
                             {
                                 if (Option == 0 || Option > 5)
                                 {
                                     Console.WriteLine(errorMessage);
-                                    invalidMainPageOption = false;
                                     break;
                                 }
-                                else
-                                {
-                                    result = Option;
-                                    invalidMainPageOption = false;
-                                    isInvalidOption = false;
-                                    break;
-                                }
+                                break;
                             }
                             break;
 
                         case "Customer":
-                            bool invalidCustomerOption = true;
-                            while (invalidCustomerOption)
+                            while (true)
                             {
                                 if (Option > 7)
                                 {
                                     Console.WriteLine(errorMessage);
-                                    invalidCustomerOption = false;
-                                }
-                                else
-                                {
-                                    invalidCustomerOption = false;
-                                    isInvalidOption = false;
-                                    result = Option;
                                     break;
                                 }
+                                break;
                             }
                             break;
 
                         case "Staff":
-                            bool invalidStaffOption = true;
-                            while (invalidStaffOption)
+                            while (true)
                             {
                                 if (Option > 10)
                                 {
                                     Console.WriteLine(errorMessage);
-                                    invalidStaffOption = false;
                                     break;
                                 }
-                                else
-                                {
-                                    invalidStaffOption = false;
-                                    isInvalidOption = false;
-                                    result = Option;
-                                    break;
-                                }
+                                break;
                             }
                             break;
 
                         case "Branch Manager":
-                            bool invalidBranchManagerOption = true;
-                            while (invalidBranchManagerOption)
+                            while (true)
                             {
                                 if (Option > 16)
                                 {
                                     Console.WriteLine(errorMessage);
-                                    invalidBranchManagerOption = false;
                                     break;
                                 }
-                                else
-                                {
-                                    invalidBranchManagerOption = false;
-                                    isInvalidOption = false;
-                                    result = Option;
-                                    break;
-                                }
+                                break;
                             }
                             break;
+
                         case "Head Manager":
-                            bool invalidBankHeadManagerOption = true;
-                            while (invalidBankHeadManagerOption)
+                            while (true)
                             {
                                 if (Option > 7)
                                 {
                                     Console.WriteLine(errorMessage);
-                                    invalidBankHeadManagerOption = false;
                                     break;
                                 }
-                                else
-                                {
-                                    invalidBankHeadManagerOption = false;
-                                    isInvalidOption = false;
-                                    result = Option;
-                                    break;
-                                }
+                                break;
                             }
                             break;
 
                         case "Reserve Bank Manager":
-                            bool invalidReserveBankManagerOption = true;
-                            while (invalidReserveBankManagerOption)
+                            while (true)
                             {
                                 if (Option > 4)
                                 {
                                     Console.WriteLine(errorMessage);
-                                    invalidReserveBankManagerOption = false;
                                     break;
                                 }
-                                else
-                                {
-                                    invalidReserveBankManagerOption = false;
-                                    isInvalidOption = false;
-                                    result = Option;
-                                    break;
-                                }
+                                break;
                             }
                             break;
                     }
                 }
+                return Option;
             }
-            return result;
+
         }
 
         //Takes BankId Input and Validates It.
-        public string GetBankId(string position, IBankService _bankService,IValidateInputs _validateInputs)
+        public string GetBankId(string position, IBankService _bankService, IValidateInputs _validateInputs)
         {
-            bool isInvalidBank = true;
-            while (isInvalidBank)
+            Message message;
+            while (true)
             {
                 Console.WriteLine($"Please Enter {position} BankId:");
                 bankId = Console.ReadLine()?.ToUpper() ?? string.Empty;
@@ -172,7 +121,6 @@ namespace BankApplication
                     message = _bankService.AuthenticateBankId(bankId);
                     if (message.Result)
                     {
-                        isInvalidBank = false;
                         break;
                     }
                     else
@@ -180,7 +128,6 @@ namespace BankApplication
                         Console.WriteLine(message.ResultMessage);
                         continue;
                     }
-
                 }
                 else
                 {
@@ -194,10 +141,9 @@ namespace BankApplication
         //Takes BranchId Input and Validates It.
         public string GetBranchId(string position, IBranchService _branchService, IValidateInputs _validateInputs)
         {
-            bool isInvalidBranchId = true;
-            while (isInvalidBranchId)
+            Message message ;
+            while (true)
             {
-
                 Console.WriteLine($"Please Enter {position} BranchId:");
                 branchId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidBranchId = _validateInputs.ValidateBranchIdFormat(branchId);
@@ -206,7 +152,6 @@ namespace BankApplication
                     message = _branchService.AuthenticateBranchId(bankId, branchId);
                     if (message.Result)
                     {
-                        isInvalidBranchId = false;
                         break;
                     }
                     else
@@ -228,16 +173,14 @@ namespace BankApplication
         //Validate  AccountId
         public string GetAccountId(string position, IValidateInputs _validateInputs)
         {
-            string accountId = string.Empty;
-            bool isAccountIdPending = true;
-            while (isAccountIdPending)
+            string accountId;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} AccountId:");
                 accountId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidAccount = _validateInputs.ValidateAccountIdFormat(accountId);
                 if (isValidAccount.Result)
                 {
-                    isAccountIdPending = false;
                     break;
                 }
                 else
@@ -252,16 +195,14 @@ namespace BankApplication
         //Validate  Name
         public string GetName(string position, IValidateInputs _validateInputs)
         {
-            string name = string.Empty;
-            bool isInvalidName = true;
-            while (isInvalidName)
+            string name;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Name:");
-                name = Console.ReadLine()?.ToUpper().Replace(" ","").ToUpper() ?? string.Empty;
+                name = Console.ReadLine()?.ToUpper().Replace(" ", "").ToUpper() ?? string.Empty;
                 Message isValidName = _validateInputs.ValidateNameFormat(name);
                 if (isValidName.Result)
                 {
-                    isInvalidName = false;
                     break;
                 }
                 else
@@ -277,16 +218,14 @@ namespace BankApplication
         //Validate  Password
         public string GetPassword(string position, IValidateInputs _validateInputs)
         {
-            string password = string.Empty;
-            bool isInvalidPassword = true;
-            while (isInvalidPassword)
+            string password;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Password:");
                 password = Console.ReadLine() ?? string.Empty;
                 Message isValidPassword = _validateInputs.ValidatePasswordFormat(password);
                 if (isValidPassword.Result)
                 {
-                    isInvalidPassword = false;
                     break;
                 }
                 else
@@ -302,18 +241,15 @@ namespace BankApplication
         //Validate  Phone Number
         public string GetPhoneNumber(string position, IValidateInputs _validateInputs)
         {
-            string phoneNumber = string.Empty;
-            bool isInvalidPhoneNumber = true;
-            while (isInvalidPhoneNumber)
+            string phoneNumber;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Phone Number:");
                 phoneNumber = Console.ReadLine() ?? string.Empty;
                 Message isValidPhoneNumber = _validateInputs.ValidatePhoneNumberFormat(phoneNumber);
                 if (isValidPhoneNumber.Result)
                 {
-                    isInvalidPhoneNumber = false;
                     break;
-
                 }
                 else
                 {
@@ -328,16 +264,14 @@ namespace BankApplication
         // Validate  email
         public string GetEmailId(string position, IValidateInputs _validateInputs)
         {
-            string emailId = string.Empty;
-            bool isInvalidEmail = true;
-            while (isInvalidEmail)
+            string emailId;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Email Id:");
                 emailId = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidEmail = _validateInputs.ValidateEmailIdFormat(emailId);
                 if (isValidEmail.Result)
                 {
-                    isInvalidEmail = false;
                     break;
                 }
                 else
@@ -353,9 +287,8 @@ namespace BankApplication
         // Validate  account type
         public int GetAccountType(string position, IValidateInputs _validateInputs)
         {
-            int accountType = 0;
-            bool isInvalidAccountType = true;
-            while (isInvalidAccountType)
+            int accountType;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Account Type:");
                 foreach (AccountType type in Enum.GetValues(typeof(AccountType)))
@@ -367,7 +300,6 @@ namespace BankApplication
                 Message isValidAccountType = _validateInputs.ValidateAccountTypeFormat(accountType);
                 if (isValidAccountType.Result)
                 {
-                    isInvalidAccountType = false;
                     break;
 
                 }
@@ -383,18 +315,15 @@ namespace BankApplication
         // Validate address
         public string GetAddress(string position, IValidateInputs _validateInputs)
         {
-            string address = string.Empty;
-            bool isInvalidAddress = true;
-            while (isInvalidAddress)
+            string address;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Address:");
                 address = Console.ReadLine()?.ToUpper() ?? string.Empty;
                 Message isValidAddress = _validateInputs.ValidateAddressFormat(address);
                 if (isValidAddress.Result)
                 {
-                    isInvalidAddress = false;
                     break;
-
                 }
                 else
                 {
@@ -408,18 +337,15 @@ namespace BankApplication
         // Validates  date of birth 
         public string GetDateOfBirth(string position, IValidateInputs _validateInputs)
         {
-            string dateOfBirth = string.Empty;
-            bool isInvalidDOB = true;
-            while (isInvalidDOB)
+            string dateOfBirth;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Date Of Birth Ex:27/06/97(DD/MM/YY):");
                 dateOfBirth = Console.ReadLine() ?? string.Empty;
                 Message isValidDOB = _validateInputs.ValidateDateOfBirthFormat(dateOfBirth);
                 if (isValidDOB.Result)
                 {
-                    isInvalidDOB = false;
                     break;
-
                 }
                 else
                 {
@@ -433,9 +359,8 @@ namespace BankApplication
         //Checks whether the given GenderOption is valid or not.
         public int GetGender(string position, IValidateInputs _validateInputs)
         {
-            int genderType = 0;
-            bool isInvalidGender = true;
-            while (isInvalidGender)
+            int genderType;
+            while (true)
             {
                 Console.WriteLine($"Enter {position} Gender:");
                 foreach (Gender gender in Enum.GetValues(typeof(Gender)))
@@ -447,9 +372,7 @@ namespace BankApplication
                 Message isValidGender = _validateInputs.ValidateGenderFormat(genderType);
                 if (isValidGender.Result)
                 {
-                    isInvalidGender = false;
                     break;
-
                 }
                 else
                 {
@@ -462,9 +385,8 @@ namespace BankApplication
         //Checks whether the given transferOptions are valid or not.
         public int ValidateTransferMethod()
         {
-            int result = 0;
-            bool isInvalidChoice = true;
-            while (isInvalidChoice)
+            int result;
+            while (true)
             {
                 Console.WriteLine("Enter the Transfer Method");
                 foreach (TransferMethod method in Enum.GetValues(typeof(TransferMethod)))
@@ -481,11 +403,9 @@ namespace BankApplication
                 }
                 else
                 {
-                    isInvalidChoice = false;
                     result = choice;
                     break;
                 }
-
             }
             return result;
         }
@@ -493,9 +413,8 @@ namespace BankApplication
         //Checks whether the given amount is valid or not.
         public decimal ValidateAmount()
         {
-            decimal result = 0;
-            bool isInvalidAmount = true;
-            while (isInvalidAmount)
+            decimal result;
+            while (true)
             {
                 Console.WriteLine("Enter the Amount");
 
@@ -508,11 +427,9 @@ namespace BankApplication
                 }
                 else
                 {
-                    isInvalidAmount = false;
                     result = amount;
                     break;
                 }
-
             }
             return result;
         }
@@ -520,9 +437,9 @@ namespace BankApplication
         //checks the format and currency already exist or not 
         public string ValidateCurrency(string bankId, ICurrencyService _currencyService, IValidateInputs _validateInputs)
         {
-            string result = string.Empty;
-            bool isInvalidCurrency = true;
-            while (isInvalidCurrency)
+            Message message;
+            string result;
+            while (true)
             {
                 Console.WriteLine("Enter the Currency Name Ex:USD,KWD.");
                 string currencyCode = Console.ReadLine()?.ToUpper() ?? string.Empty;
@@ -533,7 +450,6 @@ namespace BankApplication
                     message = _currencyService.ValidateCurrency(bankId, currencyCode);
                     if (message.Result)
                     {
-                        isInvalidCurrency = false;
                         result = currencyCode;
                         break;
                     }
@@ -554,16 +470,14 @@ namespace BankApplication
 
         public string ValidateTransactionIdFormat()
         {
-            string result = string.Empty;
-            bool isInvalidTransactionId = true;
-            while (isInvalidTransactionId)
+            string result;
+            while (true)
             {
                 Console.WriteLine("Enter the Transaction Id");
                 string transactionId = Console.ReadLine()?.ToUpper() ?? string.Empty;
 
                 if (transactionId.Length == 23 && transactionId.Contains("TXN"))
                 {
-                    isInvalidTransactionId = false;
                     result = transactionId;
                     break;
                 }

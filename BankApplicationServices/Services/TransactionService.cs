@@ -44,8 +44,7 @@ namespace BankApplicationServices.Services
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
 
-            DateTime currentDate = DateTime.Now;
-            string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
+            string date = DateTime.Now.ToString("yyyyMMddHHmmss");
             string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
             var transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
             if (transactions is null)
@@ -63,7 +62,7 @@ namespace BankApplicationServices.Services
                 Debit = debitAmount,
                 Credit = creditAmount,
                 Balance = fromCustomerbalance,
-                TransactionDate = currentDate,
+                TransactionDate = date,
             };
 
             transactions.Add(transaction);
@@ -82,8 +81,7 @@ namespace BankApplicationServices.Services
             int toBranchIndex = banks[toBankIndex].Branches.FindIndex(br => br.BranchId.Equals(toBranchId));
             int toCustomerIndex = banks[toBankIndex].Branches[toBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(toCustomerAccountId));
 
-            DateTime currentDate = DateTime.Now;
-            string date = currentDate.ToString().Replace("-", "").Replace(":", "").Replace(" ", "");
+            string date = DateTime.Now.ToString("yyyyMMddHHmmss");
             string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
             var fromCustomertransactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
             var toCustomertransactions = banks[toBankIndex].Branches[toBranchIndex].Customers[toCustomerIndex].Transactions;
@@ -110,7 +108,7 @@ namespace BankApplicationServices.Services
                 Debit = debitAmount,
                 Credit = creditAmount,
                 Balance = fromCustomerbalance,
-                TransactionDate = currentDate
+                TransactionDate = date
             };
 
             Transaction toCustomertransaction = new()
@@ -126,7 +124,7 @@ namespace BankApplicationServices.Services
                 Debit = creditAmount,
                 Credit = debitAmount,
                 Balance = toCustomerBalance,
-                TransactionDate = currentDate
+                TransactionDate = date
             };
 
             fromCustomertransactions.Add(fromCustomertransaction);

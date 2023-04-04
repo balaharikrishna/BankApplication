@@ -8,12 +8,12 @@ namespace BankApplication
 {
     public class CustomerHelperService : ICustomerHelperService
     {
-        ICustomerService _customerService;
-        IBankService _bankService;
-        IBranchService _branchService;
-        ITransactionService _transactionService;
-        ICommonHelperService _commonHelperService;
-        IValidateInputs _validateInputs;
+        readonly ICustomerService _customerService;
+        readonly IBankService _bankService;
+        readonly IBranchService _branchService;
+        readonly ITransactionService _transactionService;
+        readonly ICommonHelperService _commonHelperService;
+        readonly IValidateInputs _validateInputs;
         public CustomerHelperService(ICustomerService customerService, IBankService bankService, IBranchService branchService,
             ITransactionService transactionService, ICommonHelperService commonHelperService, IValidateInputs validateInputs)
         {
@@ -24,20 +24,18 @@ namespace BankApplication
             _commonHelperService = commonHelperService;
             _validateInputs = validateInputs;
         }
-        Message message = new Message();
+
         public void SelectedOption(ushort Option, string bankId, string branchId, string accountId)
         {
             switch (Option)
             {
                 case 1: //CheckAccountBalance
-                    bool case1Pending = true;
-                    while (case1Pending)
+                    while (true)
                     {
                         Message isBalanceFetchSuccesful = _customerService.CheckAccountBalance(bankId, branchId, accountId);
                         if (isBalanceFetchSuccesful.Result)
                         {
                             Console.WriteLine(isBalanceFetchSuccesful.ResultMessage);
-                            case1Pending = false;
                             break;
                         }
                         else
@@ -49,8 +47,7 @@ namespace BankApplication
                     break;
 
                 case 2: //ViewTransactionHistory
-                    bool case2Pending = true;
-                    while (case2Pending)
+                    while (true)
                     {
                         List<string> transactions = _transactionService.GetTransactionHistory(bankId, branchId, accountId);
                         foreach (string transaction in transactions)
@@ -58,15 +55,14 @@ namespace BankApplication
                             Console.WriteLine();
                             Console.WriteLine(transaction);
                         }
-                        case2Pending = false;
                         break;
                     }
                     break;
 
                 case 3: //ViewExchangeRates
-                    bool case3Pending = true;
-                    while (case3Pending)
+                    while (true)
                     {
+                        Message message = new();
                         message = _bankService.GetExchangeRates(bankId);
 
                         Dictionary<string, decimal>? exchangeRates = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(message.Data);
@@ -79,7 +75,6 @@ namespace BankApplication
                                 Console.WriteLine($"{rates.Key} : {rates.Value} Rupees");
                             }
                             Console.WriteLine();
-                            case3Pending = false;
                             break;
                         }
                         else
@@ -91,15 +86,14 @@ namespace BankApplication
                     break;
 
                 case 4: //ViewTransactionCharges
-                    bool case4Pending = true;
-                    while (case4Pending)
+                    while (true)
                     {
+                        Message message = new();
                         message = _branchService.GetTransactionCharges(bankId, branchId);
                         if (message.Result)
                         {
                             Console.WriteLine(message.Data);
                             Console.WriteLine();
-                            case4Pending = false;
                             break;
                         }
                         else
@@ -112,19 +106,16 @@ namespace BankApplication
                     break;
 
                 case 5: //WithdrawAmount
-                    bool case5Pending = true;
-                    while (case5Pending)
+                    while (true)
                     {
                         Console.Write("Enter Amount:");
-                        decimal amount = 0;
-                        bool result = decimal.TryParse(Console.ReadLine(), out amount);
+                        bool result = decimal.TryParse(Console.ReadLine(), out decimal amount);
                         if (result)
                         {
                             Message isAmountWithdrawn = _customerService.WithdrawAmount(bankId, branchId, accountId, amount);
                             if (isAmountWithdrawn.Result)
                             {
                                 Console.WriteLine(isAmountWithdrawn.ResultMessage);
-                                case5Pending = false;
                                 break;
                             }
                             else
@@ -142,9 +133,9 @@ namespace BankApplication
                     break;
 
                 case 6:  //TransferAmount
-                    bool case6Pending = true;
-                    while (case6Pending)
+                    while (true)
                     {
+                        Message message = new();
                         string fromCustomerAccountId = accountId;
                         int transferMethod = _commonHelperService.ValidateTransferMethod();
                         decimal amount = _commonHelperService.ValidateAmount();
@@ -172,8 +163,6 @@ namespace BankApplication
                                             if (message.Result)
                                             {
                                                 Console.WriteLine(message.ResultMessage);
-                                                isInvalidToCustomer = false;
-                                                case6Pending = false;
                                                 break;
                                             }
                                             else
@@ -209,34 +198,32 @@ namespace BankApplication
                         }
 
                     }
-                    break;
+
+
                 case 7: // Get Passbook
-                    bool case7Pending = true;
-                    while (case7Pending)
+                    while (true)
                     {
+                        Message message = new();
                         message = _customerService.IsCustomersExist(bankId, branchId);
                         if (message.Result)
-                        { 
+                        {
                             message = _customerService.IsAccountExist(bankId, branchId, accountId);
                             if (message.Result)
                             {
                                 string passbookDetatils = _customerService.GetPassbook(bankId, branchId, accountId);
                                 Console.WriteLine("Passbook Details:");
                                 Console.WriteLine(passbookDetatils);
-                                case7Pending = false;
                                 break;
                             }
                             else
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                case6Pending = false;
                                 break;
                             }
                         }
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            case6Pending = false;
                             break;
                         }
                     }

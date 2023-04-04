@@ -13,7 +13,7 @@ namespace BankApplicationModels
         public string FromCustomerAccountId { get; set; }
         public TransactionType TransactionType { get; set; }
         public string ToCustomerAccountId { get; set; }
-        public DateTime TransactionDate { get; set; }
+        public string TransactionDate { get; set; }
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public decimal Balance { get; set; }

@@ -19,6 +19,6 @@ namespace BankApplicationModels
 
         public short DefaultCurrencyExchangeRate = 1;
         [RegularExpression("^[01]+$")]
-        public ushort IsDeleted { get; set; }
+        public ushort IsActive { get; set; }
     }
 }

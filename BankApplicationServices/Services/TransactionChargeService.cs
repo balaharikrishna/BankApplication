@@ -18,7 +18,7 @@ namespace BankApplicationServices.Services
 
         public Message AddTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
-            Message message = new Message();
+            Message message = new();
             banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
@@ -30,26 +30,23 @@ namespace BankApplicationServices.Services
                     if (branch is not null)
                     {
                         List<TransactionCharges> charges = branch.Charges;
-                        if(charges is null)
-                        {
-                            charges= new List<TransactionCharges>();
-                        }
+                        charges??= new List<TransactionCharges>();
                        
-                        var chargesList = charges.FindAll(c => c.IsDeleted == 1);
-                        if (chargesList.Count == 1)
+                        var chargesList = charges.FindAll(c => c.IsActive == 1);
+                        if (chargesList.Count.Equals(1))
                         {
                             message.Result = true;
                             message.ResultMessage = "Charges Already Available";
                         }
                         else
                         {
-                            TransactionCharges transactionCharges = new TransactionCharges()
+                            TransactionCharges transactionCharges = new ()
                             {
                                 RtgsSameBank = rtgsSameBank,
                                 RtgsOtherBank = rtgsOtherBank,
                                 ImpsSameBank = impsSameBank,
                                 ImpsOtherBank = impsOtherBank,
-                                IsDeleted = 0
+                                IsActive = 1
                             };
 
                             charges.Add(transactionCharges);
@@ -60,47 +57,59 @@ namespace BankApplicationServices.Services
                         }
 
                     }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found.";
+                    }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found.";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Branch Authentiaction Failed";
             }
             return message;
         }
 
         public Message UpdateTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
-                        if (branch.Charges == null)
+                        branch.Charges ??= new List<TransactionCharges>();
+                        if (branch.Charges.Count==1)
                         {
-                            branch.Charges = new List<TransactionCharges>();
-                        }
-                       
-                        if (branch.Charges.Count == 1)
-                        {
-                            var charges = branch.Charges.Find(c=>c.IsDeleted == 0);
-                            if(rtgsOtherBank != 101 && charges is null)
+                            var charges = branch.Charges.Find(c=>c.IsActive == 1);
+                            if(rtgsOtherBank is not 101 && charges is not null)
                             {
                                 charges.RtgsOtherBank = rtgsOtherBank;
                             }
 
-                            if (rtgsSameBank != 101 && charges != null)
+                            if (rtgsSameBank is not 101 && charges is not null)
                             {
                                 charges.RtgsSameBank = rtgsSameBank;
                             }
 
-                            if (impsSameBank != 101 && charges != null)
+                            if (impsSameBank is not 101 && charges is not null)
                             {
                                 charges.ImpsSameBank = impsSameBank;
                             }
 
-                            if (impsOtherBank != 101 && charges != null )
+                            if (impsOtherBank is not 101 && charges is not null )
                             {
                                 charges.ImpsOtherBank = impsOtherBank;
                             }
@@ -114,36 +123,48 @@ namespace BankApplicationServices.Services
                             message.Result = false;
                             message.ResultMessage = "No Charges Available to Update";
                         }
-
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found.";
                     }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found.";
+                }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Branch Authentiaction Failed";
+            }
+        
             return message;
         }
 
         public Message DeleteTransactionCharges(string bankId, string branchId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId == bankId);
-                if (bank != null)
+                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
+                if (bank is not null)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId == branchId);
-                    if (branch != null)
+                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
+                    if (branch is not null)
                     {
-                        if (branch.Charges == null)
+                        branch.Charges ??= new List<TransactionCharges>();
+                        if (branch.Charges.Count.Equals(1))
                         {
-                            branch.Charges = new List<TransactionCharges>();
-                        }
-
-                        if (branch.Charges.Count == 1)
-                        {
-                            var  transactionCharges = branch.Charges.Find(c => c.IsDeleted == 0);
-                            if(transactionCharges != null)
+                            var  transactionCharges = branch.Charges.Find(c => c.IsActive ==1);
+                            if(transactionCharges is not null)
                             {
-                                transactionCharges.IsDeleted = 1;
+                                transactionCharges.IsActive = 0;
                             }
                             _fileService.WriteFile(banks);
                             message.Result = true;
@@ -154,9 +175,23 @@ namespace BankApplicationServices.Services
                             message.Result = false;
                             message.ResultMessage = "No Charges Available to Delete";
                         }
-
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Branch Not Found.";
                     }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found.";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Branch Authentiaction Failed";
             }
             return message;
         }

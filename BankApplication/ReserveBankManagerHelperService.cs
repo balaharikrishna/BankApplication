@@ -7,10 +7,10 @@ namespace BankApplication
 {
     internal class ReserveBankManagerHelperService : IReserveBankManagerHelperService
     {
-        IBankService _bankService;
-        IHeadManagerService _headManagerService;
-        ICommonHelperService _commonHelperService;
-        IValidateInputs _validateInputs;
+        readonly IBankService _bankService;
+        readonly IHeadManagerService _headManagerService;
+        readonly ICommonHelperService _commonHelperService;
+        readonly IValidateInputs _validateInputs;
         public ReserveBankManagerHelperService(IBankService bankService, IHeadManagerService headManagerService,
             ICommonHelperService commonHelperService, IValidateInputs validateInputs)
         {
@@ -19,15 +19,14 @@ namespace BankApplication
             _commonHelperService = commonHelperService;
             _validateInputs = validateInputs;
         }
-        Message message = new Message();
+        Message message = new();
 
         public void SelectedOption(ushort Option)
         {
             switch (Option)
             {
                 case 1: //create Bank
-                    bool case1Pending = true;
-                    while (case1Pending)
+                    while (true)
                     {
                         string bankName = _commonHelperService.GetName(Miscellaneous.bank, _validateInputs);
 
@@ -35,7 +34,6 @@ namespace BankApplication
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
-                            case1Pending = false;
                             break;
                         }
                         else
@@ -47,8 +45,7 @@ namespace BankApplication
                     break;
 
                 case 2: //Create HeadManager 
-                    bool headManagerCreateStatus = true;
-                    while (headManagerCreateStatus)
+                    while (true)
                     {
                         string bankHeadManagerName = _commonHelperService.GetName(Miscellaneous.headManager, _validateInputs);
                         string bankHeadManagerPassword = _commonHelperService.GetPassword(Miscellaneous.headManager, _validateInputs);
@@ -58,7 +55,6 @@ namespace BankApplication
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
-                            headManagerCreateStatus = false;
                             break;
                         }
                         else
@@ -70,8 +66,7 @@ namespace BankApplication
                     break;
 
                 case 3: //UpdateHeadManager
-                    bool case3Pending = true;
-                    while (case3Pending)
+                    while (true)
                     {
                         string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
                         message = _headManagerService.IsHeadManagersExist(bankId);
@@ -86,7 +81,7 @@ namespace BankApplication
                                 Console.WriteLine("Head Manager Details:");
                                 Console.WriteLine(headManagerDetatils);
 
-                                string headManagerName = string.Empty;
+                                string headManagerName;
                                 while (true)
                                 {
                                     Console.WriteLine("Enter Head Manager Name");
@@ -109,13 +104,12 @@ namespace BankApplication
                                     }
                                 }
 
-                                string headManagerPassword = string.Empty;
-                                bool invalidHeadManagerPassword = true;
-                                while (invalidHeadManagerPassword)
+                                string headManagerPassword ;
+                                while (true)
                                 {
                                     Console.WriteLine("Update Staff Password");
                                     headManagerPassword = Console.ReadLine() ?? string.Empty;
-                                    if (headManagerPassword != string.Empty)
+                                    if (!string.IsNullOrEmpty(headManagerPassword))
                                     {
                                         message = _validateInputs.ValidatePasswordFormat(headManagerPassword);
                                         if (!message.Result)
@@ -125,14 +119,11 @@ namespace BankApplication
                                         }
                                         else
                                         {
-
-                                            invalidHeadManagerPassword = false;
                                             break;
                                         }
                                     }
                                     else
                                     {
-                                        invalidHeadManagerPassword = false;
                                         break;
                                     }
                                 }
@@ -142,7 +133,6 @@ namespace BankApplication
                                 if (message.Result)
                                 {
                                     Console.WriteLine(message.ResultMessage);
-                                    case3Pending = false;
                                     break;
                                 }
                                 else
@@ -160,15 +150,13 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            case3Pending = false;
                             break;
                         }
                     }
                     break;
 
                 case 4: //DeleteHeadManager
-                    bool bankHeadManagerUpdateStatus = true;
-                    while (bankHeadManagerUpdateStatus)
+                    while (true)
                     {
                         string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
                         message = _headManagerService.IsHeadManagersExist(bankId);
@@ -180,7 +168,6 @@ namespace BankApplication
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
-                                bankHeadManagerUpdateStatus = false;
                                 break;
                             }
                             else
@@ -192,7 +179,6 @@ namespace BankApplication
                         else
                         {
                             Console.WriteLine(message.ResultMessage);
-                            bankHeadManagerUpdateStatus = false;
                             continue;
                         }
                     }

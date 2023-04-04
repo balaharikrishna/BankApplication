@@ -12,22 +12,16 @@ namespace BankApplicationServices.Services
         public BankService(IFileService fileService)
         {
             _fileService = fileService;
+            banks = new List<Bank>();
         }
-        public List<Bank> GetBankData()
-        {
-            if (_fileService.GetData() != null)
-            {
-                banks = _fileService.GetData();
-            }
-            return banks;
-        }
-        Message message = new Message();
+      
         public Message AuthenticateBankId(string bankId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             if (banks.Count > 0)
             {
-                bool bank = banks.Any(b => b.BankId == bankId && b.IsActive == 1);
+                bool bank = banks.Any(b => b.BankId.Equals(bankId) && b.IsActive == 1);
                 if (bank)
                 {
                     message.Result = true;
@@ -49,10 +43,11 @@ namespace BankApplicationServices.Services
         }
         public Message CreateBank(string bankName)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             bool isBankAlreadyRegistered = false;
 
-            isBankAlreadyRegistered = banks.Any(bank => bank.BankName == bankName);
+            isBankAlreadyRegistered = banks.Any(bank => bank.BankName.Equals(bankName));
 
             if (isBankAlreadyRegistered)
             {
@@ -61,12 +56,11 @@ namespace BankApplicationServices.Services
             }
             else
             {
-                DateTime currentDate = DateTime.Today;
-                string date = currentDate.ToString().Substring(0, 10).Replace("-", "");
+                string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                 string bankFirstThreeCharecters = bankName.Substring(0, 3);
                 string bankId = bankFirstThreeCharecters + date + "M";
 
-                Bank bank = new Bank() {
+                Bank bank = new() {
                     BankName = bankName,
                     BankId = bankId,
                     IsActive = 1
@@ -82,12 +76,13 @@ namespace BankApplicationServices.Services
 
         public Message UpdateBank(string bankId, string bankName)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
-                string bankNameReceived = banks[banks.FindIndex(bank => bank.BankId == bankId)].BankName;
-                if (bankNameReceived != bankName)
+                string bankNameReceived = banks[banks.FindIndex(bank => bank.BankId.Equals(bankId))].BankName;
+                if (!bankNameReceived.Equals(bankName))
                 {
                     bankNameReceived = bankName;
                     _fileService.WriteFile(banks);
@@ -100,38 +95,50 @@ namespace BankApplicationServices.Services
                     message.ResultMessage = $"BankName :{bankName} Is Matching with the Existing BankName.,Please Change the Bank Name.";
                 }
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Bank Authentication Failed";
+            }
 
             return message;
         }
 
         public Message DeleteBank(string bankId)
         {
-            GetBankData();
+            Message message = new();
+            banks = _fileService.GetData();
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
-                banks[banks.FindIndex(bank => bank.BankId == bankId)].IsActive = 0;
+                banks[banks.FindIndex(bank => bank.BankId.Equals(bankId))].IsActive = 0;
                 _fileService.WriteFile(banks);
                 message.Result = true;
                 message.ResultMessage = $"Bank Id :{bankId} Succesfully Deleted.";
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Bank Authentication Failed";
             }
             return message;
         }
 
         public Message GetExchangeRates(string bankId)
         {
-            GetBankData();
-            Dictionary<string, decimal> exchangeRates = new Dictionary<string, decimal>();
+            Message message = new();
+            banks = _fileService.GetData();
+            Dictionary<string, decimal> exchangeRates = new();
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bank => bank.BankId == bankId );
+                int bankIndex = banks.FindIndex(bank => bank.BankId.Equals(bankId) );
                 if (bankIndex > -1)
                 {
                     List<Currency> rates = banks[bankIndex].Currency;
-                    if(rates != null)
+                    if(rates is not null)
                     {
-                        rates.FindAll(cu => cu.IsDeleted == 0);
+                        rates.FindAll(cu => cu.IsActive == 1);
                         for (int i = 0; i < rates.Count; i++)
                         {
                             exchangeRates.Add(rates[i].CurrencyCode, rates[i].ExchangeRate);
@@ -144,6 +151,16 @@ namespace BankApplicationServices.Services
                         message.ResultMessage = $"No Currencies Available for BankId:{bankId}";
                     }
                 }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Bank Not Found";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Bank Authentication Failed";
             }
             return message;
         }

@@ -34,7 +34,7 @@ namespace BankApplication
             _currencyService = currencyService;
         }
         Message message = new Message();
-        public void SelectedOption(ushort Option, string managerBankId, string managerBranchId, string managerAccountId)
+        public void SelectedOption(ushort Option, string managerBankId, string managerBranchId)
         {
             switch (Option)
             {

@@ -128,5 +128,11 @@ namespace BankApplication.IHelperServices
         /// </summary>
         /// <returns>The validated transfer method as an integer.</returns>
         int ValidateTransferMethod();
+
+
+        public void LoginAccountHolder(string level, IBankService bankService, IBranchService branchService, IValidateInputs validateInputs,
+            ICustomerHelperService? customerHelperService = null, IStaffHelperService? staffHelperService = null, IManagerHelperService? managerHelperService = null,
+            IHeadManagerHelperService? headManagerHelperService = null, ICustomerService? customerService = null, IStaffService? staffService = null, IManagerService? managerService = null,
+            IHeadManagerService? headManagerService = null);
     }
 }

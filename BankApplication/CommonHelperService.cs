@@ -141,7 +141,7 @@ namespace BankApplication
         //Takes BranchId Input and Validates It.
         public string GetBranchId(string position, IBranchService _branchService, IValidateInputs _validateInputs)
         {
-            Message message ;
+            Message message;
             while (true)
             {
                 Console.WriteLine($"Please Enter {position} BranchId:");
@@ -468,6 +468,7 @@ namespace BankApplication
             return result;
         }
 
+        //ToValidate TransactionId Format.
         public string ValidateTransactionIdFormat()
         {
             string result;
@@ -488,6 +489,218 @@ namespace BankApplication
                 }
             }
             return result;
+        }
+
+        //customer,staff,manager Login
+        public void LoginAccountHolder(string level,IBankService bankService,IBranchService branchService,IValidateInputs validateInputs,
+            ICustomerHelperService? customerHelperService = null ,IStaffHelperService? staffHelperService = null,IManagerHelperService? managerHelperService = null,
+            IHeadManagerHelperService? headManagerHelperService = null,ICustomerService? customerService = null,IStaffService? staffService = null, IManagerService? managerService = null,
+            IHeadManagerService? headManagerService = null)
+        {
+            if (level.Equals("Customer"))
+            {
+                level = Miscellaneous.customer;
+            }
+            else if (level.Equals("Staff"))
+            {
+                level = Miscellaneous.staff;
+            }
+            else if (level.Equals("Branch Manager"))
+            {
+                level = Miscellaneous.branchManager;
+            }
+            else if (level.Equals("Head Manager"))
+            {
+                level = Miscellaneous.headManager;
+            }
+
+            Message message;
+            while (true)
+            {
+                while (true)
+                {
+                    string bankId = GetBankId(level, bankService, validateInputs);
+                    message = bankService.AuthenticateBankId(bankId);
+                    if (message.Result)
+                    {
+                        message = branchService.IsBranchesExist(branchId);
+                        if (message.Result)
+                        {
+                            while (true)
+                            {
+                                string branchId = string.Empty;
+                                if (!level.Equals("Head Manager"))
+                                {
+                                    branchId = GetBranchId(level, branchService, validateInputs);
+                                    message = branchService.AuthenticateBranchId(bankId, branchId);
+                                }
+                               
+                                if (message.Result)
+                                {
+
+                                    if (level.Equals("Customer") && customerService is not null) 
+                                    {
+                                        message = customerService.IsCustomersExist(bankId, branchId);
+                                    }
+                                    else if (level.Equals("Staff") && staffService is not null)
+                                    {
+                                        message = staffService.IsStaffExist(bankId, branchId);
+                                    }
+                                    else if (level.Equals("Branch Manager") && managerService is not null)
+                                    {
+                                        message = managerService.IsManagersExist(bankId, branchId);
+                                    }
+                                    else if(level.Equals("Head Manager") && headManagerService is not null)
+                                    {
+                                        message = headManagerService.IsHeadManagersExist(bankId);
+                                    }
+
+                                    if (message.Result)
+                                    {
+                                        while (true)
+                                        {
+                                            string accountId = GetAccountId(level, validateInputs);
+                                            if (level.Equals("Customer") && customerService is not null)
+                                            {
+                                                message = customerService.IsAccountExist(bankId, branchId, accountId);
+                                            }
+                                            else if (level.Equals("Staff") && staffService is not null)
+                                            {
+                                                message = staffService.IsAccountExist(bankId, branchId, accountId);
+                                            }
+                                            else if (level.Equals("Branch Manager") && managerService is not null)
+                                            {
+                                                message = managerService.IsAccountExist(bankId, branchId, accountId);
+                                            }
+                                            else if (level.Equals("Head Manager") && headManagerService is not null)
+                                            {
+                                                message = headManagerService.IsHeadManagerExist(bankId,accountId);
+                                            }
+
+                                            if (message.Result)
+                                            {
+                                                string password = GetPassword(level, validateInputs);
+                                                if (level.Equals("Customer") && customerService is not null)
+                                                {
+                                                    message = customerService.AuthenticateCustomerAccount(bankId, branchId, accountId, password);
+                                                }
+                                                else if (level.Equals("Staff") && staffService is not null)
+                                                {
+                                                    message = staffService.AuthenticateStaffAccount(bankId, branchId, accountId, password);
+                                                }
+                                                else if (level.Equals("Branch Manager") && managerService is not null)
+                                                {
+                                                    message = managerService.AuthenticateManagerAccount(bankId, branchId, accountId, password);
+                                                }
+                                                else if (level.Equals("Head Manager") && headManagerService is not null)
+                                                {
+                                                    message = headManagerService.AuthenticateHeadManager(bankId, accountId, password);
+                                                }
+
+                                                if (message.Result)
+                                                {
+                                                    while (true)
+                                                    {
+                                                        Console.WriteLine("Choose From Below Menu Options");
+                                                        if (level.Equals("Customer"))
+                                                        {
+                                                            foreach (CustomerOptions option in Enum.GetValues(typeof(CustomerOptions)))
+                                                            {
+                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                            }
+                                                        }
+                                                        else if (level.Equals("Staff"))
+                                                        {
+                                                            foreach (StaffOptions option in Enum.GetValues(typeof(StaffOptions)))
+                                                            {
+                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                            }
+                                                        }
+                                                        else if (level.Equals("Branch Manager"))
+                                                        {
+                                                            foreach (ManagerOptions option in Enum.GetValues(typeof(StaffOptions)))
+                                                            {
+                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                            }
+                                                        }
+                                                        else if (level.Equals("Head Manager"))
+                                                        {
+                                                            foreach (HeadManagerOptions option in Enum.GetValues(typeof(HeadManagerOptions)))
+                                                            {
+                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                            }
+                                                        }
+
+                                                        Console.WriteLine("Enter 0 For Main Menu");
+                                                        ushort selectedOption = GetOption(level);
+                                                        if (selectedOption == 0)
+                                                        {
+                                                            break;
+                                                        }
+                                                        else
+                                                        {
+                                                            if (level.Equals("Customer"))
+                                                            {
+                                                                customerHelperService?.SelectedOption(selectedOption, bankId, branchId, accountId);
+                                                                continue;
+                                                            }
+                                                            else if (level.Equals("Staff"))
+                                                            {
+                                                                staffHelperService?.SelectedOption(selectedOption, bankId, branchId);
+                                                                continue;
+                                                            }
+                                                            else if (level.Equals("Branch Manager"))
+                                                            {
+                                                                managerHelperService?.SelectedOption(selectedOption, bankId, branchId);
+                                                                continue;
+                                                            }
+                                                            else if (level.Equals("Head Manager"))
+                                                            {
+                                                                headManagerHelperService?.SelectedOption(selectedOption, bankId);
+                                                                continue;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine(message.ResultMessage);
+                                                    continue;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(message.ResultMessage);
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        continue;
+                    }
+                }
+            }
         }
     }
 }

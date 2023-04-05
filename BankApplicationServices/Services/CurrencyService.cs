@@ -8,17 +8,18 @@ namespace BankApplicationServices.Services
         private readonly IBankService _bankService;
         private readonly IFileService _fileService;
         List<Bank> banks;
-        public CurrencyService(IFileService fileService, IBankService bankService) {
+        public CurrencyService(IFileService fileService, IBankService bankService)
+        {
             _bankService = bankService;
             _fileService = fileService;
             banks = new List<Bank>();
         }
-     
+
         public Message AddCurrency(string bankId, string currencyCode, decimal exchangeRate)
         {
             Message message = new();
             banks = _fileService.GetData();
-            message =  _bankService.AuthenticateBankId(bankId);
+            message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
                 Currency currency = new()
@@ -102,14 +103,14 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public  Message ValidateCurrency(string bankId, string currencyCode)
+        public Message ValidateCurrency(string bankId, string currencyCode)
         {
             Message message = new();
             banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency.FindAll(cr=>cr.IsActive == 1);
+                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency.FindAll(cr => cr.IsActive == 1);
                 currencies ??= new List<Currency>();
                 bool currency = currencies.Any(ck => ck.CurrencyCode.Equals(currencyCode));
                 if (currency)

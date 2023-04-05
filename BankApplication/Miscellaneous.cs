@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace BankApplication
+﻿namespace BankApplication
 {
     internal static class Miscellaneous
     {

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace BankApplication.IHelperServices
+﻿namespace BankApplication.IHelperServices
 {
     public interface ICustomerHelperService
     {

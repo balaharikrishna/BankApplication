@@ -30,7 +30,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The BranchId of the branch to delete the staff account from.</param>
         /// <param name="staffAccountId">The StaffAccountId of the staff account to delete.</param>
         /// <returns>A message indicating status of Staff Account Deletion.</returns>
-        Message DeleteStaffAccount(string bankId, string branchId , string staffAccountId);
+        Message DeleteStaffAccount(string bankId, string branchId, string staffAccountId);
 
         /// <summary>
         /// Opens a new staff account with the given BankId, BranchId, StaffName, StaffPassword, and StaffRole.

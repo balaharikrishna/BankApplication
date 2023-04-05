@@ -1,6 +1,5 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using BankApplicationServices.IServices;
+﻿using BankApplicationServices.IServices;
+using System.Security.Cryptography;
 
 namespace BankApplicationServices.Services
 {

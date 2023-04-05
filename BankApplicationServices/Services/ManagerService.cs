@@ -1,5 +1,4 @@
-﻿
-using BankApplicationModels;
+﻿using BankApplicationModels;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -10,7 +9,7 @@ namespace BankApplicationServices.Services
         private readonly IBranchService _branchService;
         private readonly IEncryptionService _encryptionService;
         List<Bank> banks;
-        
+
         public ManagerService(IFileService fileService, IEncryptionService encryptionService,
             IBranchService branchService)
         {
@@ -19,7 +18,7 @@ namespace BankApplicationServices.Services
             _branchService = branchService;
             banks = new List<Bank>();
         }
-        
+
         public Message IsManagersExist(string bankId, string branchId)
         {
             Message message = new();
@@ -33,8 +32,8 @@ namespace BankApplicationServices.Services
                     var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
                     if (branch is not null)
                     {
-                        List<Manager> managers = branch.Managers; 
-                        if(managers is null)
+                        List<Manager> managers = branch.Managers;
+                        if (managers is null)
                         {
                             managers = new List<Manager>();
                             managers.FindAll(m => m.IsActive.Equals(1));
@@ -68,7 +67,7 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "BranchId Authentication Failed";
             }
-        
+
             return message;
         }
 
@@ -144,7 +143,7 @@ namespace BankApplicationServices.Services
             {
                 List<Manager>? managers = null;
                 List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].Branches;
-                if(branches is not null)
+                if (branches is not null)
                 {
                     managers = branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Managers;
                 }
@@ -171,7 +170,7 @@ namespace BankApplicationServices.Services
                     };
 
                     managers.Add(manager);
-                    if(branches is not null)
+                    if (branches is not null)
                     {
                         banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].Branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Managers = managers;
                     }
@@ -247,7 +246,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message UpdateManagerAccount(string bankId, string branchId,string accountId, string managerName, string managerPassword)
+        public Message UpdateManagerAccount(string bankId, string branchId, string accountId, string managerName, string managerPassword)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -258,11 +257,11 @@ namespace BankApplicationServices.Services
                 Manager? manager = null;
                 List<Branch> branches = banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].Branches;
                 if (branches is not null)
-                {   
+                {
                     managers = branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Managers;
-                    if(managers is not null)
+                    if (managers is not null)
                     {
-                      manager = managers.Find(m => m.AccountId.Equals(accountId) && m.IsActive == 1);
+                        manager = managers.Find(m => m.AccountId.Equals(accountId) && m.IsActive == 1);
                     }
                 }
                 else
@@ -325,7 +324,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DeleteManagerAccount(string bankId, string branchId,string accountId)
+        public Message DeleteManagerAccount(string bankId, string branchId, string accountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -340,10 +339,10 @@ namespace BankApplicationServices.Services
                     managers = branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Managers;
                     if (managers is not null)
                     {
-                        manager = managers.Find(m => m.AccountId.Equals(accountId) && m.IsActive==1);
+                        manager = managers.Find(m => m.AccountId.Equals(accountId) && m.IsActive == 1);
                     }
                 }
-                
+
                 if (manager is not null)
                 {
                     manager.IsActive = 0;

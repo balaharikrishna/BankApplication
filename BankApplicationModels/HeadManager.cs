@@ -1,6 +1,4 @@
-﻿using BankApplicationModels.Enums;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BankApplicationModels
 {

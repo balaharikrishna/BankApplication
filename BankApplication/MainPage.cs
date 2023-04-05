@@ -2,7 +2,6 @@
 using BankApplication.Exceptions;
 using BankApplication.IHelperServices;
 using BankApplicationHelperMethods;
-using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,26 +9,14 @@ using Microsoft.Extensions.DependencyInjection;
 internal class MainPage
 {
     public static readonly IServiceProvider services = DIContainerBuilder.Build();
-
-    private static void Main(string[] args)
+    private static void Main()
     {
         IBankService bankService = services.GetService<IBankService>()!;
         IBranchService branchService = services.GetService<IBranchService>()!;
-        ICustomerService customerService = services.GetService<ICustomerService>()!;
-        IHeadManagerService headManagerService = services.GetService<IHeadManagerService>()!;
-        IManagerService managerService = services.GetService<IManagerService>()!;
-        IReserveBankManagerService reserveBankManagerService = services.GetService<IReserveBankManagerService>()!;
-        IStaffService staffService = services.GetService<IStaffService>()!;
         ICommonHelperService commonHelperService = services.GetService<ICommonHelperService>()!;
-        ICustomerHelperService customerHelperService = services.GetService<ICustomerHelperService>()!;
-        IHeadManagerHelperService headManagerHelperService = services.GetService<IHeadManagerHelperService>()!;
-        IManagerHelperService managerHelperService = services.GetService<IManagerHelperService>()!;
-        IReserveBankManagerHelperService reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>()!;
-        IStaffHelperService staffHelperService = services.GetService<IStaffHelperService>()!;
         IValidateInputs validateInputs = services.GetService<IValidateInputs>()!;
-        bool pendingTask = true;
-        Message message = new();
-        while (pendingTask)
+
+        while (true)
         {
             try
             {
@@ -44,64 +31,37 @@ internal class MainPage
                 switch (Option)
                 {
                     case 1: //Customer Login
-                        commonHelperService.LoginAccountHolder(Miscellaneous.customer,bankService,branchService,validateInputs,customerHelperService,
-                            null,null,null,customerService, null, null, null);
+                        ICustomerHelperService customerHelperService = services.GetService<ICustomerHelperService>()!;
+                        ICustomerService customerService = services.GetService<ICustomerService>()!;
+                        commonHelperService.LoginAccountHolder(Miscellaneous.customer, bankService, branchService, validateInputs, customerHelperService,
+                            null, null, null, null, customerService, null, null, null);
                         break;
-                    
+
                     case 2: //Staff Login
+                        IStaffService staffService = services.GetService<IStaffService>()!;
+                        IStaffHelperService staffHelperService = services.GetService<IStaffHelperService>()!;
                         commonHelperService.LoginAccountHolder(Miscellaneous.staff, bankService, branchService, validateInputs, null,
-                            staffHelperService, null, null, null, staffService, null, null);
+                            staffHelperService, null, null, null, null, staffService, null, null);
                         break;
 
                     case 3: //Manager Login
-                        commonHelperService.LoginAccountHolder(Miscellaneous.staff, bankService, branchService, validateInputs, null,
-                            null, managerHelperService, null, null, null, managerService, null);
+                        IManagerService managerService = services.GetService<IManagerService>()!;
+                        IManagerHelperService managerHelperService = services.GetService<IManagerHelperService>()!;
+                        commonHelperService.LoginAccountHolder(Miscellaneous.branchManager, bankService, branchService, validateInputs, null,
+                            null, managerHelperService, null, null, null, null, managerService, null);
                         break;
 
                     case 4: //Head Manager Login
-                        commonHelperService.LoginAccountHolder(Miscellaneous.staff, bankService, branchService, validateInputs, null,
-                            null, null, headManagerHelperService, null, null, null, headManagerService);
+                        IHeadManagerHelperService headManagerHelperService = services.GetService<IHeadManagerHelperService>()!;
+                        IHeadManagerService headManagerService = services.GetService<IHeadManagerService>()!;
+                        commonHelperService.LoginAccountHolder(Miscellaneous.headManager, bankService, branchService, validateInputs, null,
+                            null, null, headManagerHelperService, null, null, null, null, headManagerService);
                         break;
                     case 5: //Reserve Bank Login
-                        bool reserveBankMangerLoginPending = true;
-                        while (reserveBankMangerLoginPending)
-                        {
-                            string ReserveBankManagerName = commonHelperService.GetName(Miscellaneous.reserveBankManager, validateInputs);
-                            string ReserveBankManagerPassword = commonHelperService.GetPassword(Miscellaneous.reserveBankManager, validateInputs);
-
-                            Message isReserveManagerExist = reserveBankManagerService.AuthenticateReserveBankManager(ReserveBankManagerName, ReserveBankManagerPassword);
-                            if (isReserveManagerExist.Result)
-                            {
-                                bool isReserveBankManagerActionsPending = true;
-                                while (isReserveBankManagerActionsPending)
-                                {
-                                    Console.WriteLine("Choose From Below Menu Options");
-                                    foreach (ReserveBankManagerOptions option in Enum.GetValues(typeof(ReserveBankManagerOptions)))
-                                    {
-                                        Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                    }
-                                    Console.WriteLine("Enter 0 For Main Menu");
-                                    ushort selectedOption = commonHelperService.GetOption(Miscellaneous.reserveBankManager);
-                                    if (selectedOption == 0)
-                                    {
-                                        isReserveBankManagerActionsPending = false;
-                                        reserveBankMangerLoginPending = false;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        reserveBankManagerHelperService.SelectedOption(selectedOption);
-                                        continue;
-                                    }
-
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine(isReserveManagerExist.ResultMessage);
-                                continue;
-                            }
-                        }
+                        IReserveBankManagerService reserveBankManagerService = services.GetService<IReserveBankManagerService>()!;
+                        IReserveBankManagerHelperService reserveBankManagerHelperService = services.GetService<IReserveBankManagerHelperService>()!;
+                        commonHelperService.LoginAccountHolder(Miscellaneous.reserveBankManager, bankService, branchService, validateInputs, null,
+                            null, null, null, reserveBankManagerHelperService, null, null, null, null, reserveBankManagerService);
                         break;
                     default:
                         throw new InvalidOptionException(Option);

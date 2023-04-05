@@ -3,7 +3,6 @@ using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
-using Newtonsoft.Json;
 
 namespace BankApplication
 {
@@ -510,45 +509,8 @@ namespace BankApplication
                     break;
 
                 case 6://Displaying Customer Transaction History
-                    while (true)
-                    {
-                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
-                        if (message.Result)
-                        {
-                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
-                            if (message.Result)
-                            {
-                                message = _transactionService.IsTransactionsAvailable(managerBankId, managerBranchId, customerAccountId);
-                                if (message.Result)
-                                {
-                                    List<string> transactions = _transactionService.GetTransactionHistory(managerBankId, managerBranchId, customerAccountId);
-                                    foreach (string transaction in transactions)
-                                    {
-                                        Console.WriteLine();
-                                        Console.WriteLine(transaction);
-                                        Console.WriteLine();
-                                    }
-                                    break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine(message.ResultMessage);
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine(message.ResultMessage);
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            break;
-                        }
-                    }
+                    _commonHelperService.GetTransactoinHistory(managerBankId, managerBranchId, _customerService, _validateInputs,
+                       _transactionService, Miscellaneous.staff, null);
                     break;
 
                 case 7://Revert Customer Transaction
@@ -622,83 +584,16 @@ namespace BankApplication
                     break;
 
                 case 8://Check Customer Account Balance
-                    while (true)
-                    {
-                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
-                        if (message.Result)
-                        {
-                            string customerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, customerAccountId);
-                            if (message.Result)
-                            {
-                                message = _customerService.CheckAccountBalance(managerBankId, managerBranchId, customerAccountId);
-                                if (message.Result)
-                                {
-                                    Console.WriteLine(message.ResultMessage);
-                                    break;
-                                }
-                                else
-                                {
-                                    Console.WriteLine(message.ResultMessage);
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine(message.ResultMessage);
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            break;
-                        }
-                    }
+                    _commonHelperService.GetCustomerAccountBalance(managerBankId, managerBranchId, _customerService, _validateInputs,
+                    Miscellaneous.staff, null);
                     break;
 
                 case 9:// Get ExchangeRates
-                    while (true)
-                    {
-                        message = _bankService.GetExchangeRates(managerBankId);
-
-                        Dictionary<string, decimal>? exchangeRates = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(message.Data);
-
-                        if (exchangeRates != null)
-                        {
-                            Console.WriteLine("Available Exchange Rates:");
-                            foreach (KeyValuePair<string, decimal> rates in exchangeRates)
-                            {
-                                Console.WriteLine($"{rates.Key} : {rates.Value} Rupees");
-                            }
-                            Console.WriteLine();
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            continue;
-                        }
-                    }
+                    _commonHelperService.GetExchangeRates(managerBankId, _bankService);
                     break;
 
                 case 10:// Get TransactionCharges
-                    while (true)
-                    {
-                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
-                        if (message.Result)
-                        {
-                            Console.WriteLine(message.Data);
-                            Console.WriteLine();
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            Console.WriteLine();
-                            break;
-                        }
-                    }
+                    _commonHelperService.GetTransactionCharges(managerBankId, managerBranchId, _branchService);
                     break;
 
                 case 11://Deposit Amount in Customer Account
@@ -740,88 +635,8 @@ namespace BankApplication
                     break;
 
                 case 12:// Transfer Amount 
-                    while (true)
-                    {
-                        message = _customerService.IsCustomersExist(managerBankId, managerBranchId);
-                        if (message.Result)
-                        {
-                            string fromCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.customer, _validateInputs);
-                            message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
-                            if (message.Result)
-                            {
-                                int transferMethod = _commonHelperService.ValidateTransferMethod();
-                                decimal amount = _commonHelperService.ValidateAmount();
-                                message = _customerService.IsAccountExist(managerBankId, managerBranchId, fromCustomerAccountId);
-
-                                if (message.Result)
-                                {
-                                    while (true)
-                                    {
-                                        string toCustomerBankId = _commonHelperService.GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
-                                        message = _bankService.AuthenticateBankId(toCustomerBankId);
-                                        if (message.Result)
-                                        {
-                                            string toCustomerBranchId = _commonHelperService.GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                                            message = _branchService.AuthenticateBranchId(toCustomerBankId, toCustomerBranchId);
-                                            if (message.Result)
-                                            {
-                                                string toCustomerAccountId = _commonHelperService.GetAccountId(Miscellaneous.toCustomer, _validateInputs);
-                                                message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
-                                                if (message.Result)
-                                                {
-                                                    message = _customerService.TransferAmount(managerBankId, managerBranchId, fromCustomerAccountId,
-                                                        toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
-                                                    if (message.Result)
-                                                    {
-                                                        Console.WriteLine(message.ResultMessage);
-                                                        break;
-                                                    }
-                                                    else
-                                                    {
-                                                        Console.WriteLine(message.ResultMessage);
-                                                        continue;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Console.WriteLine(message.ResultMessage);
-                                                    continue;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Console.WriteLine(message.ResultMessage);
-                                                continue;
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine(message.ResultMessage);
-                                            continue;
-                                        }
-
-                                    }
-
-                                }
-                                else
-                                {
-                                    Console.WriteLine(message.ResultMessage);
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine(message.ResultMessage);
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(message.ResultMessage);
-                            break;
-                        }
-                    }
+                    _commonHelperService.TransferAmount(managerBankId, managerBranchId, _branchService, _bankService, _validateInputs,
+                       _customerService, Miscellaneous.staff, null);
                     break;
 
                 case 13: //UpdateTransactionCharges

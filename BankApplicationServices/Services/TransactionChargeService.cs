@@ -8,9 +8,10 @@ namespace BankApplicationServices.Services
     {
         private readonly IBranchService _branchService;
         private readonly IFileService _fileService;
-        
+
         List<Bank> banks;
-        public TransactionChargeService(IFileService fileService,IBranchService branchService) {
+        public TransactionChargeService(IFileService fileService, IBranchService branchService)
+        {
             _fileService = fileService;
             _branchService = branchService;
             banks = new List<Bank>();
@@ -30,8 +31,8 @@ namespace BankApplicationServices.Services
                     if (branch is not null)
                     {
                         List<TransactionCharges> charges = branch.Charges;
-                        charges??= new List<TransactionCharges>();
-                       
+                        charges ??= new List<TransactionCharges>();
+
                         var chargesList = charges.FindAll(c => c.IsActive == 1);
                         if (chargesList.Count.Equals(1))
                         {
@@ -40,7 +41,7 @@ namespace BankApplicationServices.Services
                         }
                         else
                         {
-                            TransactionCharges transactionCharges = new ()
+                            TransactionCharges transactionCharges = new()
                             {
                                 RtgsSameBank = rtgsSameBank,
                                 RtgsOtherBank = rtgsOtherBank,
@@ -91,10 +92,10 @@ namespace BankApplicationServices.Services
                     if (branch is not null)
                     {
                         branch.Charges ??= new List<TransactionCharges>();
-                        if (branch.Charges.Count==1)
+                        if (branch.Charges.Count == 1)
                         {
-                            var charges = branch.Charges.Find(c=>c.IsActive == 1);
-                            if(rtgsOtherBank is not 101 && charges is not null)
+                            var charges = branch.Charges.Find(c => c.IsActive == 1);
+                            if (rtgsOtherBank is not 101 && charges is not null)
                             {
                                 charges.RtgsOtherBank = rtgsOtherBank;
                             }
@@ -109,7 +110,7 @@ namespace BankApplicationServices.Services
                                 charges.ImpsSameBank = impsSameBank;
                             }
 
-                            if (impsOtherBank is not 101 && charges is not null )
+                            if (impsOtherBank is not 101 && charges is not null)
                             {
                                 charges.ImpsOtherBank = impsOtherBank;
                             }
@@ -141,7 +142,7 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "Branch Authentiaction Failed";
             }
-        
+
             return message;
         }
 
@@ -161,8 +162,8 @@ namespace BankApplicationServices.Services
                         branch.Charges ??= new List<TransactionCharges>();
                         if (branch.Charges.Count.Equals(1))
                         {
-                            var  transactionCharges = branch.Charges.Find(c => c.IsActive ==1);
-                            if(transactionCharges is not null)
+                            var transactionCharges = branch.Charges.Find(c => c.IsActive == 1);
+                            if (transactionCharges is not null)
                             {
                                 transactionCharges.IsActive = 0;
                             }

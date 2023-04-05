@@ -23,7 +23,7 @@ namespace BankApplicationServices.Services
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
 
             List<Transaction> transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
-            if(transactions is null || transactions.Count < 0)
+            if (transactions is null || transactions.Count < 0)
             {
                 message.Result = false;
                 message.ResultMessage = "No Transactions Available.";
@@ -163,7 +163,7 @@ namespace BankApplicationServices.Services
                     {
                         var customerData = customers.Find(cu => cu.AccountId.Equals(fromCustomerAccountId));
                         if (customerData is not null)
-                        {   
+                        {
                             fromBranchCustomer = customerData;
                             var fromCustomerTransactionData = customerData.Transactions.Find(tr => tr.TransactionId.Equals(transactionId));
                             if (fromCustomerTransactionData is not null)

@@ -20,10 +20,10 @@ namespace BankApplicationServices.Services
             _transactionService = transactionService;
             banks = new List<Bank>();
         }
-        
+
         public Message IsCustomersExist(string bankId, string branchId)
         {
-            Message message = new ();
+            Message message = new();
             banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
             if (message.Result)
@@ -455,13 +455,16 @@ namespace BankApplicationServices.Services
             Message message = new();
             banks = _fileService.GetData();
             bool isCurrencyAvailable = false;
-            Currency currency = new();
+
             message = IsAccountExist(bankId, branchId, customerAccountId);
             if (message.Result)
             {
                 if (depositAmount > 0)
                 {
-                    decimal exchangedAmount = 0;              
+                    var bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
+                    var currency = banks[bankIndex].Currency.Find(cr => cr.IsActive == 1)!;
+
+                    decimal exchangedAmount = 0;
                     if (currency.DefaultCurrencyCode.Equals(currencyCode))
                     {
                         exchangedAmount = depositAmount * currency.ExchangeRate;
@@ -820,7 +823,7 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "Account Doesn't Exist";
             }
-            
+
             decimal transferAmountInterest = transferAmount * (bankInterestRate / 100.0m);
             decimal transferAmountWithInterest = transferAmount + transferAmountInterest;
 

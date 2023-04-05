@@ -1,7 +1,6 @@
 ﻿
 using BankApplicationModels;
 using BankApplicationServices.IServices;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace BankApplicationServices.Services
@@ -11,11 +10,11 @@ namespace BankApplicationServices.Services
         private static string CheckFile()
         {
             string basePath = Path.GetTempPath();
-            string fileName = "BankDetails"; 
-            string fileExtension = ".json"; 
+            string fileName = "BankDetails";
+            string fileExtension = ".json";
 
             string filePath = Path.ChangeExtension(Path.Combine(basePath, fileName), fileExtension);
-           // string filePath = Path.ChangeExtension(Path.Combine("C:\\Core\\BankApplication\\BankDetails"), ".json");
+            // string filePath = Path.ChangeExtension(Path.Combine("C:\\Core\\BankApplication\\BankDetails"), ".json");
             if (!File.Exists(filePath))
             {
                 File.Create(filePath).Close();
@@ -46,9 +45,9 @@ namespace BankApplicationServices.Services
         public List<Bank> GetData()
         {
             List<Bank> data;
-            if(ReadFile() is not null && !string.IsNullOrEmpty(ReadFile()))
+            if (ReadFile() is not null && !string.IsNullOrEmpty(ReadFile()))
             {
-                data =  JsonSerializer.Deserialize<List<Bank>>(ReadFile()) ?? new List<Bank>();
+                data = JsonSerializer.Deserialize<List<Bank>>(ReadFile()) ?? new List<Bank>();
             }
             else
             {

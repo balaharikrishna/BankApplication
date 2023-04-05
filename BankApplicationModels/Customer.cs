@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using BankApplicationModels.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using BankApplicationModels.Enums;
 
 namespace BankApplicationModels
 {

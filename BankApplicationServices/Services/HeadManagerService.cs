@@ -17,7 +17,7 @@ namespace BankApplicationServices.Services
             _encryptionService = encryptionService;
             banks = new List<Bank>();
         }
-       
+
         public Message IsHeadManagersExist(string bankId)
         {
             Message message = new();
@@ -115,7 +115,7 @@ namespace BankApplicationServices.Services
             {
                 string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                 string UserFirstThreeCharecters = headManagerName.Substring(0, 3);
-                string bankHeadManagerAccountId = string.Concat(UserFirstThreeCharecters,date);
+                string bankHeadManagerAccountId = string.Concat(UserFirstThreeCharecters, date);
 
                 byte[] salt = _encryptionService.GenerateSalt();
                 byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
@@ -284,7 +284,7 @@ namespace BankApplicationServices.Services
                 {
                     message.Result = false;
                     message.ResultMessage = "No Branches Available in Bank";
-                } 
+                }
             }
             else
             {

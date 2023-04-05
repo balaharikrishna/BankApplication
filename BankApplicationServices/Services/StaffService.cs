@@ -9,7 +9,7 @@ namespace BankApplicationServices.Services
         private readonly IFileService _fileService;
         private readonly IBranchService _branchService;
         private readonly IEncryptionService _encryptionService;
-        
+
         List<Bank> banks;
         public StaffService(IFileService fileService, IBranchService branchService, IEncryptionService encryptionService)
         {
@@ -18,7 +18,7 @@ namespace BankApplicationServices.Services
             _encryptionService = encryptionService;
             banks = new List<Bank>();
         }
-     
+
         public Message IsStaffExist(string bankId, string branchId)
         {
             Message message = new();
@@ -129,7 +129,7 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "BranchId Authentication Failed";
             }
-       
+
             return message;
         }
 
@@ -156,7 +156,7 @@ namespace BankApplicationServices.Services
                 if (!isManagerAlreadyAvailabe)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    string UserFirstThreeCharecters = staffName.Substring(0,3);
+                    string UserFirstThreeCharecters = staffName.Substring(0, 3);
                     string staffAccountId = string.Concat(UserFirstThreeCharecters, date);
 
                     byte[] salt = _encryptionService.GenerateSalt();
@@ -177,7 +177,7 @@ namespace BankApplicationServices.Services
                     {
                         banks[banks.FindIndex(obj => obj.BankId == bankId)].Branches[branches.FindIndex(br => br.BranchId == branchId)].Staffs = staffs;
                     }
-                    
+
                     _fileService.WriteFile(banks);
                     message.Result = true;
                     message.ResultMessage = $"Account Created for {staffName} with Account Id:{staffAccountId}";
@@ -379,7 +379,7 @@ namespace BankApplicationServices.Services
                 int branchIndex = banks[bankIndex].Branches.FindIndex(br => br.BranchId.Equals(branchId));
                 int staffIndex = banks[bankIndex].Branches[branchIndex].Staffs.FindIndex(c => c.AccountId.Equals(staffAccountId));
                 Staff details = banks[bankIndex].Branches[branchIndex].Staffs[staffIndex];
-                staffDetails =  details.ToString();
+                staffDetails = details.ToString();
             }
             else
             {
@@ -388,5 +388,5 @@ namespace BankApplicationServices.Services
             }
             return staffDetails;
         }
-    }   
+    }
 }

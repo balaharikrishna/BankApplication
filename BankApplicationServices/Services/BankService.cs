@@ -1,6 +1,6 @@
 ﻿using BankApplicationModels;
-using Newtonsoft.Json;
 using BankApplicationServices.IServices;
+using Newtonsoft.Json;
 
 
 namespace BankApplicationServices.Services
@@ -14,7 +14,7 @@ namespace BankApplicationServices.Services
             _fileService = fileService;
             banks = new List<Bank>();
         }
-      
+
         public Message AuthenticateBankId(string bankId)
         {
             Message message = new();
@@ -60,7 +60,8 @@ namespace BankApplicationServices.Services
                 string bankFirstThreeCharecters = bankName.Substring(0, 3);
                 string bankId = bankFirstThreeCharecters + date + "M";
 
-                Bank bank = new() {
+                Bank bank = new()
+                {
                     BankName = bankName,
                     BankId = bankId,
                     IsActive = 1
@@ -132,11 +133,11 @@ namespace BankApplicationServices.Services
             message = AuthenticateBankId(bankId);
             if (message.Result)
             {
-                int bankIndex = banks.FindIndex(bank => bank.BankId.Equals(bankId) );
+                int bankIndex = banks.FindIndex(bank => bank.BankId.Equals(bankId));
                 if (bankIndex > -1)
                 {
                     List<Currency> rates = banks[bankIndex].Currency;
-                    if(rates is not null)
+                    if (rates is not null)
                     {
                         rates.FindAll(cu => cu.IsActive == 1);
                         for (int i = 0; i < rates.Count; i++)

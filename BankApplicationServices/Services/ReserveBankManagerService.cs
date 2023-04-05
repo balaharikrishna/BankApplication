@@ -7,7 +7,7 @@ namespace BankApplicationServices.Services
     {
         public static string reserveBankManagerName = "TECHNOVERT";
         public static string reserveBankManagerpassword = "Techno123@";
-       
+
         public Message AuthenticateReserveBankManager(string userName, string userPassword)
         {
             Message message = new();

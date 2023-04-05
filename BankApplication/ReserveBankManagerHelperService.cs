@@ -104,7 +104,7 @@ namespace BankApplication
                                     }
                                 }
 
-                                string headManagerPassword ;
+                                string headManagerPassword;
                                 while (true)
                                 {
                                     Console.WriteLine("Update Staff Password");

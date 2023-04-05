@@ -3,7 +3,7 @@ using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
-
+using Newtonsoft.Json;
 
 namespace BankApplication
 {
@@ -491,182 +491,203 @@ namespace BankApplication
             return result;
         }
 
-        //customer,staff,manager Login
-        public void LoginAccountHolder(string level,IBankService bankService,IBranchService branchService,IValidateInputs validateInputs,
-            ICustomerHelperService? customerHelperService = null ,IStaffHelperService? staffHelperService = null,IManagerHelperService? managerHelperService = null,
-            IHeadManagerHelperService? headManagerHelperService = null,ICustomerService? customerService = null,IStaffService? staffService = null, IManagerService? managerService = null,
-            IHeadManagerService? headManagerService = null)
-        {
-            if (level.Equals("Customer"))
-            {
-                level = Miscellaneous.customer;
-            }
-            else if (level.Equals("Staff"))
-            {
-                level = Miscellaneous.staff;
-            }
-            else if (level.Equals("Branch Manager"))
-            {
-                level = Miscellaneous.branchManager;
-            }
-            else if (level.Equals("Head Manager"))
-            {
-                level = Miscellaneous.headManager;
-            }
 
-            Message message;
+        //customer,staff,manager Login
+        public void LoginAccountHolder(string level, IBankService bankService, IBranchService branchService, IValidateInputs validateInputs,
+            ICustomerHelperService? customerHelperService = null, IStaffHelperService? staffHelperService = null, IManagerHelperService? managerHelperService = null,
+            IHeadManagerHelperService? headManagerHelperService = null, IReserveBankManagerHelperService? reserveBankManagerHelperService = null, ICustomerService? customerService = null, IStaffService? staffService = null, IManagerService? managerService = null,
+            IHeadManagerService? headManagerService = null, IReserveBankManagerService? reserveBankManagerService = null)
+        {
+            Message message = new();
             while (true)
             {
-                while (true)
+                string bankId = string.Empty;
+                if (!level.Equals("Reserve Bank Manager"))
                 {
-                    string bankId = GetBankId(level, bankService, validateInputs);
+                    bankId = GetBankId(level, bankService, validateInputs);
                     message = bankService.AuthenticateBankId(bankId);
-                    if (message.Result)
+                }
+
+                if (level.Equals("Reserve Bank Manager") || message.Result)
+                {
+                    if (!level.Equals("Head Manager") && !level.Equals("Reserve Bank Manager"))
                     {
-                        message = branchService.IsBranchesExist(branchId);
-                        if (message.Result)
+                        message = branchService.IsBranchesExist(bankId);
+                    }
+
+                    if (level.Equals("Reserve Bank Manager") || level.Equals("Head Manager") || message.Result)
+                    {
+                        while (true)
                         {
-                            while (true)
+                            string branchId = string.Empty;
+                            if (!level.Equals("Head Manager") && !level.Equals("Reserve Bank Manager"))
                             {
-                                string branchId = string.Empty;
-                                if (!level.Equals("Head Manager"))
+                                branchId = GetBranchId(level, branchService, validateInputs);
+                                message = branchService.AuthenticateBranchId(bankId, branchId);
+                            }
+
+                            if (message.Result || level.Equals("Head Manager") || level.Equals("Reserve Bank Manager"))
+                            {
+
+                                if (level.Equals("Customer") && customerService is not null)
                                 {
-                                    branchId = GetBranchId(level, branchService, validateInputs);
-                                    message = branchService.AuthenticateBranchId(bankId, branchId);
+                                    message = customerService.IsCustomersExist(bankId, branchId);
                                 }
-                               
-                                if (message.Result)
+                                else if (level.Equals("Staff") && staffService is not null)
                                 {
+                                    message = staffService.IsStaffExist(bankId, branchId);
+                                }
+                                else if (level.Equals("Branch Manager") && managerService is not null)
+                                {
+                                    message = managerService.IsManagersExist(bankId, branchId);
+                                }
+                                else if (level.Equals("Head Manager") && headManagerService is not null)
+                                {
+                                    message = headManagerService.IsHeadManagersExist(bankId);
+                                }
 
-                                    if (level.Equals("Customer") && customerService is not null) 
+                                if (level.Equals("Reserve Bank Manager") || message.Result)
+                                {
+                                    while (true)
                                     {
-                                        message = customerService.IsCustomersExist(bankId, branchId);
-                                    }
-                                    else if (level.Equals("Staff") && staffService is not null)
-                                    {
-                                        message = staffService.IsStaffExist(bankId, branchId);
-                                    }
-                                    else if (level.Equals("Branch Manager") && managerService is not null)
-                                    {
-                                        message = managerService.IsManagersExist(bankId, branchId);
-                                    }
-                                    else if(level.Equals("Head Manager") && headManagerService is not null)
-                                    {
-                                        message = headManagerService.IsHeadManagersExist(bankId);
-                                    }
-
-                                    if (message.Result)
-                                    {
-                                        while (true)
+                                        string accountId = string.Empty;
+                                        string ReserveBankManagerName = string.Empty;
+                                        if (!level.Equals("Reserve Bank Manager"))
                                         {
-                                            string accountId = GetAccountId(level, validateInputs);
+                                            accountId = GetAccountId(level, validateInputs);
+                                        }
+
+                                        if (level.Equals("Customer") && customerService is not null)
+                                        {
+                                            message = customerService.IsAccountExist(bankId, branchId, accountId);
+                                        }
+                                        else if (level.Equals("Staff") && staffService is not null)
+                                        {
+                                            message = staffService.IsAccountExist(bankId, branchId, accountId);
+                                        }
+                                        else if (level.Equals("Branch Manager") && managerService is not null)
+                                        {
+                                            message = managerService.IsAccountExist(bankId, branchId, accountId);
+                                        }
+                                        else if (level.Equals("Head Manager") && headManagerService is not null)
+                                        {
+                                            message = headManagerService.IsHeadManagerExist(bankId, accountId);
+                                        }
+                                        else if (level.Equals("Reserve Bank Manager"))
+                                        {
+                                            ReserveBankManagerName = GetName(level, validateInputs);
+                                            if (ReserveBankManagerName is not null)
+                                            {
+                                                message.Result = true;
+                                            }
+                                            else
+                                            {
+                                                message.Result = false;
+                                            }
+                                        }
+
+                                        if (message.Result)
+                                        {
+                                            string password = GetPassword(level, validateInputs);
+
                                             if (level.Equals("Customer") && customerService is not null)
                                             {
-                                                message = customerService.IsAccountExist(bankId, branchId, accountId);
+                                                message = customerService.AuthenticateCustomerAccount(bankId, branchId, accountId, password);
                                             }
                                             else if (level.Equals("Staff") && staffService is not null)
                                             {
-                                                message = staffService.IsAccountExist(bankId, branchId, accountId);
+                                                message = staffService.AuthenticateStaffAccount(bankId, branchId, accountId, password);
                                             }
                                             else if (level.Equals("Branch Manager") && managerService is not null)
                                             {
-                                                message = managerService.IsAccountExist(bankId, branchId, accountId);
+                                                message = managerService.AuthenticateManagerAccount(bankId, branchId, accountId, password);
                                             }
                                             else if (level.Equals("Head Manager") && headManagerService is not null)
                                             {
-                                                message = headManagerService.IsHeadManagerExist(bankId,accountId);
+                                                message = headManagerService.AuthenticateHeadManager(bankId, accountId, password);
+                                            }
+                                            else if (level.Equals("Reserve Bank Manager") && reserveBankManagerService is not null)
+                                            {
+                                                message = reserveBankManagerService.AuthenticateReserveBankManager(ReserveBankManagerName, password);
                                             }
 
                                             if (message.Result)
                                             {
-                                                string password = GetPassword(level, validateInputs);
-                                                if (level.Equals("Customer") && customerService is not null)
+                                                while (true)
                                                 {
-                                                    message = customerService.AuthenticateCustomerAccount(bankId, branchId, accountId, password);
-                                                }
-                                                else if (level.Equals("Staff") && staffService is not null)
-                                                {
-                                                    message = staffService.AuthenticateStaffAccount(bankId, branchId, accountId, password);
-                                                }
-                                                else if (level.Equals("Branch Manager") && managerService is not null)
-                                                {
-                                                    message = managerService.AuthenticateManagerAccount(bankId, branchId, accountId, password);
-                                                }
-                                                else if (level.Equals("Head Manager") && headManagerService is not null)
-                                                {
-                                                    message = headManagerService.AuthenticateHeadManager(bankId, accountId, password);
-                                                }
-
-                                                if (message.Result)
-                                                {
-                                                    while (true)
+                                                    Console.WriteLine("Choose From Below Menu Options");
+                                                    if (level.Equals("Customer"))
                                                     {
-                                                        Console.WriteLine("Choose From Below Menu Options");
+                                                        foreach (CustomerOptions option in Enum.GetValues(typeof(CustomerOptions)))
+                                                        {
+                                                            Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                        }
+                                                    }
+                                                    else if (level.Equals("Staff"))
+                                                    {
+                                                        foreach (StaffOptions option in Enum.GetValues(typeof(StaffOptions)))
+                                                        {
+                                                            Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                        }
+                                                    }
+                                                    else if (level.Equals("Branch Manager"))
+                                                    {
+                                                        foreach (ManagerOptions option in Enum.GetValues(typeof(StaffOptions)))
+                                                        {
+                                                            Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                        }
+                                                    }
+                                                    else if (level.Equals("Head Manager"))
+                                                    {
+                                                        foreach (HeadManagerOptions option in Enum.GetValues(typeof(HeadManagerOptions)))
+                                                        {
+                                                            Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                        }
+                                                    }
+                                                    else if (level.Equals("Reserve Bank Manager"))
+                                                    {
+                                                        foreach (ReserveBankManagerOptions option in Enum.GetValues(typeof(ReserveBankManagerOptions)))
+                                                        {
+                                                            Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                                                        }
+                                                    }
+
+                                                    Console.WriteLine("Enter 0 For Main Menu");
+                                                    ushort selectedOption = GetOption(level);
+                                                    if (selectedOption == 0)
+                                                    {
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
                                                         if (level.Equals("Customer"))
                                                         {
-                                                            foreach (CustomerOptions option in Enum.GetValues(typeof(CustomerOptions)))
-                                                            {
-                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                                            }
+                                                            customerHelperService?.SelectedOption(selectedOption, bankId, branchId, accountId);
+                                                            continue;
                                                         }
                                                         else if (level.Equals("Staff"))
                                                         {
-                                                            foreach (StaffOptions option in Enum.GetValues(typeof(StaffOptions)))
-                                                            {
-                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                                            }
+                                                            staffHelperService?.SelectedOption(selectedOption, bankId, branchId);
+                                                            continue;
                                                         }
                                                         else if (level.Equals("Branch Manager"))
                                                         {
-                                                            foreach (ManagerOptions option in Enum.GetValues(typeof(StaffOptions)))
-                                                            {
-                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                                            }
+                                                            managerHelperService?.SelectedOption(selectedOption, bankId, branchId);
+                                                            continue;
                                                         }
                                                         else if (level.Equals("Head Manager"))
                                                         {
-                                                            foreach (HeadManagerOptions option in Enum.GetValues(typeof(HeadManagerOptions)))
-                                                            {
-                                                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
-                                                            }
+                                                            headManagerHelperService?.SelectedOption(selectedOption, bankId);
+                                                            continue;
                                                         }
-
-                                                        Console.WriteLine("Enter 0 For Main Menu");
-                                                        ushort selectedOption = GetOption(level);
-                                                        if (selectedOption == 0)
+                                                        else if (level.Equals("Reserve Bank Manager"))
                                                         {
-                                                            break;
-                                                        }
-                                                        else
-                                                        {
-                                                            if (level.Equals("Customer"))
-                                                            {
-                                                                customerHelperService?.SelectedOption(selectedOption, bankId, branchId, accountId);
-                                                                continue;
-                                                            }
-                                                            else if (level.Equals("Staff"))
-                                                            {
-                                                                staffHelperService?.SelectedOption(selectedOption, bankId, branchId);
-                                                                continue;
-                                                            }
-                                                            else if (level.Equals("Branch Manager"))
-                                                            {
-                                                                managerHelperService?.SelectedOption(selectedOption, bankId, branchId);
-                                                                continue;
-                                                            }
-                                                            else if (level.Equals("Head Manager"))
-                                                            {
-                                                                headManagerHelperService?.SelectedOption(selectedOption, bankId);
-                                                                continue;
-                                                            }
+                                                            reserveBankManagerHelperService?.SelectedOption(selectedOption);
+                                                            continue;
                                                         }
                                                     }
                                                 }
-                                                else
-                                                {
-                                                    Console.WriteLine(message.ResultMessage);
-                                                    continue;
-                                                }
+                                                break;
                                             }
                                             else
                                             {
@@ -674,19 +695,127 @@ namespace BankApplication
                                                 continue;
                                             }
                                         }
+                                        else
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+
                                     }
-                                    else
-                                    {
-                                        Console.WriteLine(message.ResultMessage);
-                                        break;
-                                    }
+                                    break;
                                 }
                                 else
                                 {
                                     Console.WriteLine(message.ResultMessage);
-                                    continue;
+                                    break;
                                 }
                             }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                continue;
+                            }
+
+                        }
+                        break;
+
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    continue;
+                }
+            }
+        }
+
+        //Get AccountBalance
+        public void GetCustomerAccountBalance(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, string level, string? userAccountId = null)
+        {
+            Message message;
+            while (true)
+            {
+                message = _customerService.IsCustomersExist(bankId, branchId);
+                if (message.Result || level.Equals("Customer"))
+                {
+                    string customerAccountId;
+                    if (!level.Equals("Customer"))
+                    {
+                        customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                        message = _customerService.IsAccountExist(bankId, branchId, customerAccountId);
+                    }
+                    else
+                    {
+                        customerAccountId = userAccountId!;
+                    }
+
+                    if (message.Result || level.Equals("Customer"))
+                    {
+                        message = _customerService.CheckAccountBalance(bankId, branchId, customerAccountId);
+                        if (message.Result)
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    break;
+                }
+            }
+        }
+        //Get Transaction History
+        public void GetTransactoinHistory(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, ITransactionService _transactionService, string level, string? userAccountId = null)
+        {
+            Message message = new();
+            while (true)
+            {
+                if (!level.Equals("Customer"))
+                {
+                    message = _customerService.IsCustomersExist(bankId, branchId);
+                }
+
+                if (message.Result || level.Equals("Customer"))
+                {
+                    string customerAccountId;
+                    if (!level.Equals("Customer"))
+                    {
+                        customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                        message = _customerService.IsAccountExist(bankId, branchId, customerAccountId);
+                    }
+                    else
+                    {
+                        customerAccountId = userAccountId!;
+                    }
+                    if (message.Result || level.Equals("Customer"))
+                    {
+                        message = _transactionService.IsTransactionsAvailable(bankId, branchId, customerAccountId);
+                        if (message.Result)
+                        {
+                            List<string> transactions = _transactionService.GetTransactionHistory(bankId, branchId, customerAccountId);
+                            foreach (string transaction in transactions)
+                            {
+                                Console.WriteLine();
+                                Console.WriteLine(transaction);
+                            }
+                            break;
                         }
                         else
                         {
@@ -697,8 +826,162 @@ namespace BankApplication
                     else
                     {
                         Console.WriteLine(message.ResultMessage);
-                        continue;
+                        break;
                     }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    break;
+                }
+            }
+        }
+
+        //Get Exchange Rates
+        public void GetExchangeRates(string bankId, IBankService _bankService)
+        {
+            while (true)
+            {
+                Message message;
+                message = _bankService.GetExchangeRates(bankId);
+
+                Dictionary<string, decimal>? exchangeRates = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(message.Data);
+
+                if (exchangeRates != null)
+                {
+                    Console.WriteLine("Available Exchange Rates:");
+                    foreach (KeyValuePair<string, decimal> rates in exchangeRates)
+                    {
+                        Console.WriteLine($"{rates.Key} : {rates.Value} Rupees");
+                    }
+                    Console.WriteLine();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    continue;
+                }
+            }
+        }
+
+        //Get Transaction Charges
+        public void GetTransactionCharges(string bankId, string branchId, IBranchService _branchService)
+        {
+            while (true)
+            {
+                Message message;
+                message = _branchService.GetTransactionCharges(bankId, branchId);
+                if (message.Result)
+                {
+                    Console.WriteLine(message.Data);
+                    Console.WriteLine();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine();
+                    break;
+                }
+            }
+        }
+
+        //Transfer Amount
+        public void TransferAmount(string userBankId, string userBranchId, IBranchService _branchService, IBankService _bankService, IValidateInputs _validateInputs, ICustomerService _customerService, string level, string? userAccountId = null)
+        {
+            Message message = new();
+            while (true)
+            {
+                if (!level.Equals("Customer"))
+                {
+                    message = _customerService.IsCustomersExist(bankId, branchId);
+                }
+                if (message.Result || level.Equals("Customer"))
+                {
+                    string fromCustomerAccountId;
+                    if (!level.Equals("Customer"))
+                    {
+                        fromCustomerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                        message = _customerService.IsAccountExist(bankId, branchId, fromCustomerAccountId);
+                    }
+                    else
+                    {
+                        fromCustomerAccountId = userAccountId!;
+                    }
+
+                    if (message.Result || level.Equals("Customer"))
+                    {
+                        int transferMethod = ValidateTransferMethod();
+                        decimal amount = ValidateAmount();
+                        message = _customerService.IsAccountExist(userBankId, userBranchId, fromCustomerAccountId);
+
+                        if (message.Result)
+                        {
+                            while (true)
+                            {
+                                string toCustomerBankId = GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                                message = _bankService.AuthenticateBankId(toCustomerBankId);
+                                if (message.Result)
+                                {
+                                    string toCustomerBranchId = GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                    message = _branchService.AuthenticateBranchId(toCustomerBankId, toCustomerBranchId);
+                                    if (message.Result)
+                                    {
+                                        string toCustomerAccountId = GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+                                        message = _customerService.IsAccountExist(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        if (message.Result)
+                                        {
+                                            message = _customerService.TransferAmount(userBankId, userBranchId, fromCustomerAccountId,
+                                                toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod);
+                                            if (message.Result)
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(message.ResultMessage);
+                                                continue;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine(message.ResultMessage);
+                                            continue;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(message.ResultMessage);
+                                        continue;
+                                    }
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    break;
                 }
             }
         }

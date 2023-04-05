@@ -134,7 +134,7 @@ namespace BankApplicationServices.IServices
         /// <param name="customerDateOfBirth">The new date of birth of the customer.</param>
         /// <param name="customerGender">The new gender of the customer.</param>
         /// <returns>A message indicating the status of the Account Updation.</returns>
-        Message UpdateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword, 
+        Message UpdateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
             string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress, string customerDateOfBirth, int customerGender);
 
         /// <summary>
@@ -145,6 +145,6 @@ namespace BankApplicationServices.IServices
         /// <param name="customerAccountId">The identifier of the customer account from which the withdrawal is made.</param>
         /// <param name="withDrawAmount">The amount to be withdrawn.</param>
         /// <returns>A message indicating the status of the withdrawal.</returns>
-        Message WithdrawAmount(string bankId, string branchId, string customerAccountId,decimal withDrawAmount);
+        Message WithdrawAmount(string bankId, string branchId, string customerAccountId, decimal withDrawAmount);
     }
 }

@@ -28,7 +28,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateBranchIdFormat(string branchId)
         {
             Message message = new();
@@ -45,7 +45,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateAccountIdFormat(string accountId)
         {
             Message message = new();
@@ -62,7 +62,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateNameFormat(string name)
         {
             Message message = new();
@@ -80,7 +80,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidatePasswordFormat(string password)
         {
             Message message = new();
@@ -115,7 +115,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateEmailIdFormat(string emailId)
         {
             Message message = new();
@@ -133,7 +133,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-       
+
         public Message ValidateAccountTypeFormat(int accountType)
         {
             Message message = new();
@@ -150,7 +150,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateAddressFormat(string address)
         {
             Message message = new();
@@ -167,7 +167,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateDateOfBirthFormat(string dateOfBirth)
         {
             Message message = new();
@@ -185,7 +185,7 @@ namespace BankApplicationHelperMethods
             return message;
         }
 
-        
+
         public Message ValidateGenderFormat(int gender)
         {
             Message message = new();

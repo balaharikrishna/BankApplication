@@ -23,7 +23,6 @@ namespace BankApplication
             _commonHelperService = commonHelperService;
             _validateInputs = validateInputs;
         }
-
         public void SelectedOption(ushort Option, string bankId, string branchId, string accountId)
         {
             switch (Option)
@@ -80,7 +79,7 @@ namespace BankApplication
                 case 7: // Get Passbook
                     while (true)
                     {
-                        Message message = new();
+                        Message message;
                         message = _customerService.IsCustomersExist(bankId, branchId);
                         if (message.Result)
                         {

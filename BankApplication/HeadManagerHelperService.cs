@@ -183,7 +183,7 @@ namespace BankApplication
                 case 4://DeleteManagerAccount
                     while (true)
                     {
-                        Message message = new();
+                        Message message;
                         message = _branchService.IsBranchesExist(headManagerBankId);
                         if (message.Result)
                         {
@@ -222,7 +222,7 @@ namespace BankApplication
                 case 5: //AddCurrency with exchange Rates
                     while (true)
                     {
-                        Message message = new();
+                        Message message;
                         Console.WriteLine("Please Enter currency Code");
                         string currencyCode = Console.ReadLine()?.ToUpper() ?? string.Empty;
                         message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
@@ -269,7 +269,7 @@ namespace BankApplication
                 case 6: //UpdateCurrency with exchange Rates
                     while (true)
                     {
-                        Message message = new();
+                        Message message;
                         message = _bankService.GetExchangeRates(headManagerBankId);
                         if (message.Result)
                         {
@@ -329,7 +329,7 @@ namespace BankApplication
                 case 7: //DeleteExchangeRates
                     while (true)
                     {
-                        Message message = new();
+                        Message message;
                         message = _bankService.GetExchangeRates(headManagerBankId);
                         if (message.Result)
                         {

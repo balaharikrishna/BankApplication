@@ -146,7 +146,7 @@ namespace BankApplication.IHelperServices
         /// <param name="managerService">The service used to access manager-related data.</param>
         /// <param name="headManagerService">The service used to access head manager-related data.</param>
         /// <param name="reserveBankManagerService">The service used to access reserve bank manager-related data.</param>
-        public void LoginAccountHolder(string level, IBankService bankService, IBranchService branchService, IValidateInputs validateInputs,
+         void LoginAccountHolder(string level, IBankService bankService, IBranchService branchService, IValidateInputs validateInputs,
             ICustomerHelperService? customerHelperService = null, IStaffHelperService? staffHelperService = null, IManagerHelperService? managerHelperService = null,
             IHeadManagerHelperService? headManagerHelperService = null, IReserveBankManagerHelperService? reserveBankManagerHelperService = null, ICustomerService? customerService = null,
             IStaffService? staffService = null, IManagerService? managerService = null, IHeadManagerService? headManagerService = null, IReserveBankManagerService? reserveBankManagerService = null);
@@ -160,7 +160,7 @@ namespace BankApplication.IHelperServices
         /// <param name="_validateInputs">The Service used to validate the inputs.</param>
         /// <param name="level">The access level of the account holder.</param>
         /// <param name="userAccountId">Optional. The ID of the user's account. If null, additional verfications to be done.</param>
-        public void GetCustomerAccountBalance(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, string level, string? userAccountId = null);
+        void GetCustomerAccountBalance(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, string level, string? userAccountId = null);
 
         /// <summary>
         /// Retrieves the transaction history for a given customer and displays it to the user.
@@ -172,14 +172,14 @@ namespace BankApplication.IHelperServices
         /// <param name="_transactionService">The transaction service used to retrieve the transaction history.</param>
         /// <param name="level">The access level of the account holder.</param>
         /// <param name="userAccountId">Optional. The ID of the user's account.If null, additional verfications to be done.</param>
-        public void GetTransactoinHistory(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, ITransactionService _transactionService, string level, string? userAccountId = null);
+        void GetTransactoinHistory(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, ITransactionService _transactionService, string level, string? userAccountId = null);
 
         /// <summary>
         /// Retrieves the current exchange rates for a given bank and displays them to the user.
         /// </summary>
         /// <param name="bankId">The ID of the bank to retrieve the exchange rates for.</param>
         /// <param name="_bankService">The bank service used to retrieve the exchange rates.</param>
-        public void GetExchangeRates(string bankId, IBankService _bankService);
+        void GetExchangeRates(string bankId, IBankService _bankService);
 
         /// <summary>
         /// Retrieves the transaction charges.
@@ -187,7 +187,7 @@ namespace BankApplication.IHelperServices
         /// <param name="bankId">The ID of the bank from which the transaction is to be made.</param>
         /// <param name="branchId">The ID of the branch from which the transaction is to be made.</param>
         /// <param name="_branchService">The branch service used to retrieve branch information.</param>
-        public void GetTransactionCharges(string bankId, string branchId, IBranchService _branchService);
+        void GetTransactionCharges(string bankId, string branchId, IBranchService _branchService);
 
         /// <summary>
         /// Transfers the specified amount from the user's account to another account.
@@ -200,6 +200,59 @@ namespace BankApplication.IHelperServices
         /// <param name="_customerService">The customer service used to retrieve customer information.</param>
         /// <param name="level">The access level of the user making the transaction.</param>
         /// <param name="userAccountId">Optional. The ID of the user's account. If null, additional verifications are to be done.</param>
-        public void TransferAmount(string userBankId, string userBranchId, IBranchService _branchService, IBankService _bankService, IValidateInputs _validateInputs, ICustomerService _customerService, string level, string? userAccountId = null);
+        void TransferAmount(string userBankId, string userBranchId, IBranchService _branchService, IBankService _bankService, IValidateInputs _validateInputs, ICustomerService _customerService, string level, string? userAccountId = null);
+
+        /// <summary>
+        /// Opens a new customer account at the specified bank and branch.
+        /// </summary>
+        /// <param name="bankId">The ID of the bank where the new account is to be opened.</param>
+        /// <param name="branchId">The ID of the branch where the new account is to be opened.</param>
+        /// <param name="_customerService">The customer service used to manage customer accounts.</param>
+        /// <param name="_validateInputs">The input validation service used to validate the user's inputs.</param>
+        void OpenCustomerAccount(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs);
+
+        /// <summary>
+        /// Updates an existing customer account at the specified bank and branch.
+        /// </summary>
+        /// <param name="bankId">The ID of the bank where the account is located.</param>
+        /// <param name="branchId">The ID of the branch where the account is located.</param>
+        /// <param name="_validateInputs">The input validation service used to validate the user's inputs.</param>
+        /// <param name="_customerService">The customer service used to manage customer accounts.</param>
+        void UpdateCustomerAccount(string bankId, string branchId, IValidateInputs _validateInputs, ICustomerService _customerService);
+
+        /// <summary>
+        /// Deletes an existing customer account at the specified bank and branch.
+        /// </summary>
+        /// <param name="bankId">The ID of the bank where the account is located.</param>
+        /// <param name="branchId">The ID of the branch where the account is located.</param>
+        /// <param name="_validateInputs">The input validation service used to validate the user's inputs.</param>
+        /// <param name="_customerService">The customer service used to manage customer accounts.</param>
+        void DeleteCustomerAccount(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs);
+
+        /// <summary>
+        /// Reverts a customer transaction at the specified bank and branch.
+        /// </summary>
+        /// <param name="bankId">The ID of the bank where the account is located.</param>
+        /// <param name="branchId">The ID of the branch where the account is located.</param>
+        /// <param name="_validateInputs">The input validation service used to validate the user's inputs.</param>
+        /// <param name="_customerService">The customer service used to manage customer accounts.</param>
+        /// <param name="_transactionService">The transaction service used to manage customer transactions.</param>
+        /// <param name="_bankService">The bank service used to manage banks.</param>
+        /// <param name="_branchService">The branch service used to manage branches.</param>
+        void RevertCustomerTransaction(string bankId, string branchId, ICustomerService _customerService,
+            IValidateInputs _validateInputs, ITransactionService _transactionService, IBankService _bankService,
+            IBranchService _branchService);
+
+        /// <summary>
+        /// Reverts a customer transaction at the specified bank and branch.
+        /// </summary>
+        /// <param name="bankId">The ID of the bank where the account is located.</param>
+        /// <param name="branchId">The ID of the branch where the account is located.</param>
+        /// <param name="_customerService">The customer service used to manage customer accounts.</param>
+        /// <param name="_validateInputs">The input validation service used to validate the user's inputs.</param>
+        /// /// <param name="_currencyService">The currency service used to validate the currency.</param>
+        public void DepositAmountInCustomerAccount(string bankId, string branchId, ICustomerService _customerService,
+            IValidateInputs _validateInputs, ICurrencyService _currencyService);
     }
+
 }

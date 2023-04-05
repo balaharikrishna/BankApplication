@@ -10,7 +10,7 @@ namespace BankApplication
     {
         public static IServiceProvider Build()
         {
-            ServiceCollection services = new ServiceCollection();
+            ServiceCollection services = new();
             services.AddSingleton<IBankService, BankService>();
             services.AddSingleton<IBranchService, BranchService>();
             services.AddSingleton<ICurrencyService, CurrencyService>();

@@ -1,5 +1,4 @@
-﻿
-using BankApplicationModels;
+﻿using BankApplicationModels;
 using BankApplicationServices.IServices;
 using System.Text.Json;
 
@@ -14,7 +13,6 @@ namespace BankApplicationServices.Services
             string fileExtension = ".json";
 
             string filePath = Path.ChangeExtension(Path.Combine(basePath, fileName), fileExtension);
-            // string filePath = Path.ChangeExtension(Path.Combine("C:\\Core\\BankApplication\\BankDetails"), ".json");
             if (!File.Exists(filePath))
             {
                 File.Create(filePath).Close();

@@ -104,7 +104,6 @@ namespace BankApplication
                 }
                 return Option;
             }
-
         }
 
         //Takes BankId Input and Validates It.
@@ -608,7 +607,7 @@ namespace BankApplication
                                             }
                                             else if (level.Equals("Reserve Bank Manager") && reserveBankManagerService is not null)
                                             {
-                                                message = reserveBankManagerService.AuthenticateReserveBankManager(ReserveBankManagerName, password);
+                                                message = reserveBankManagerService.AuthenticateReserveBankManager(ReserveBankManagerName!, password);
                                             }
 
                                             if (message.Result)
@@ -700,7 +699,6 @@ namespace BankApplication
                                             Console.WriteLine(message.ResultMessage);
                                             continue;
                                         }
-
                                     }
                                     break;
                                 }
@@ -715,10 +713,8 @@ namespace BankApplication
                                 Console.WriteLine(message.ResultMessage);
                                 continue;
                             }
-
                         }
                         break;
-
                     }
                     else
                     {
@@ -964,6 +960,443 @@ namespace BankApplication
                                     continue;
                                 }
                             }
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    break;
+                }
+            }
+        }
+
+        public void OpenCustomerAccount(string bankId,string branchId,ICustomerService _customerService,IValidateInputs _validateInputs)
+        {
+            Message message;
+            while (true)
+            {
+                string customerName = GetName(Miscellaneous.customer, _validateInputs);
+                string customerPassword = GetPassword(Miscellaneous.customer, _validateInputs);
+                string customerPhoneNumber = GetPhoneNumber(Miscellaneous.customer, _validateInputs);
+                string customerEmailId = GetEmailId(Miscellaneous.customer, _validateInputs);
+                int customerAccountType = GetAccountType(Miscellaneous.customer, _validateInputs);
+                string customerAddress = GetAddress(Miscellaneous.customer, _validateInputs);
+                string customerDOB = GetDateOfBirth(Miscellaneous.customer, _validateInputs);
+                int customerGender = GetGender(Miscellaneous.customer, _validateInputs);
+
+                message = _customerService.OpenCustomerAccount(bankId,
+                branchId, customerName, customerPassword, customerPhoneNumber, customerEmailId,
+                customerAccountType, customerAddress, customerDOB, customerGender);
+                if (message.Result)
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine();
+                    continue;
+                }
+            };
+        }
+
+        public void UpdateCustomerAccount(string bankId,string branchId,IValidateInputs _validateInputs,ICustomerService _customerService)
+        {
+            Message message;
+            while (true)
+            {
+                message = _customerService.IsCustomersExist(bankId, branchId);
+                if (message.Result)
+                {
+                    string customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                    message = _customerService.IsAccountExist(bankId, branchId, customerAccountId);
+                    if (message.Result)
+                    {
+                        string passbookDetatils = _customerService.GetPassbook(bankId, branchId, customerAccountId);
+                        Console.WriteLine("Passbook Details:");
+                        Console.WriteLine(passbookDetatils);
+
+                        string customerName;
+                        while (true)
+                        {
+                            Console.WriteLine("Update Customer Name");
+                            customerName = Console.ReadLine() ?? string.Empty;
+                            if (!string.IsNullOrEmpty(customerName))
+                            {
+                                message = _validateInputs.ValidateNameFormat(customerName);
+                                if (!message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        string customerPassword;
+                        while (true)
+                        {
+                            Console.WriteLine("Update Customer Password");
+                            customerPassword = Console.ReadLine() ?? string.Empty;
+                            if (!string.IsNullOrEmpty(customerPassword))
+                            {
+                                message = _validateInputs.ValidatePasswordFormat(customerPassword);
+                                if (!message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        string customerPhoneNumber;
+                        while (true)
+                        {
+                            Console.WriteLine("Update Customer Phone Number");
+                            customerPhoneNumber = Console.ReadLine() ?? string.Empty;
+                            if (!string.IsNullOrEmpty(customerPhoneNumber))
+                            {
+                                message = _validateInputs.ValidatePhoneNumberFormat(customerPhoneNumber);
+                                if (!message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        string customerEmailId;
+                        while (true)
+                        {
+                            Console.WriteLine("Update Customer Email Id");
+                            customerEmailId = Console.ReadLine() ?? string.Empty;
+                            if (!string.IsNullOrEmpty(customerEmailId))
+                            {
+                                message = _validateInputs.ValidateEmailIdFormat(customerEmailId);
+                                if (!message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        int customerAccountType;
+                        while (true)
+                        {
+                            Console.WriteLine("Choose From Below Menu Options To Update");
+                            foreach (AccountType option in Enum.GetValues(typeof(AccountType)))
+                            {
+                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                            }
+                            bool isValid = int.TryParse(Console.ReadLine(), out customerAccountType);
+                            if (isValid && customerAccountType != 0)
+                            {
+                                message = _validateInputs.ValidateAccountTypeFormat(customerAccountType);
+                                if (!message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        string customerAddress;
+                        while (true)
+                        {
+                            Console.WriteLine("Update Customer Address");
+                            customerAddress = Console.ReadLine() ?? string.Empty;
+                            if (!string.IsNullOrEmpty(customerAddress))
+                            {
+                                message = _validateInputs.ValidateAddressFormat(customerAddress);
+                                if (!message.Result)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        string customerDOB;
+                        while (true)
+                        {
+                            Console.WriteLine("Update Customer Date Of Birth");
+                            customerDOB = Console.ReadLine() ?? string.Empty;
+                            if (!string.IsNullOrEmpty(customerDOB))
+                            {
+                                message = _validateInputs.ValidateDateOfBirthFormat(customerDOB);
+                                if (message.Result == false)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        int customerGender;
+                        while (true)
+                        {
+                            Console.WriteLine("Choose From Below Menu Options To Update");
+                            foreach (Gender option in Enum.GetValues(typeof(Gender)))
+                            {
+                                Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
+                            }
+                            bool isValid = int.TryParse(Console.ReadLine(), out customerGender);
+                            if (isValid && customerGender != 0)
+                            {
+                                message = _validateInputs.ValidateGenderFormat(customerGender);
+                                if (message.Result == false)
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    Console.WriteLine();
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        message = _customerService.UpdateCustomerAccount(bankId, branchId, customerAccountId, customerName, customerPassword, customerPhoneNumber,
+                            customerEmailId, customerAccountType, customerAddress, customerDOB, customerGender);
+                        if (message.Result)
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            Console.WriteLine();
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        Console.WriteLine();
+                        continue;
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine();
+                    break;
+                }
+            }
+        }
+
+        public void DeleteCustomerAccount(string bankId,string branchId,ICustomerService _customerService,IValidateInputs _validateInputs)
+        {
+            Message message;
+            while (true)
+            {
+                message = _customerService.IsCustomersExist(bankId, branchId);
+                if (message.Result)
+                {
+                    string customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                    message = _customerService.DeleteCustomerAccount(bankId, branchId, customerAccountId);
+                    if (message.Result)
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        Console.WriteLine();
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        Console.WriteLine();
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine();
+                    break;
+                }
+
+            }
+        }
+
+        public void RevertCustomerTransaction(string bankId, string branchId, ICustomerService _customerService, 
+            IValidateInputs _validateInputs,ITransactionService _transactionService,IBankService _bankService,
+            IBranchService _branchService)
+        {
+            Message message;
+            while (true)
+            {
+                message = _customerService.IsCustomersExist(bankId, branchId);
+                if (message.Result)
+                {
+                    string fromCustomerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                    message = _customerService.IsAccountExist(bankId, branchId,fromCustomerAccountId);
+
+                    if (message.Result)
+                    {
+                        message = _transactionService.IsTransactionsAvailable(bankId, branchId, fromCustomerAccountId);
+                        if (message.Result)
+                        {
+                            string toCustomerBankId = GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
+                            message = _bankService.AuthenticateBankId(toCustomerBankId);
+                            if (message.Result)
+                            {
+                                string toCustomerBranchId = GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
+                                message = _branchService.AuthenticateBranchId(toCustomerBankId, toCustomerBranchId);
+                                if (message.Result)
+                                {
+                                    string toCustomerAccountId = GetAccountId(Miscellaneous.toCustomer, _validateInputs);
+
+                                    message = _customerService.AuthenticateToCustomerAccount(toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                    if (message.Result)
+                                    {
+                                        string transactionId = ValidateTransactionIdFormat();
+                                        message = _transactionService.RevertTransaction(transactionId, bankId, branchId, fromCustomerAccountId, toCustomerBankId, toCustomerBranchId, toCustomerAccountId);
+                                        Console.WriteLine(message.ResultMessage);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine(message.ResultMessage);
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine(message.ResultMessage);
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine(message.ResultMessage);
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(message.ResultMessage);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.ResultMessage);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(message.ResultMessage);
+                    break;
+                }
+            }
+        }
+
+        public void DepositAmountInCustomerAccount(string bankId, string branchId, ICustomerService _customerService,
+            IValidateInputs _validateInputs,ICurrencyService _currencyService)
+        {
+            Message message;
+            while (true)
+            {
+                message = _customerService.IsCustomersExist(bankId, branchId);
+                if (message.Result)
+                {
+                    string customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
+                    message = _customerService.IsAccountExist(bankId, branchId, customerAccountId);
+                    if (message.Result)
+                    {
+                        decimal depositAmount = ValidateAmount();
+                        string currencyCode = ValidateCurrency(bankId, _currencyService, _validateInputs);
+                        message = _customerService.DepositAmount(bankId, branchId, customerAccountId, depositAmount, currencyCode);
+                        if (message.Result)
+                        {
+                            Console.WriteLine(message.ResultMessage);
                             break;
                         }
                         else

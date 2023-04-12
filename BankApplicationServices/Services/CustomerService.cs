@@ -21,7 +21,7 @@ namespace BankApplicationServices.Services
             banks = new List<Bank>();
         }
 
-        public Message IsCustomersExist(string bankId, string branchId)
+        public Task<Message> IsCustomersExistAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -71,7 +71,7 @@ namespace BankApplicationServices.Services
 
             return message;
         }
-        public Message AuthenticateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerPassword)
+        public Task<Message> AuthenticateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerPassword)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -134,7 +134,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message IsAccountExist(string bankId, string branchId, string customerAccountId)
+        public Task<Message> IsAccountExistAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -189,7 +189,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message OpenCustomerAccount(string bankId, string branchId, string customerName, string customerPassword,
+        public Task<Message> OpenCustomerAccountAsync(string bankId, string branchId, string customerName, string customerPassword,
           string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress,
           string customerDateOfBirth, int customerGender)
         {
@@ -207,7 +207,7 @@ namespace BankApplicationServices.Services
 
                 customers ??= new List<Customer>();
 
-                bool isCustomerAlreadyAvailabe = customers.Any(m => m.Name.Equals(customerName) && m.IsActive == 1); ;
+                bool isCustomerAlreadyAvailabe = customers.Any(m => m.Name.Equals(customerName) && m.IsActive == 1); 
                 if (!isCustomerAlreadyAvailabe)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -256,7 +256,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message AuthenticateToCustomerAccount(string bankId, string branchId, string customerAccountId)
+        public Task<Message> AuthenticateToCustomerAccountAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -309,7 +309,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Message UpdateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
+        public Task<Message> UpdateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
           string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress,
           string customerDateOfBirth, int customerGender)
         {
@@ -410,7 +410,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DeleteCustomerAccount(string bankId, string branchId, string customerAccountId)
+        public Task<Message> DeleteCustomerAccountAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -450,7 +450,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DepositAmount(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode)
+        public Task<Message> DepositAmountAsync(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -562,7 +562,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message CheckAccountBalance(string bankId, string branchId, string customerAccountId)
+        public Task<Message> CheckAccountBalanceAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -621,7 +621,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message CheckToCustomerAccountBalance(string bankId, string branchId, string customerAccountId)
+        public Task<Message> CheckToCustomerAccountBalanceAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -680,7 +680,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message WithdrawAmount(string bankId, string branchId, string customerAccountId, decimal withDrawAmount)
+        public Task<Message> WithdrawAmountAsync(string bankId, string branchId, string customerAccountId, decimal withDrawAmount)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -743,7 +743,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message TransferAmount(string bankId, string branchId, string customerAccountId, string toBankId,
+        public Task<Message> TransferAmountAsync(string bankId, string branchId, string customerAccountId, string toBankId,
             string toBranchId, string toCustomerAccountId, decimal transferAmount, int transferMethod)
         {
             Message message = new();
@@ -851,7 +851,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public string GetPassbook(string bankId, string branchId, string customerAccountId)
+        public Task<Message> GetPassbookAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -863,7 +863,9 @@ namespace BankApplicationServices.Services
                 int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(customerAccountId));
 
                 Customer details = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex];
+                
                 return details.ToString();
+                
             }
             else
             {

@@ -14,7 +14,7 @@ namespace BankApplicationServices.IServices
         /// <param name="impsSameBank">The IMPS transaction charge for transactions within the same bank.</param>
         /// <param name="impsOtherBank">The IMPS transaction charge for transactions to other banks.</param>
         /// <returns>Message about the status of the transaction charges addition.</returns>
-        Message AddTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank);
+        Task<Message> AddTransactionChargesAsync(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank);
 
         /// <summary>
         /// Deletes transaction charges for the specified bank and branch.
@@ -22,7 +22,7 @@ namespace BankApplicationServices.IServices
         /// <param name="bankId">The BankId of the bank.</param>
         /// <param name="branchId">The BranchId of the branch.</param>
         /// <returns>Message about the status of the transaction charges deletion.</returns>
-        Message DeleteTransactionCharges(string bankId, string branchId);
+        Task<Message> DeleteTransactionChargesAsync(string bankId, string branchId);
 
         /// <summary>
         /// Updates transaction charges for the specified bank and branch.
@@ -34,6 +34,6 @@ namespace BankApplicationServices.IServices
         /// <param name="impsSameBank">The updated IMPS transaction charge for transactions within the same bank.</param>
         /// <param name="impsOtherBank">The updated IMPS transaction charge for transactions to other banks.</param>
         /// <returns>Message about the status of the transaction charges updation.</returns>
-        Message UpdateTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank);
+        Task<Message> UpdateTransactionChargesAsync(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank);
     }
 }

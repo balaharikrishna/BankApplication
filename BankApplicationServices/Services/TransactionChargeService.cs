@@ -17,7 +17,7 @@ namespace BankApplicationServices.Services
             banks = new List<Bank>();
         }
 
-        public Message AddTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
+        public Task<Message> AddTransactionChargesAsync(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -78,7 +78,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message UpdateTransactionCharges(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
+        public Task<Message> UpdateTransactionChargesAsync(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -146,7 +146,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DeleteTransactionCharges(string bankId, string branchId)
+        public Task<Message> DeleteTransactionChargesAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();

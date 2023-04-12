@@ -19,7 +19,7 @@ namespace BankApplicationServices.Services
             banks = new List<Bank>();
         }
 
-        public Message IsManagersExist(string bankId, string branchId)
+        public Task<Message> IsManagersExistAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -71,7 +71,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message AuthenticateManagerAccount(string bankId, string branchId,
+        public Task<Message> AuthenticateManagerAccountAsync(string bankId, string branchId,
             string managerAccountId, string managerPassword)
         {
             Message message = new();
@@ -134,7 +134,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message OpenManagerAccount(string bankId, string branchId, string managerName, string managerPassword)
+        public Task<Message> OpenManagerAccountAsync(string bankId, string branchId, string managerName, string managerPassword)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -192,7 +192,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message IsAccountExist(string bankId, string branchId, string managerAccountId)
+        public Task<Message> IsAccountExistAsync(string bankId, string branchId, string managerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -246,7 +246,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message UpdateManagerAccount(string bankId, string branchId, string accountId, string managerName, string managerPassword)
+        public Task<Message> UpdateManagerAccountAsync(string bankId, string branchId, string accountId, string managerName, string managerPassword)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -324,7 +324,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DeleteManagerAccount(string bankId, string branchId, string accountId)
+        public Task<Message> DeleteManagerAccountAsync(string bankId, string branchId, string accountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -364,7 +364,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public string GetManagerDetails(string bankId, string branchId, string managerAccountId)
+        public Task<Message> GetManagerDetailsAsync(string bankId, string branchId, string managerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();

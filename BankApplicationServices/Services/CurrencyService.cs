@@ -15,7 +15,7 @@ namespace BankApplicationServices.Services
             banks = new List<Bank>();
         }
 
-        public Message AddCurrency(string bankId, string currencyCode, decimal exchangeRate)
+        public Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -44,7 +44,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message UpdateCurrency(string bankId, string currencyCode, decimal exchangeRate)
+        public Task<Message> UpdateCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -73,7 +73,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Message DeleteCurrency(string bankId, string currencyCode)
+        public Task<Message> DeleteCurrencyAsync(string bankId, string currencyCode)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -103,7 +103,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message ValidateCurrency(string bankId, string currencyCode)
+        public Task<Message> ValidateCurrencyAsync(string bankId, string currencyCode)
         {
             Message message = new();
             banks = _fileService.GetData();

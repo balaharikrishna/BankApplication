@@ -1,55 +1,53 @@
 ﻿using BankApplicationModels;
+using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
 using Newtonsoft.Json;
-
 
 namespace BankApplicationServices.Services
 {
     public class BankService : IBankService
     {
-        private readonly IFileService _fileService;
-        List<Bank> banks;
-        public BankService(IFileService fileService)
+
+        IBankRepository _bankRepository;
+        public BankService(IBankRepository bankRepository)
         {
-            _fileService = fileService;
-            banks = new List<Bank>();
+            _bankRepository = bankRepository;
         }
 
-        public Message AuthenticateBankId(string bankId)
+        public Task<IEnumerable<Bank>> GetAllBanksAsync()
         {
+            return _bankRepository.GetAllBanks();
+        }
+
+        public Task<Bank> GetBankByIdAsync(string id)
+        {
+            return _bankRepository.GetBankById(id);
+        }
+
+        public async Task<Message> AuthenticateBankIdAsync(string bankId)
+        {
+            bool isBankExist = await _bankRepository.IsBankExist(bankId);
+
             Message message = new();
-            banks = _fileService.GetData();
-            if (banks.Count > 0)
+            if (isBankExist)
             {
-                bool bank = banks.Any(b => b.BankId.Equals(bankId) && b.IsActive == 1);
-                if (bank)
-                {
-                    message.Result = true;
-                    message.ResultMessage = $"Bank Id:'{bankId}' Exist.";
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"Bank Id:'{bankId}' Doesn't Exist.";
-                }
+                message.Result = true;
+                message.ResultMessage = $"Bank Id:'{bankId}' Exist.";
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "No Banks Available";
+                message.ResultMessage = $"Bank Id:'{bankId}' Doesn't Exist.";
             }
+            
             return message;
-
         }
-        public Message CreateBank(string bankName)
-        {
+        public async Task<Message> CreateBankAsync(string bankName)
+        {    
             Message message = new();
-            banks = _fileService.GetData();
-            bool isBankAlreadyRegistered = false;
 
-            isBankAlreadyRegistered = banks.Any(bank => bank.BankName.Equals(bankName));
-
-            if (isBankAlreadyRegistered)
+            Task<Bank?> _bankName = _bankRepository.GetBankByName(bankName);
+            if(_bankName != null )
             {
                 message.Result = false;
                 message.ResultMessage = $"BankName:{bankName} is Already Registered.";
@@ -64,29 +62,36 @@ namespace BankApplicationServices.Services
                 {
                     BankName = bankName,
                     BankId = bankId,
-                    IsActive = 1
+                    IsActive = true
                 };
-                banks.Add(bank);
 
-                _fileService.WriteFile(banks);
+                await _bankRepository.AddBank(bank);
                 message.Result = true;
                 message.ResultMessage = $"Bank {bankName} is Created with {bankId}";
             }
             return message;
         }
 
-        public Message UpdateBank(string bankId, string bankName)
+      
+        public async Task<Message> UpdateBankAsync(string bankId, string bankName)
         {
             Message message = new();
-            banks = _fileService.GetData();
-            message = AuthenticateBankId(bankId);
-            if (message.Result)
+           
+            Message messageResult = await AuthenticateBankIdAsync(bankId);
+            if (messageResult.Result)
             {
-                string bankNameReceived = banks[banks.FindIndex(bank => bank.BankId.Equals(bankId))].BankName;
-                if (!bankNameReceived.Equals(bankName))
+                Bank receivedBankName = await _bankRepository.GetBankByName(bankName);
+              
+                if (!receivedBankName.BankName.Equals(bankName))
                 {
-                    bankNameReceived = bankName;
-                    _fileService.WriteFile(banks);
+                    Bank bank = new Bank
+                    {
+                        BankName = bankName,
+                        BankId = bankId,
+                        IsActive = true
+                    };
+                    _bankRepository.UpdateBank(bank);
+
                     message.Result = true;
                     message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
                 }
@@ -105,17 +110,23 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DeleteBank(string bankId)
+        public async Task<Message> DeleteBankAsync(string bankId)
         {
             Message message = new();
-            banks = _fileService.GetData();
-            message = AuthenticateBankId(bankId);
-            if (message.Result)
+            Message messageResult = await AuthenticateBankIdAsync(bankId);
+            if (messageResult.Result)
             {
-                banks[banks.FindIndex(bank => bank.BankId.Equals(bankId))].IsActive = 0;
-                _fileService.WriteFile(banks);
-                message.Result = true;
-                message.ResultMessage = $"Bank Id :{bankId} Succesfully Deleted.";
+                bool isDeleted = await _bankRepository.DeleteBank(bankId);
+                if (isDeleted)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Bank Id :{bankId} Succesfully Deleted.";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Failed to Delete Bank Id :{bankId}";
+                }
             }
             else
             {
@@ -125,45 +136,9 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message GetExchangeRates(string bankId)
+        public Task<IEnumerable<Currency>> GetExchangeRatesAsync(string bankId)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            Dictionary<string, decimal> exchangeRates = new();
-            message = AuthenticateBankId(bankId);
-            if (message.Result)
-            {
-                int bankIndex = banks.FindIndex(bank => bank.BankId.Equals(bankId));
-                if (bankIndex > -1)
-                {
-                    List<Currency> rates = banks[bankIndex].Currency;
-                    if (rates is not null)
-                    {
-                        rates.FindAll(cu => cu.IsActive == 1);
-                        for (int i = 0; i < rates.Count; i++)
-                        {
-                            exchangeRates.Add(rates[i].CurrencyCode, rates[i].ExchangeRate);
-                        }
-                        message.Data = JsonConvert.SerializeObject(exchangeRates);
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"No Currencies Available for BankId:{bankId}";
-                    }
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
-                }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "Bank Authentication Failed";
-            }
-            return message;
+           return _bankRepository.GetAllCurrencies(bankId);
         }
     }
 }

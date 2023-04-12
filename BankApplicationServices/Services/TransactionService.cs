@@ -14,7 +14,7 @@ namespace BankApplicationServices.Services
             banks = new List<Bank>();
         }
 
-        public Message IsTransactionsAvailable(string fromBankId, string fromBranchId, string fromCustomerAccountId)
+        public Task<Message> IsTransactionsAvailableAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -22,7 +22,7 @@ namespace BankApplicationServices.Services
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
 
-            List<Transaction> transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
+            List<Transactions> transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
             if (transactions is null || transactions.Count < 0)
             {
                 message.Result = false;
@@ -36,7 +36,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public void TransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
+        public async void TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
           decimal creditAmount, decimal fromCustomerbalance, int transactionType)
         {
             banks = _fileService.GetData();
@@ -49,10 +49,10 @@ namespace BankApplicationServices.Services
             var transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
             if (transactions is null)
             {
-                transactions = new List<Transaction>();
+                transactions = new List<Transactions>();
             }
 
-            Transaction transaction = new()
+            Transactions transaction = new()
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
@@ -70,7 +70,7 @@ namespace BankApplicationServices.Services
             _fileService.WriteFile(banks);
         }
 
-        public void TransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
+        public async void TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
             decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, int transactionType)
         {
             banks = _fileService.GetData();
@@ -88,14 +88,14 @@ namespace BankApplicationServices.Services
 
             if (fromCustomertransactions is null)
             {
-                fromCustomertransactions = new List<Transaction>();
+                fromCustomertransactions = new List<Transactions>();
             }
             else if (toCustomertransactions is null)
             {
-                toCustomertransactions = new List<Transaction>();
+                toCustomertransactions = new List<Transactions>();
             }
 
-            Transaction fromCustomertransaction = new()
+            Transactions fromCustomertransaction = new()
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
@@ -111,7 +111,7 @@ namespace BankApplicationServices.Services
                 TransactionDate = date
             };
 
-            Transaction toCustomertransaction = new()
+            Transactions toCustomertransaction = new()
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
@@ -133,24 +133,24 @@ namespace BankApplicationServices.Services
             banks[toBankIndex].Branches[toBranchIndex].Customers[toCustomerIndex].Transactions = toCustomertransactions;
             _fileService.WriteFile(banks);
         }
-        public List<string> GetTransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId)
+        public Task<List<string>> GetTransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId)
         {
             banks = _fileService.GetData();
             int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(fromBankId));
             int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
             int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
 
-            List<Transaction> transactionList = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
+            List<Transactions> transactionList = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
             return transactionList.Select(t => t.ToString()).ToList();
         }
 
-        public Message RevertTransaction(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
+        public Task<Message> RevertTransactionAsync(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
           string toBranchId, string toCustomerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
             Customer? fromBranchCustomer = null;
-            Transaction? fromCustomerTransaction = null;
+            Transactions? fromCustomerTransaction = null;
 
             var bank = banks.Find(bk => bk.BankId.Equals(fromBankId));
             if (bank is not null)
@@ -201,7 +201,7 @@ namespace BankApplicationServices.Services
             }
 
             Customer? toBranchCustomer = null;
-            Transaction? toCustomerTransaction = null;
+            Transactions? toCustomerTransaction = null;
             var toBank = banks.Find(bk => bk.BankId.Equals(toBankId));
             if (toBank is not null)
             {

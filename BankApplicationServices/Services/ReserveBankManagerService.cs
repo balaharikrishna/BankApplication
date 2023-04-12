@@ -5,10 +5,10 @@ namespace BankApplicationServices.Services
 {
     public class ReserveBankManagerService : IReserveBankManagerService
     {
-        public static string reserveBankManagerName = "TECHNOVERT";
-        public static string reserveBankManagerpassword = "Techno123@";
+        private static string reserveBankManagerName = "TECHNOVERT";
+        private static string reserveBankManagerpassword = "Techno123@";
 
-        public Message AuthenticateReserveBankManager(string userName, string userPassword)
+        public Task<Message> AuthenticateReserveBankManagerAsync(string userName, string userPassword)
         {
             Message message = new();
             if (userName.Equals(reserveBankManagerName) && userPassword.Equals(reserveBankManagerpassword))

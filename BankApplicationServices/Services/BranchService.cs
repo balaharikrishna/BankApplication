@@ -5,18 +5,15 @@ namespace BankApplicationServices.Services
 {
     public class BranchService : IBranchService
     {
-        private readonly IFileService _fileService;
         private readonly IBankService _bankService;
-        List<Bank> banks;
-        public BranchService(IFileService fileService, IBankService bankService)
+        public BranchService(IBankService bankService)
         {
-            _fileService = fileService;
             _bankService = bankService;
-            banks = new List<Bank>();
         }
 
-        public Message IsBranchesExist(string bankId)
+        public Task<Message> IsBranchesExistAsync(string bankId)
         {
+            
             Message message = new();
             banks = _fileService.GetData();
             message = _bankService.AuthenticateBankId(bankId);
@@ -55,7 +52,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message AuthenticateBranchId(string bankId, string branchId)
+        public Task<Message> AuthenticateBranchIdAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -102,7 +99,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message CreateBranch(string bankId, string branchName, string branchPhoneNumber, string branchAddress)
+        public Task<Message> CreateBranchAsync(string bankId, string branchName, string branchPhoneNumber, string branchAddress)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -149,7 +146,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message UpdateBranch(string bankId, string branchId, string branchName, string branchPhoneNumber, string branchAddress)
+        public Task<Message> UpdateBranchAsync(string bankId, string branchId, string branchName, string branchPhoneNumber, string branchAddress)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -194,7 +191,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Message DeleteBranch(string bankId, string branchId)
+        public Task<Message> DeleteBranchAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -225,7 +222,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message GetTransactionCharges(string bankId, string branchId)
+        public Task<Message> GetTransactionChargesAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();

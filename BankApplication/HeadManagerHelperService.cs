@@ -34,7 +34,7 @@ namespace BankApplication
                         string branchPhoneNumber = _commonHelperService.GetPhoneNumber(Miscellaneous.branch, _validateInputs);
                         string branchAddress = _commonHelperService.GetAddress(Miscellaneous.branch, _validateInputs);
 
-                        Message message = _branchService.CreateBranch(headManagerBankId, branchName, branchPhoneNumber, branchAddress);
+                        Message message = _branchService.CreateBranchAsync(headManagerBankId, branchName, branchPhoneNumber, branchAddress).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -51,14 +51,14 @@ namespace BankApplication
                 case 2: //OpenManagerAcccount
                     while (true)
                     {
-                        Message message = _branchService.IsBranchesExist(headManagerBankId);
+                        Message message = _branchService.IsBranchesExistAsync(headManagerBankId).Result;
                         if (message.Result)
                         {
                             string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
                             string branchManagerName = _commonHelperService.GetName(Miscellaneous.branchManager, _validateInputs);
                             string branchManagerPassword = _commonHelperService.GetPassword(Miscellaneous.branchManager, _validateInputs);
 
-                            message = _managerService.OpenManagerAccount(headManagerBankId, branchId, branchManagerName, branchManagerPassword);
+                            message = _managerService.OpenManagerAccountAsync(headManagerBankId, branchId, branchManagerName, branchManagerPassword).Result;
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
@@ -82,20 +82,20 @@ namespace BankApplication
                 case 3: //UpdateManagerAccount 
                     while (true)
                     {
-                        Message message = new();
-                        message = _branchService.IsBranchesExist(headManagerBankId);
+                        Message message;
+                        message = _branchService.IsBranchesExistAsync(headManagerBankId).Result;
                         if (message.Result)
                         {
                             string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
-                            message = _managerService.IsManagersExist(headManagerBankId, branchId);
+                            message = _managerService.IsManagersExistAsync(headManagerBankId, branchId).Result;
                             if (message.Result)
                             {
                                 string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
 
-                                message = _managerService.IsAccountExist(headManagerBankId, branchId, managerAccountId);
+                                message = _managerService.IsAccountExistAsync(headManagerBankId, branchId, managerAccountId).Result;
                                 if (message.Result)
                                 {
-                                    string managerDetatils = _managerService.GetManagerDetails(headManagerBankId, branchId, managerAccountId);
+                                    string managerDetatils = _managerService.GetManagerDetailsAsync(headManagerBankId, branchId, managerAccountId).Result;
                                     Console.WriteLine("Manager Details:");
                                     Console.WriteLine(managerDetatils);
 
@@ -147,7 +147,7 @@ namespace BankApplication
                                         }
                                     }
 
-                                    message = _managerService.UpdateManagerAccount(headManagerBankId, branchId, managerAccountId, managerName, managerPassword);
+                                    message = _managerService.UpdateManagerAccountAsync(headManagerBankId, branchId, managerAccountId, managerName, managerPassword).Result;
 
                                     if (message.Result)
                                     {
@@ -184,16 +184,16 @@ namespace BankApplication
                     while (true)
                     {
                         Message message;
-                        message = _branchService.IsBranchesExist(headManagerBankId);
+                        message = _branchService.IsBranchesExistAsync(headManagerBankId).Result;
                         if (message.Result)
                         {
                             string branchId = _commonHelperService.GetBranchId(Miscellaneous.branchManager, _branchService, _validateInputs);
-                            message = _managerService.IsManagersExist(headManagerBankId, branchId);
+                            message = _managerService.IsManagersExistAsync(headManagerBankId, branchId).Result;
                             if (message.Result)
                             {
                                 string managerAccountId = _commonHelperService.GetAccountId(Miscellaneous.branchManager, _validateInputs);
 
-                                message = _managerService.DeleteManagerAccount(headManagerBankId, branchId, managerAccountId);
+                                message = _managerService.DeleteManagerAccountAsync(headManagerBankId, branchId, managerAccountId).Result;
                                 if (message.Result)
                                 {
                                     Console.WriteLine(message.ResultMessage);
@@ -228,7 +228,7 @@ namespace BankApplication
                         message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
                         if (message.Result)
                         {
-                            message = _currencyService.ValidateCurrency(headManagerBankId, currencyCode);
+                            message = _currencyService.ValidateCurrencyAsync(headManagerBankId, currencyCode).Result;
                             if (!message.Result)
                             {
                                 while (true)
@@ -243,7 +243,7 @@ namespace BankApplication
                                     }
                                     else
                                     {
-                                        message = _currencyService.AddCurrency(headManagerBankId, currencyCode, exchangeRate);
+                                        message = _currencyService.AddCurrencyAsync(headManagerBankId, currencyCode, exchangeRate).Result;
                                         if (message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);
@@ -270,7 +270,7 @@ namespace BankApplication
                     while (true)
                     {
                         Message message;
-                        message = _bankService.GetExchangeRates(headManagerBankId);
+                        message = _bankService.GetExchangeRatesAsync(headManagerBankId).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -281,7 +281,7 @@ namespace BankApplication
                                 message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
                                 if (message.Result)
                                 {
-                                    message = _currencyService.ValidateCurrency(headManagerBankId, currencyCode);
+                                    message = _currencyService.ValidateCurrencyAsync(headManagerBankId, currencyCode).Result;
                                     if (message.Result)
                                     {
                                         while (true)
@@ -296,7 +296,7 @@ namespace BankApplication
                                             }
                                             else
                                             {
-                                                message = _currencyService.UpdateCurrency(headManagerBankId, currencyCode, exchangeRate);
+                                                message = _currencyService.UpdateCurrencyAsync(headManagerBankId, currencyCode, exchangeRate).Result;
                                                 if (message.Result)
                                                 {
                                                     Console.WriteLine(message.ResultMessage);
@@ -330,7 +330,7 @@ namespace BankApplication
                     while (true)
                     {
                         Message message;
-                        message = _bankService.GetExchangeRates(headManagerBankId);
+                        message = _bankService.GetExchangeRatesAsync(headManagerBankId).Result;
                         if (message.Result)
                         {
                             while (true)
@@ -340,10 +340,10 @@ namespace BankApplication
                                 message = _validateInputs.ValidateCurrencyCodeFormat(currencyCode);
                                 if (message.Result)
                                 {
-                                    message = _currencyService.ValidateCurrency(headManagerBankId, currencyCode);
+                                    message = _currencyService.ValidateCurrencyAsync(headManagerBankId, currencyCode).Result;
                                     if (message.Result)
                                     {
-                                        message = _currencyService.DeleteCurrency(headManagerBankId, currencyCode);
+                                        message = _currencyService.DeleteCurrencyAsync(headManagerBankId, currencyCode).Result;
                                         if (message.Result)
                                         {
                                             Console.WriteLine(message.ResultMessage);

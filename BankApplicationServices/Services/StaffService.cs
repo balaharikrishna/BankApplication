@@ -19,7 +19,7 @@ namespace BankApplicationServices.Services
             banks = new List<Bank>();
         }
 
-        public Message IsStaffExist(string bankId, string branchId)
+        public Task<Message> IsStaffExistAsync(string bankId, string branchId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -69,7 +69,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Message AuthenticateStaffAccount(string bankId, string branchId,
+        public Task<Message> AuthenticateStaffAccountAsync(string bankId, string branchId,
            string staffAccountId, string staffAccountPassword)
         {
             Message message = new();
@@ -133,7 +133,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message OpenStaffAccount(string bankId, string branchId, string staffName, string staffPassword, StaffRole staffRole)
+        public Task<Message> OpenStaffAccountAsync(string bankId, string branchId, string staffName, string staffPassword, StaffRole staffRole)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -196,7 +196,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message IsAccountExist(string bankId, string branchId, string staffAccountId)
+        public Task<Message> IsAccountExistAsync(string bankId, string branchId, string staffAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -250,7 +250,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message UpdateStaffAccount(string bankId, string branchId, string staffAccountId, string staffName, string staffPassword, ushort staffRole)
+        public Task<Message> UpdateStaffAccountAsync(string bankId, string branchId, string staffAccountId, string staffName, string staffPassword, ushort staffRole)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -322,7 +322,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Message DeleteStaffAccount(string bankId, string branchId, string staffAccountId)
+        public Task<Message> DeleteStaffAccountAsync(string bankId, string branchId, string staffAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -367,7 +367,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public string GetStaffDetails(string bankId, string branchId, string staffAccountId)
+        public Task<Message> GetStaffDetailsAsync(string bankId, string branchId, string staffAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();

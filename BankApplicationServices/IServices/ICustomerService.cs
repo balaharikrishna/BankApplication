@@ -10,7 +10,7 @@ namespace BankApplicationServices.IServices
         /// <param name="bankId">The BankId of the bank in which the customer account is held.</param>
         /// <param name="branchId">The BranchId of the branch in which the customer account is held.</param>
         /// <returns>A message about status of the customers Existance in Branch of a given Bank.</returns>
-        Message IsCustomersExist(string bankId, string branchId);
+        Task<Message> IsCustomersExistAsync(string bankId, string branchId);
 
         /// <summary>
         /// Authenticates a customer Account by verifying the customer's password.
@@ -20,7 +20,7 @@ namespace BankApplicationServices.IServices
         /// <param name="customerAccountId">The CustomerAccountId of the customer account to authenticate.</param>
         /// <param name="customerPassword">The password associated with the customer account.</param>
         /// <returns>A message about status of the customer account Authentication.</returns>
-        Message AuthenticateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerPassword);
+        Task<Message> AuthenticateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerPassword);
 
         /// <summary>
         /// Checks if a customer account exists in a given bank and branch.
@@ -29,7 +29,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The BranchId of the branch in which the customer account is held.</param>
         /// <param name="customerAccountId">The CustomerAccountId of the customer account to check.</param>
         /// <returns>A message about status of the customer account Existence.</returns>
-        Message IsAccountExist(string bankId, string branchId, string customerAccountId);
+        Task<Message> IsAccountExistAsync(string bankId, string branchId, string customerAccountId);
 
         /// <summary>
         /// Authenticates the Other customer Account.
@@ -38,7 +38,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The BranchId of the branch in which the customer account is held.</param>
         /// <param name="customerAccountId">The CustomerAccountId of the customer account to authenticate to.</param>
         /// <returns>A message about status of the Other customer Authentication in a given Bank.</returns>
-        Message AuthenticateToCustomerAccount(string bankId, string branchId, string customerAccountId);
+        Task<Message> AuthenticateToCustomerAccountAsync(string bankId, string branchId, string customerAccountId);
 
         /// <summary>
         /// Checks the Balance of a customer Account.
@@ -47,7 +47,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The BranchId of the branch in which the customer account is held.</param>
         /// <param name="customerAccountId">The CustomerAccountId of the customer account to check the balance of.</param>
         /// <returns>A message about status of the customer's Balance.</returns>
-        Message CheckAccountBalance(string bankId, string branchId, string customerAccountId);
+        Task<Message> CheckAccountBalanceAsync(string bankId, string branchId, string customerAccountId);
 
         /// <summary>
         /// Checks the balance Other customer Account.
@@ -56,7 +56,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The BranchId of the branch in which the customer account is held.</param>
         /// <param name="customerAccountId">The CustomerAccountId of the customer account to check the balance of.</param>
         /// <returns>A message about status of the Other customer Balance in a given Bank branch.</returns>
-        Message CheckToCustomerAccountBalance(string bankId, string branchId, string customerAccountId);
+        Task<Message> CheckToCustomerAccountBalanceAsync(string bankId, string branchId, string customerAccountId);
 
         /// <summary>
         /// Deletes an existing customer account from a specific bank branch.
@@ -65,7 +65,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The unique identifier of the branch where the customer account is located.</param>
         /// <param name="customerAccountId">The unique identifier of the customer account to be deleted.</param>
         /// <returns>A message about status of the customer Account Deletion.</returns>
-        Message DeleteCustomerAccount(string bankId, string branchId, string customerAccountId);
+        Task<Message> DeleteCustomerAccountAsync(string bankId, string branchId, string customerAccountId);
 
         /// <summary>
         /// Deposits Amount into a customer Account.
@@ -76,7 +76,7 @@ namespace BankApplicationServices.IServices
         /// <param name="depositAmount">The amount of money to be deposited into the customer account.</param>
         /// <param name="currencyCode">The currency code of the deposit amount.</param>
         /// <returns>A message about status of the Deposition.</returns>
-        Message DepositAmount(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode);
+        Task<Message> DepositAmountAsync(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode);
 
         /// <summary>
         /// Retrieves the Customer Passbook.
@@ -85,7 +85,7 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The unique identifier of the branch where the customer account is located.</param>
         /// <param name="customerAccountId">The unique identifier of the customer account whose passbook will be retrieved.</param>
         /// <returns>A message about status of Retreving the passbook.</returns>
-        string GetPassbook(string bankId, string branchId, string customerAccountId);
+        Task<Message> GetPassbookAsync(string bankId, string branchId, string customerAccountId);
 
         /// <summary>
         /// Opens a new customer Account in a Bank Branch.
@@ -101,7 +101,7 @@ namespace BankApplicationServices.IServices
         /// <param name="customerDateOfBirth">The date of birth of the customer who will own the new customer account.</param>
         /// <param name="customerGender">The gender of the customer who will own the new customer account.</param>
         /// <returns>A message about status of the new customer account Creation.</returns>
-        Message OpenCustomerAccount(string bankId, string branchId, string customerName, string customerPassword, string customerPhoneNumber,
+        Task<Message> OpenCustomerAccountAsync(string bankId, string branchId, string customerName, string customerPassword, string customerPhoneNumber,
             string customerEmailId, int customerAccountType, string customerAddress, string customerDateOfBirth, int customerGender);
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace BankApplicationServices.IServices
         /// <param name="transferAmount">The amount to be transferred.</param>
         /// <param name="transferMethod">The method used to transfer the amount.</param>
         /// <returns>A message indicating the status of the transfer.</returns>
-        Message TransferAmount(string bankId, string branchId, string customerAccountId, string toBankId,
+        Task<Message> TransferAmountAsync(string bankId, string branchId, string customerAccountId, string toBankId,
             string toBranchId, string toCustomerAccountId, decimal transferAmount, int transferMethod);
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace BankApplicationServices.IServices
         /// <param name="customerDateOfBirth">The new date of birth of the customer.</param>
         /// <param name="customerGender">The new gender of the customer.</param>
         /// <returns>A message indicating the status of the Account Updation.</returns>
-        Message UpdateCustomerAccount(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
+        Task<Message> UpdateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
             string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress, string customerDateOfBirth, int customerGender);
 
         /// <summary>
@@ -145,6 +145,6 @@ namespace BankApplicationServices.IServices
         /// <param name="customerAccountId">The identifier of the customer account from which the withdrawal is made.</param>
         /// <param name="withDrawAmount">The amount to be withdrawn.</param>
         /// <returns>A message indicating the status of the withdrawal.</returns>
-        Message WithdrawAmount(string bankId, string branchId, string customerAccountId, decimal withDrawAmount);
+        Task<Message> WithdrawAmountAsync(string bankId, string branchId, string customerAccountId, decimal withDrawAmount);
     }
 }

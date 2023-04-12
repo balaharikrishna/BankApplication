@@ -30,7 +30,7 @@ namespace BankApplication
                     {
                         string bankName = _commonHelperService.GetName(Miscellaneous.bank, _validateInputs);
 
-                        message = _bankService.CreateBank(bankName);
+                        message = _bankService.CreateBankAsync(bankName).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -51,7 +51,7 @@ namespace BankApplication
                         string bankHeadManagerPassword = _commonHelperService.GetPassword(Miscellaneous.headManager, _validateInputs);
                         string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
 
-                        message = _headManagerService.OpenHeadManagerAccount(bankId, bankHeadManagerName, bankHeadManagerPassword);
+                        message = _headManagerService.OpenHeadManagerAccountAsync(bankId, bankHeadManagerName, bankHeadManagerPassword).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -69,15 +69,15 @@ namespace BankApplication
                     while (true)
                     {
                         string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
-                        message = _headManagerService.IsHeadManagersExist(bankId);
+                        message = _headManagerService.IsHeadManagersExistAsync(bankId).Result;
                         if (message.Result)
                         {
                             string headManagerAccountId = _commonHelperService.GetAccountId(Miscellaneous.headManager, _validateInputs);
 
-                            message = _headManagerService.IsHeadManagerExist(bankId, headManagerAccountId);
+                            message = _headManagerService.IsHeadManagerExistAsync(bankId, headManagerAccountId).Result;
                             if (message.Result)
                             {
-                                string headManagerDetatils = _headManagerService.GetHeadManagerDetails(bankId, headManagerAccountId);
+                                string headManagerDetatils = _headManagerService.GetHeadManagerDetailsAsync(bankId, headManagerAccountId).Result;
                                 Console.WriteLine("Head Manager Details:");
                                 Console.WriteLine(headManagerDetatils);
 
@@ -128,7 +128,7 @@ namespace BankApplication
                                     }
                                 }
 
-                                message = _headManagerService.UpdateHeadManagerAccount(bankId, headManagerAccountId, headManagerName, headManagerPassword);
+                                message = _headManagerService.UpdateHeadManagerAccountAsync(bankId, headManagerAccountId, headManagerName, headManagerPassword).Result;
 
                                 if (message.Result)
                                 {
@@ -159,12 +159,12 @@ namespace BankApplication
                     while (true)
                     {
                         string bankId = _commonHelperService.GetBankId(Miscellaneous.bank, _bankService, _validateInputs);
-                        message = _headManagerService.IsHeadManagersExist(bankId);
+                        message = _headManagerService.IsHeadManagersExistAsync(bankId).Result;
                         if (message.Result)
                         {
                             string headManagerAccountId = _commonHelperService.GetAccountId(Miscellaneous.headManager, _validateInputs);
 
-                            message = _headManagerService.DeleteHeadManagerAccount(bankId, headManagerAccountId);
+                            message = _headManagerService.DeleteHeadManagerAccountAsync(bankId, headManagerAccountId).Result;
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);

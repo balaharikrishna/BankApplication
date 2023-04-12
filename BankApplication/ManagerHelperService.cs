@@ -65,7 +65,7 @@ namespace BankApplication
                             }
                         }
 
-                        message = _staffService.OpenStaffAccount(managerBankId, managerBranchId, staffName, staffPassword, staffRole);
+                        message = _staffService.OpenStaffAccountAsync(managerBankId, managerBranchId, staffName, staffPassword, staffRole).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -82,7 +82,7 @@ namespace BankApplication
                 case 2: //Add Transaction Charges
                     while (true)
                     {
-                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
+                        message = _branchService.GetTransactionChargesAsync(managerBankId, managerBranchId).Result;
                         if (message.Result)
                         {
                             Console.WriteLine("Charges Already Available");
@@ -175,7 +175,7 @@ namespace BankApplication
                                 }
                             }
 
-                            message = _transactionChargeService.AddTransactionCharges(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank);
+                            message = _transactionChargeService.AddTransactionChargesAsync(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank).Result;
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
@@ -239,7 +239,7 @@ namespace BankApplication
                 case 13: //UpdateTransactionCharges
                     while (true)
                     {
-                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
+                        message = _branchService.GetTransactionChargesAsync(managerBankId, managerBranchId).Result;
                         if (message.Result)
                         {
                             Console.WriteLine("Enter RtgsSameBank Charge in %");
@@ -333,7 +333,7 @@ namespace BankApplication
                                 }
                             }
 
-                            message = _transactionChargeService.UpdateTransactionCharges(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank);
+                            message = _transactionChargeService.UpdateTransactionChargesAsync(managerBankId, managerBranchId, rtgsSameBank, rtgsOtherBank, impsSameBank, impsOtherBank).Result;
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
@@ -356,10 +356,10 @@ namespace BankApplication
                 case 14: //DeleteTransactionCharges
                     while (true)
                     {
-                        message = _branchService.GetTransactionCharges(managerBankId, managerBranchId);
+                        message = _branchService.GetTransactionChargesAsync(managerBankId, managerBranchId).Result;
                         if (message.Result)
                         {
-                            message = _transactionChargeService.DeleteTransactionCharges(managerBankId, managerBranchId);
+                            message = _transactionChargeService.DeleteTransactionChargesAsync(managerBankId, managerBranchId).Result;
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);
@@ -381,14 +381,14 @@ namespace BankApplication
                 case 15: //UpdateStaffAccount
                     while (true)
                     {
-                        message = _staffService.IsStaffExist(managerBankId, managerBranchId);
+                        message = _staffService.IsStaffExistAsync(managerBankId, managerBranchId).Result;
                         if (message.Result)
                         {
                             string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
-                            message = _staffService.IsAccountExist(managerBankId, managerBranchId, staffAccountId);
+                            message = _staffService.IsAccountExistAsync(managerBankId, managerBranchId, staffAccountId).Result;
                             if (message.Result)
                             {
-                                string staffDetatils = _staffService.GetStaffDetails(managerBankId, managerBranchId, staffAccountId);
+                                string staffDetatils = _staffService.GetStaffDetailsAsync(managerBankId, managerBranchId, staffAccountId).Result;
                                 Console.WriteLine("Staff Details:");
                                 Console.WriteLine(staffDetatils);
 
@@ -460,7 +460,7 @@ namespace BankApplication
                                     }
                                 }
 
-                                message = _staffService.UpdateStaffAccount(managerBankId, managerBranchId, staffAccountId, staffName, staffPassword, staffRole);
+                                message = _staffService.UpdateStaffAccountAsync(managerBankId, managerBranchId, staffAccountId, staffName, staffPassword, staffRole).Result;
 
                                 if (message.Result)
                                 {
@@ -489,12 +489,12 @@ namespace BankApplication
                 case 16: //DeleteStaffAccount
                     while (true)
                     {
-                        message = _staffService.IsStaffExist(managerBankId, managerBranchId);
+                        message = _staffService.IsStaffExistAsync(managerBankId, managerBranchId).Result;
                         if (message.Result)
                         {
                             string staffAccountId = _commonHelperService.GetAccountId(Miscellaneous.staff, _validateInputs);
 
-                            message = _staffService.DeleteStaffAccount(managerBankId, managerBranchId, staffAccountId);
+                            message = _staffService.DeleteStaffAccountAsync(managerBankId, managerBranchId, staffAccountId).Result;
                             if (message.Result)
                             {
                                 Console.WriteLine(message.ResultMessage);

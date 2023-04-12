@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
-using Newtonsoft.Json;
 
 namespace BankApplicationServices.Services
 {
@@ -39,15 +38,15 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = $"Bank Id:'{bankId}' Doesn't Exist.";
             }
-            
+
             return message;
         }
         public async Task<Message> CreateBankAsync(string bankName)
-        {    
+        {
             Message message = new();
 
             Task<Bank?> _bankName = _bankRepository.GetBankByName(bankName);
-            if(_bankName != null )
+            if (_bankName != null)
             {
                 message.Result = false;
                 message.ResultMessage = $"BankName:{bankName} is Already Registered.";
@@ -72,41 +71,30 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-      
+
         public async Task<Message> UpdateBankAsync(string bankId, string bankName)
         {
             Message message = new();
-           
+
             Message messageResult = await AuthenticateBankIdAsync(bankId);
             if (messageResult.Result)
             {
-                Bank receivedBankName = await _bankRepository.GetBankByName(bankName);
-              
-                if (!receivedBankName.BankName.Equals(bankName))
+                Bank bank = new Bank
                 {
-                    Bank bank = new Bank
-                    {
-                        BankName = bankName,
-                        BankId = bankId,
-                        IsActive = true
-                    };
-                    _bankRepository.UpdateBank(bank);
+                    BankName = bankName,
+                    BankId = bankId,
+                    IsActive = true
+                };
+                _bankRepository.UpdateBank(bank);
 
-                    message.Result = true;
-                    message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"BankName :{bankName} Is Matching with the Existing BankName.,Please Change the Bank Name.";
-                }
+                message.Result = true;
+                message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
             }
             else
             {
                 message.Result = false;
                 message.ResultMessage = "Bank Authentication Failed";
             }
-
             return message;
         }
 
@@ -138,7 +126,7 @@ namespace BankApplicationServices.Services
 
         public Task<IEnumerable<Currency>> GetExchangeRatesAsync(string bankId)
         {
-           return _bankRepository.GetAllCurrencies(bankId);
+            return _bankRepository.GetAllCurrencies(bankId);
         }
     }
 }

@@ -1,55 +1,39 @@
 ﻿using BankApplicationModels;
+using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
 {
     public class HeadManagerService : IHeadManagerService
     {
-        private readonly IFileService _fileService;
         private readonly IBankService _bankService;
         private readonly IEncryptionService _encryptionService;
+        IHeadManagerRepository _headManagerRepository;
 
-        List<Bank> banks;
-        public HeadManagerService(IFileService fileService, IBankService bankService, IEncryptionService encryptionService)
+        public HeadManagerService(IHeadManagerRepository headManagerRepository, IBankService bankService, IEncryptionService encryptionService)
         {
-            _fileService = fileService;
             _bankService = bankService;
             _encryptionService = encryptionService;
-            banks = new List<Bank>();
+            _headManagerRepository = headManagerRepository;
         }
 
-        public Task<Message> IsHeadManagersExistAsync(string bankId)
+        public async Task<Message> IsHeadManagersExistAsync(string bankId)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
+            Message message;
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
-                {
-                    List<HeadManager> headManagers = bank.HeadManagers;
-                    if (headManagers is null)
-                    {
-                        headManagers = new List<HeadManager>();
-                        headManagers.FindAll(hm => hm.IsActive.Equals(1));
-                    }
+               IEnumerable<HeadManager> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
 
-                    if (headManagers is not null && headManagers.Count > 0)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = "Head Managers Exist in Branch";
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"No Head Managers Available In The Bank:{bankId}";
-                    }
+                if (headManagers.Any())
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Head Managers Exist in The Bank:{bankId}";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
+                    message.ResultMessage = $"No Head Managers Available In The Bank:{bankId}";
                 }
             }
             else
@@ -59,27 +43,104 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Task<Message> AuthenticateHeadManagerAsync(string bankId, string headManagerAccountId, string headManagerPassword)
+        public async Task<Message> AuthenticateHeadManagerAsync(string bankId, string headManagerAccountId, string headManagerPassword)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
+            Message message;
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].HeadManagers;
-                if (headManagers.Count > 0)
+                IEnumerable<HeadManager> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
+                if (headManagers.Any())
                 {
                     byte[] salt = new byte[32];
-                    var headManager = headManagers.Find(hm => hm.AccountId.Equals(headManagerAccountId));
+                    HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
                     if (headManager is not null)
                     {
                         salt = headManager.Salt;
                     }
 
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
-                    string hashedPassword = Convert.ToBase64String(hashedPasswordToCheck);
-                    bool isHeadManagerAvilable = headManagers.Any(hm => hm.AccountId.Equals(headManagerAccountId) && Convert.ToBase64String(hm.HashedPassword).Equals(hashedPassword) && hm.IsActive == 1);
-                    if (isHeadManagerAvilable)
+                    bool isValidPassword = Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    if (isValidPassword)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "Manager Validation Successful.";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Manager Validation Failed.";
+                    }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"No Head Managers Available In The Bank:{bankId}";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "BankId Authentication Failed";
+            }
+            return message;
+        }
+
+        public async Task<Message> OpenHeadManagerAccountAsync(string bankId, string headManagerName, string headManagerPassword)
+        {
+            Message message = new();
+            HeadManager headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
+            
+            bool isHeadManagerAlreadyAvailabe = headManager.Name.Equals(headManagerName);
+            if (!isHeadManagerAlreadyAvailabe)
+            {
+                string date = DateTime.Now.ToString("yyyyMMddHHmmss");
+                string UserFirstThreeCharecters = headManagerName.Substring(0,3);
+                string bankHeadManagerAccountId = string.Concat(UserFirstThreeCharecters, date);
+
+                byte[] salt = _encryptionService.GenerateSalt();
+                byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
+
+                HeadManager headManagerObject = new()
+                {
+                    Name = headManagerName,
+                    Salt = salt,
+                    HashedPassword = hashedPassword,
+                    AccountId = bankHeadManagerAccountId,
+                    IsActive = true
+                };
+
+                bool isHeadManagerAdded = await _headManagerRepository.AddHeadManagerAccount(headManagerObject, bankId);
+                if(isHeadManagerAdded)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Account Created for {headManagerName} with Account Id:{bankHeadManagerAccountId}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Failed to Create HeadManager Account for {headManagerName}";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = $"Head Manager: {headManagerName} Already Existed";
+            }
+            return message;
+        }
+
+        public async Task<Message> IsHeadManagerExistAsync(string bankId, string headManagerAccountId)
+        {
+            Message message;
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
+            if (message.Result)
+            {
+                message = await IsHeadManagersExistAsync(bankId);
+                if (message.Result)
+                {
+                    bool isHeadManagerExist = await _headManagerRepository.IsHeadManagerExist(headManagerAccountId, bankId);
+                    if (isHeadManagerExist)
                     {
                         message.Result = true;
                         message.ResultMessage = "Head Manager Validation Successful.";
@@ -93,7 +154,7 @@ namespace BankApplicationServices.Services
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "No Head Managers Available In The Bank.";
+                    message.ResultMessage = $"No Head Managers Available In The Bank:{bankId}";
                 }
             }
             else
@@ -103,155 +164,67 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-
-        public Task<Message> OpenHeadManagerAccountAsync(string bankId, string headManagerName, string headManagerPassword)
+        public async Task<Message> UpdateHeadManagerAccountAsync(string bankId, string headManagerAccountId, string headManagerName, string headManagerPassword)
         {
             Message message = new();
-            banks = _fileService.GetData();
-            List<HeadManager> headManagers = banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].HeadManagers;
-            headManagers ??= new List<HeadManager>();
-            bool isHeadManagerAlreadyAvailabe = headManagers.Any(hm => hm.Name.Equals(headManagerName) && hm.IsActive == 1);
-            if (!isHeadManagerAlreadyAvailabe)
+            bool isHeadManagerExist = await _headManagerRepository.IsHeadManagerExist(headManagerAccountId, bankId);
+            if (isHeadManagerExist)
             {
-                string date = DateTime.Now.ToString("yyyyMMddHHmmss");
-                string UserFirstThreeCharecters = headManagerName.Substring(0, 3);
-                string bankHeadManagerAccountId = string.Concat(UserFirstThreeCharecters, date);
+              HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
 
-                byte[] salt = _encryptionService.GenerateSalt();
-                byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
+                byte[] salt = new byte[32];
+                salt = headManager.Salt;
+                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
+                if (Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                {
+                    message.Result = false;
+                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                }
+                else
+                {
+                    salt = _encryptionService.GenerateSalt();
+                    byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
+                    headManager.Salt = salt;
+                    headManager.HashedPassword = hashedPassword;
+                    message.Result = true;
+                    message.ResultMessage = "Updated Password Sucessfully";
+                }
 
+           
                 HeadManager headManager = new()
-                {
-                    Name = headManagerName,
-                    Salt = salt,
-                    HashedPassword = hashedPassword,
-                    AccountId = bankHeadManagerAccountId,
-                    IsActive = 1
-                };
-
-                headManagers.Add(headManager);
-                banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].HeadManagers = headManagers;
-
-                _fileService.WriteFile(banks);
-                message.Result = true;
-                message.ResultMessage = $"Account Created for {headManagerName} with Account Id:{bankHeadManagerAccountId}";
+              {
+                  AccountId = headManagerAccountId,
+                  Salt = 
+              }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = $"Head Manager: {headManagerName} Already Existed";
+                message.ResultMessage = "Head Manager Validation Failed.";
             }
-            return message;
-        }
 
-        public Task<Message> IsHeadManagerExistAsync(string bankId, string headManagerAccountId)
-        {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
-            if (message.Result)
+            List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
+            if (branches is not null)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].HeadManagers;
+                var headManager = headManagers.Find(hm => hm.AccountId.Equals(headManagerAccountId));
+                if (headManager is not null)
                 {
-                    List<HeadManager> headManagers = bank.HeadManagers;
-                    if (headManagers is not null)
-                    {
-                        bool isManagerAvilable = headManagers.Any(m => m.AccountId.Equals(headManagerAccountId) && m.IsActive == 1);
-                        if (isManagerAvilable)
-                        {
-                            message.Result = true;
-                            message.ResultMessage = "Head Manager Validation Successful.";
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = "Head Manager Validation Failed.";
-                        }
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"No Head Managers Available In The Bank:{bankId}";
-                    }
+                    
+
+                    _fileService.WriteFile(banks);
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
+                    message.ResultMessage = $"Head Manager: {headManagerName} with AccountId:{headManagerAccountId} Doesn't Exist";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "BankId Authentication Failed";
-            }
-            return message;
-        }
-        public Task<Message> UpdateHeadManagerAccountAsync(string bankId, string headManagerAccountId, string headManagerName, string headManagerPassword)
-        {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
-            if (message.Result)
-            {
-                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
-                if (branches is not null)
-                {
-                    List<HeadManager> headManagers = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].HeadManagers;
-                    var headManager = headManagers.Find(hm => hm.AccountId.Equals(headManagerAccountId));
-                    if (headManager is not null)
-                    {
-                        if (!string.IsNullOrEmpty(headManagerName))
-                        {
-                            headManager.Name = headManagerName;
-                        }
+                message.ResultMessage = "No Branches Available in Bank";
 
-                        if (!string.IsNullOrEmpty(headManagerPassword))
-                        {
-                            byte[] salt = new byte[32];
-                            salt = headManager.Salt;
-                            byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
-                            if (Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
-                            {
-                                message.Result = false;
-                                message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
-                            }
-                            else
-                            {
-                                salt = _encryptionService.GenerateSalt();
-                                byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
-                                headManager.Salt = salt;
-                                headManager.HashedPassword = hashedPassword;
-                                message.Result = true;
-                                message.ResultMessage = "Updated Password Sucessfully";
-                            }
-                        }
-                        if (string.IsNullOrEmpty(headManagerName) && string.IsNullOrEmpty(headManagerPassword))
-                        {
-                            message.Result = true;
-                            message.ResultMessage = $"No Changes Added.";
-                        }
-
-                        _fileService.WriteFile(banks);
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"Head Manager: {headManagerName} with AccountId:{headManagerAccountId} Doesn't Exist";
-                    }
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = "No Branches Available in Bank";
-
-                }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "BankId Authentication Failed";
             }
             return message;
         }

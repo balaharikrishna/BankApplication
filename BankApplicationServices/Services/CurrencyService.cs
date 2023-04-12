@@ -1,25 +1,23 @@
 ﻿using BankApplicationModels;
+using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
 {
     public class CurrencyService : ICurrencyService
     {
-        private readonly IBankService _bankService;
-        private readonly IFileService _fileService;
-        List<Bank> banks;
-        public CurrencyService(IFileService fileService, IBankService bankService)
+        ICurrencyRepository _currencyRepository;
+        IBankService _bankService;
+        public CurrencyService(ICurrencyRepository currencyRepository,IBankService bankService)
         {
+            _currencyRepository = currencyRepository;
             _bankService = bankService;
-            _fileService = fileService;
-            banks = new List<Bank>();
         }
 
-        public Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
+        public async Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
+            Message message;
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
                 Currency currency = new()
@@ -27,14 +25,17 @@ namespace BankApplicationServices.Services
                     ExchangeRate = exchangeRate,
                     CurrencyCode = currencyCode
                 };
-                int bankIndex = banks.FindIndex(bk => bk.BankId.Equals(bankId));
-                List<Currency> currencies = banks[bankIndex].Currency;
-                currencies ??= new List<Currency>();
-                currencies.Add(currency);
-                banks[bankIndex].Currency = currencies;
-                _fileService.WriteFile(banks);
-                message.Result = true;
-                message.ResultMessage = $"Added Currency Code:{currencyCode} with Exchange Rate:{exchangeRate}";
+                bool isCurrencyAdded = await _currencyRepository.AddCurrency(currency, bankId);
+                if (isCurrencyAdded)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Added Currency Code:{currencyCode} with Exchange Rate:{exchangeRate}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Failed to Add Currency";
+                }
             }
             else
             {
@@ -44,21 +45,26 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> UpdateCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
+        public async Task<Message> UpdateCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
+            Message message;
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency;
-                var currency = currencies.Find(ck => ck.CurrencyCode.Equals(currencyCode));
-                if (currency is not null)
+                bool isCurrencyExist = await _currencyRepository.IsCurrencyExist(currencyCode, bankId);
+    
+                if (isCurrencyExist)
                 {
-                    currency.ExchangeRate = exchangeRate;
-                    message.Result = true;
-                    message.ResultMessage = $"Currency Code :{currencyCode} updated with Exchange Rate :{exchangeRate}";
-                    _fileService.WriteFile(banks);
+                    Currency currency = new()
+                    {
+                        ExchangeRate = exchangeRate,
+                        CurrencyCode = currencyCode
+                    };
+                    bool isCurrencyAdded = await _currencyRepository.AddCurrency(currency, bankId);
+                    if (isCurrencyAdded)
+                    {
+                        message.ResultMessage = $"Currency Code :{currencyCode} updated with Exchange Rate :{exchangeRate}";
+                    }
                 }
                 else
                 {
@@ -73,21 +79,27 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Task<Message> DeleteCurrencyAsync(string bankId, string currencyCode)
+        public async Task<Message> DeleteCurrencyAsync(string bankId, string currencyCode)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
+            Message message;
+
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency;
-                var currency = currencies.Find(ck => ck.CurrencyCode.Equals(currencyCode));
-                if (currency is not null)
+                bool isCurrencyExist = await _currencyRepository.IsCurrencyExist(currencyCode, bankId);
+                if (isCurrencyExist)
                 {
-                    currency.IsActive = 0;
-                    message.Result = true;
-                    message.ResultMessage = $"Currency Code :{currencyCode} Deleted Successfully.";
-                    _fileService.WriteFile(banks);
+                    bool isCurrencyDeleted = await _currencyRepository.DeleteCurrency(currencyCode, bankId);
+                    if (isCurrencyDeleted)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = $"Currency Code :{currencyCode} Deleted Successfully.";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"Failed to Delete CurrencyCode:{currencyCode}";
+                    }
                 }
                 else
                 {
@@ -103,17 +115,15 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> ValidateCurrencyAsync(string bankId, string currencyCode)
+        public async Task<Message> ValidateCurrencyAsync(string bankId, string currencyCode)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _bankService.AuthenticateBankId(bankId);
+            Message message ;
+            message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                List<Currency> currencies = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Currency.FindAll(cr => cr.IsActive == 1);
-                currencies ??= new List<Currency>();
-                bool currency = currencies.Any(ck => ck.CurrencyCode.Equals(currencyCode));
-                if (currency)
+                bool isCurrencyExist = await _currencyRepository.IsCurrencyExist(currencyCode, bankId);
+                
+                if (isCurrencyExist)
                 {
                     message.Result = true;
                     message.ResultMessage = $"Currency Code:'{currencyCode}' is Exist";

@@ -15,7 +15,7 @@ namespace API.Mappings
             CreateMap<Manager, ManagerDto>();
             CreateMap<Staff, StaffDto>();
             CreateMap<Message, MessageDto>();
-            CreateMap<Transactions, TransactionDto>();
+            CreateMap<Transaction, TransactionDto>();
             CreateMap<TransactionCharges,TransactionChargesDto>();
             CreateMap<ReserveBankManagerDto, ReserveBankManagerDto>();
         }

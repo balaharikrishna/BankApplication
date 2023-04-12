@@ -20,10 +20,8 @@ namespace BankApplicationServices.Services
 
         public byte[] HashPassword(string password, byte[] salt)
         {
-            using (Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, ITERATIONS))
-            {
-                return pbkdf2.GetBytes(HASH_SIZE);
-            }
+            using Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, ITERATIONS);
+            return pbkdf2.GetBytes(HASH_SIZE);
         }
     }
 }

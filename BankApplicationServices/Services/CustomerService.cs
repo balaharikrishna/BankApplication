@@ -6,19 +6,15 @@ namespace BankApplicationServices.Services
 {
     public class CustomerService : ICustomerService
     {
-        private readonly IFileService _fileService;
         private readonly IEncryptionService _encryptionService;
         private readonly IBranchService _branchService;
         private readonly ITransactionService _transactionService;
-        private List<Bank> banks;
-        public CustomerService(IFileService fileService, IEncryptionService encryptionService,
+        public CustomerService(IEncryptionService encryptionService,
             IBranchService branchService, ITransactionService transactionService)
         {
-            _fileService = fileService;
             _encryptionService = encryptionService;
             _branchService = branchService;
             _transactionService = transactionService;
-            banks = new List<Bank>();
         }
 
         public Task<Message> IsCustomersExistAsync(string bankId, string branchId)

@@ -11,10 +11,11 @@ namespace BankApplicationRepository.Repository
         {
             _connection = connection;
         }
-        public async Task<IEnumerable<Branch>> GetAllBranches()
+        public async Task<IEnumerable<Branch>> GetAllBranches(string bankId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Branches WHERE IsActive = 1";
+            command.CommandText = "SELECT * FROM Branches WHERE IsActive = 1 and BankId=@bankId";
+            command.Parameters.AddWithValue("@bankId", bankId);
             var branches = new List<Branch>();
             await _connection.OpenAsync();
             var reader = await command.ExecuteReaderAsync();

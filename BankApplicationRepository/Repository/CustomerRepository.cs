@@ -2,6 +2,7 @@
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Xml.Linq;
 
 namespace BankApplicationRepository.Repository
 {
@@ -71,11 +72,18 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> UpdateCustomerAccount(Customer customer, string branchId)
         {
             var command = _connection.CreateCommand();
+            var text = "UPDATE Customers SET ";
+            if(!string.IsNullOrEmpty(customer.Name))
+            {
+                command.Parameters.AddWithValue("@name", customer.Name);
+                text.Concat("Name=@name,");
+            }
+            text.Concat(" WHERE AccountId=@accountId And BranchId=@branchId AND IsActive = 1");
             command.CommandText = "UPDATE Customers SET Name=@name,Salt=@salt,HashedPassword=@hasedPassword,Balance=@balance,Gender=@gender," +
                 "AccountType=@accountType,Address=@address,DateOfBirth=@dateOfBirth,EmailId=@emailId,PhoneNumber=@phoneNumber," +
                 "PassbookIssueDate=@passbookIssueDate WHERE AccountId=@accountId And BranchId=@branchId AND IsActive = 1";
             command.Parameters.AddWithValue("@accountId", customer.AccountId);
-            command.Parameters.AddWithValue("@name", customer.Name);
+            
             command.Parameters.AddWithValue("@salt", customer.Salt);
             command.Parameters.AddWithValue("@hasedPassword", customer.HashedPassword);
             command.Parameters.AddWithValue("@balance", customer.Balance);

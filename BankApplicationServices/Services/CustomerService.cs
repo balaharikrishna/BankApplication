@@ -1,5 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
+using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -9,54 +11,75 @@ namespace BankApplicationServices.Services
         private readonly IEncryptionService _encryptionService;
         private readonly IBranchService _branchService;
         private readonly ITransactionService _transactionService;
-        public CustomerService(IEncryptionService encryptionService,
+        private readonly ICustomerRepository _customerRepository;
+        public CustomerService(IEncryptionService encryptionService, ICustomerRepository customerRepository,
             IBranchService branchService, ITransactionService transactionService)
         {
             _encryptionService = encryptionService;
             _branchService = branchService;
             _transactionService = transactionService;
+            _customerRepository = customerRepository;
         }
 
-        public Task<Message> IsCustomersExistAsync(string bankId, string branchId)
+        public async Task<Message> IsCustomersExistAsync(string branchId)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                IEnumerable<Customer> customers = await _customerRepository.GetAllCustomers(branchId);
+
+                if (customers.Any())
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
+                    message.Result = true;
+                    message.ResultMessage = $"Customers Exist in The Branch:{branchId}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "branchId Authentication Failed";
+            }
+            return message;
+        }
+        public async Task<Message> AuthenticateCustomerAccountAsync(string branchId, string customerAccountId, string customerPassword)
+        {
+            Message message;
+            message = await _branchService.AuthenticateBranchIdAsync(branchId);
+            if (message.Result)
+            {
+                IEnumerable<Customer> customers = await _customerRepository.GetAllCustomers(branchId);
+                if (customers.Any())
+                {
+                    byte[] salt = new byte[32];
+                    Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                    if (customer is not null)
                     {
-                        List<Customer> customers = branch.Customers;
-                        if (customers is null)
-                        {
-                            customers = new List<Customer>();
-                            customers.FindAll(c => c.IsActive == 1);
-                        }
-                        if (customers is not null && customers.Count > 0)
-                        {
-                            message.Result = true;
-                            message.ResultMessage = "Customers Exist in Branch";
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
-                        }
+                        salt = customer.Salt;
+                    }
+
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
+                    bool isValidPassword = Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    if (isValidPassword)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "Customer Validation Successful.";
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "Branch Not Found";
+                        message.ResultMessage = "Customer Validation Failed.";
                     }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
+                    message.ResultMessage = $"No Customers Available In The Branch Id:{branchId}";
                 }
             }
             else
@@ -64,179 +87,75 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "BranchId Authentication Failed";
             }
-
             return message;
         }
-        public Task<Message> AuthenticateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerPassword)
+
+        public async Task<Message> IsAccountExistAsync(string branchId, string customerAccountId)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await IsCustomersExistAsync(branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                bool isManagerExist = await _customerRepository.IsCustomerExist(customerAccountId, branchId);
+                if (isManagerExist)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
-                    {
-                        List<Customer> customers = branch.Customers;
-                        if (customers is not null)
-                        {
-                            byte[] salt = new byte[32];
-                            var customer = customers.Find(m => m.AccountId.Equals(customerAccountId));
-                            if (customer is not null)
-                            {
-                                salt = customer.Salt;
-                            }
-
-                            byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                            bool isCustomerAvilable = customers.Any(m => m.AccountId.Equals(customerAccountId) && Convert.ToBase64String(m.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)) && m.IsActive == 1);
-                            if (isCustomerAvilable)
-                            {
-                                message.Result = true;
-                                message.ResultMessage = "Customer Validation Successful.";
-                            }
-                            else
-                            {
-                                message.Result = false;
-                                message.ResultMessage = "Customer Validation Failed.";
-                            }
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
-                        }
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Branch Not Found";
-                    }
+                    message.Result = true;
+                    message.ResultMessage = "Customer Exist.";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
+                    message.ResultMessage = "Customer Doesn't Exist";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "BranchId Authentication Failed";
+                message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
             }
-
             return message;
         }
 
-        public Task<Message> IsAccountExistAsync(string bankId, string branchId, string customerAccountId)
-        {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
-            if (message.Result)
-            {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
-                {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
-                    {
-                        List<Customer> customers = branch.Customers;
-                        if (customers is not null)
-                        {
-                            bool isCustomerAvilable = customers.Any(m => m.AccountId.Equals(customerAccountId) && m.IsActive == 1);
-                            if (isCustomerAvilable)
-                            {
-                                message.Result = true;
-                                message.ResultMessage = "Customer Validation Successful.";
-                            }
-                            else
-                            {
-                                message.Result = false;
-                                message.ResultMessage = "Customer Validation Failed.";
-                            }
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
-                        }
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Branch Not Found";
-                    }
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
-                }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "BranchId Authentication Failed";
-            }
-
-            return message;
-        }
-
-        public Task<Message> OpenCustomerAccountAsync(string bankId, string branchId, string customerName, string customerPassword,
+        public async Task<Message> OpenCustomerAccountAsync(string branchId, string customerName, string customerPassword,
           string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress,
           string customerDateOfBirth, int customerGender)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                List<Customer>? customers = null;
-                List<Branch> branches = banks[banks.FindIndex(bk => bk.BankId.Equals(bankId))].Branches;
-                if (branches is not null)
-                {
-                    customers = branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Customers;
-                }
+                Customer customer = await _customerRepository.GetCustomerByName(customerName, branchId);
 
-                customers ??= new List<Customer>();
-
-                bool isCustomerAlreadyAvailabe = customers.Any(m => m.Name.Equals(customerName) && m.IsActive == 1); 
+                bool isCustomerAlreadyAvailabe = customer.Name.Equals(customerName);
                 if (!isCustomerAlreadyAvailabe)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string UserFirstThreeCharecters = customerName.Substring(0, 3);
-                    string customerAccountId = UserFirstThreeCharecters + date;
+                    string managerAccountId = string.Concat(UserFirstThreeCharecters, date);
 
                     byte[] salt = _encryptionService.GenerateSalt();
                     byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
 
-                    Customer customer = new()
+                    Customer customerObject = new()
                     {
                         Name = customerName,
-                        AccountType = (AccountType)customerAccountType,
                         Salt = salt,
                         HashedPassword = hashedPassword,
-                        AccountId = customerAccountId,
-                        PassbookIssueDate = date,
-                        Address = customerAddress,
-                        DateOfBirth = customerDateOfBirth,
-                        Gender = (Gender)customerGender,
-                        EmailId = customerEmailId,
-                        PhoneNumber = customerPhoneNumber,
-                        IsActive = 1
+                        AccountId = managerAccountId,
+                        IsActive = true
                     };
 
-                    customers.Add(customer);
-                    if (branches is not null)
+                    bool isCustomerAdded = await _customerRepository.AddCustomerAccount(customerObject, branchId);
+                    if (isCustomerAdded)
                     {
-                        banks[banks.FindIndex(obj => obj.BankId.Equals(bankId))].Branches[branches.FindIndex(br => br.BranchId.Equals(branchId))].Customers = customers;
+                        message.Result = true;
+                        message.ResultMessage = $"Account Created for {customerName} with Account Id:{managerAccountId}";
                     }
-                    _fileService.WriteFile(banks);
-                    message.Result = true;
-                    message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"Failed to Create Customer Account for {customerName}";
+                    }
                 }
                 else
                 {
@@ -252,50 +171,31 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> AuthenticateToCustomerAccountAsync(string bankId, string branchId, string customerAccountId)
+        public async Task<Message> AuthenticateToCustomerAccountAsync(string bankId, string branchId, string customerAccountId)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                IEnumerable<Customer> customers = await _customerRepository.GetAllCustomers(branchId);
+                if (customers.Any())
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
+                    bool isToCustomerExist = await _customerRepository.IsCustomerExist(customerAccountId, branchId);
+                    if (isToCustomerExist)
                     {
-                        List<Customer> customers = branch.Customers;
-                        if (customers is not null)
-                        {
-                            bool isToCustomerAvilable = customers.Any(m => m.AccountId.Equals(customerAccountId) && m.IsActive == 1);
-                            if (isToCustomerAvilable)
-                            {
-                                message.Result = true;
-                                message.ResultMessage = "ToCustomer Validation Successful.";
-                            }
-                            else
-                            {
-                                message.Result = false;
-                                message.ResultMessage = "ToCustomer Validation Failed.";
-                            }
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = $"No Customers Available In The Branch:{branchId}";
-                        }
+                        message.Result = true;
+                        message.ResultMessage = "Customer Validation Successful.";
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "Branch Not Found";
+                        message.ResultMessage = "Customer Validation Failed.";
                     }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found";
+                    message.ResultMessage = $"No Customers Available In The Branch Id:{branchId}";
                 }
             }
             else
@@ -305,10 +205,56 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Task<Message> UpdateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
+        public async Task<Message> UpdateCustomerAccountAsync(string bankId, string branchId, string customerAccountId, string customerName, string customerPassword,
           string customerPhoneNumber, string customerEmailId, int customerAccountType, string customerAddress,
           string customerDateOfBirth, int customerGender)
         {
+            Message message;
+            message = await IsAccountExistAsync(branchId, customerAccountId);
+            if (message.Result)
+            {
+                Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+
+                byte[] salt = customer.Salt;
+                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
+                if (Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                {
+                    message.Result = false;
+                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                }
+                else
+                {
+                    salt = _encryptionService.GenerateSalt();
+                    byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
+                    Manager managerObject = new()
+                    {
+                        AccountId = customerAccountId,
+                        Name = managerName,
+                        HashedPassword = hashedPassword,
+                        Salt = salt,
+                        IsActive = true
+                    };
+                    bool isDetailsUpdated = await _managerRepository.UpdateManagerAccount(managerObject, branchId);
+                    if (isDetailsUpdated)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "Updated Password Sucessfully";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Failed to Update Details";
+                    }
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Manager Validation Failed.";
+            }
+
+            return message;
+
             Message message = new();
             banks = _fileService.GetData();
             message = _branchService.AuthenticateBranchId(bankId, branchId);
@@ -406,7 +352,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> DeleteCustomerAccountAsync(string bankId, string branchId, string customerAccountId)
+        public async Task<Message> DeleteCustomerAccountAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -446,7 +392,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> DepositAmountAsync(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode)
+        public async Task<Message> DepositAmountAsync(string bankId, string branchId, string customerAccountId, decimal depositAmount, string currencyCode)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -558,7 +504,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> CheckAccountBalanceAsync(string bankId, string branchId, string customerAccountId)
+        public async Task<Message> CheckAccountBalanceAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -617,7 +563,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> CheckToCustomerAccountBalanceAsync(string bankId, string branchId, string customerAccountId)
+        public async Task<Message> CheckToCustomerAccountBalanceAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -676,7 +622,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> WithdrawAmountAsync(string bankId, string branchId, string customerAccountId, decimal withDrawAmount)
+        public async Task<Message> WithdrawAmountAsync(string bankId, string branchId, string customerAccountId, decimal withDrawAmount)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -739,7 +685,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<Message> TransferAmountAsync(string bankId, string branchId, string customerAccountId, string toBankId,
+        public async Task<Message> TransferAmountAsync(string bankId, string branchId, string customerAccountId, string toBankId,
             string toBranchId, string toCustomerAccountId, decimal transferAmount, int transferMethod)
         {
             Message message = new();
@@ -847,7 +793,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public Task<Message> GetPassbookAsync(string bankId, string branchId, string customerAccountId)
+        public async Task<Message> GetPassbookAsync(string bankId, string branchId, string customerAccountId)
         {
             Message message = new();
             banks = _fileService.GetData();
@@ -859,9 +805,9 @@ namespace BankApplicationServices.Services
                 int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(customerAccountId));
 
                 Customer details = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex];
-                
+
                 return details.ToString();
-                
+
             }
             else
             {

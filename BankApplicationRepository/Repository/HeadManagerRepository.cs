@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -49,19 +50,45 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+
         public async Task<bool> UpdateHeadManagerAccount(HeadManager headManager, string bankId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE HeadManagers SET Name=@name,Salt=@salt,HashedPassword=@hasedPassword WHERE AccountId=@accountId And BankId=@bankId AND IsActive = 1";
+            var queryBuilder = new StringBuilder("UPDATE HeadManagers SET ");
+
+            if (headManager.Name is not null)
+            {
+                queryBuilder.Append("Name = @name, ");
+                command.Parameters.AddWithValue("@name", headManager.Name);
+            }
+
+            if (headManager.Salt is not null)
+            {
+                queryBuilder.Append("Salt = @salt, ");
+                command.Parameters.AddWithValue("@salt", headManager.Salt);
+
+                if (headManager.HashedPassword is not null)
+                {
+                    queryBuilder.Append("HashedPassword = @hashedPassword, ");
+                    command.Parameters.AddWithValue("@hashedPassword", headManager.HashedPassword);
+                }
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE AccountId = @accountId AND BankId = @bankId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", headManager.AccountId);
-            command.Parameters.AddWithValue("@name", headManager.Name);
-            command.Parameters.AddWithValue("@salt", headManager.Salt);
-            command.Parameters.AddWithValue("@hasedPassword", headManager.HashedPassword);
             command.Parameters.AddWithValue("@bankId", bankId);
+
+            command.CommandText = queryBuilder.ToString();
+
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
+
         public async Task<bool> DeleteHeadManagerAccount(string headManagerAccountId, string bankId)
         {
             var command = _connection.CreateCommand();

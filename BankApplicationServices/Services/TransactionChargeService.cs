@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
 
 
@@ -7,192 +8,129 @@ namespace BankApplicationServices.Services
     public class TransactionChargeService : ITransactionChargeService
     {
         private readonly IBranchService _branchService;
-        private readonly IFileService _fileService;
+        private readonly ITransactionChargeRepository _transactionChargeRepository;
 
-        List<Bank> banks;
-        public TransactionChargeService(IFileService fileService, IBranchService branchService)
+        public TransactionChargeService(IBranchService branchService, ITransactionChargeRepository transactionChargeRepository)
         {
-            _fileService = fileService;
             _branchService = branchService;
-            banks = new List<Bank>();
+            _transactionChargeRepository = transactionChargeRepository;
         }
 
-        public Task<Message> AddTransactionChargesAsync(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
+        public async Task<Message> ValidateTransactionChargesAsync(string branchId)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                bool isTransactionChargeExist = await _transactionChargeRepository.IsTransactionChargesExist(branchId);
+
+                if (isTransactionChargeExist)
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
-                    {
-                        List<TransactionCharges> charges = branch.Charges;
-                        charges ??= new List<TransactionCharges>();
-
-                        var chargesList = charges.FindAll(c => c.IsActive == 1);
-                        if (chargesList.Count.Equals(1))
-                        {
-                            message.Result = true;
-                            message.ResultMessage = "Charges Already Available";
-                        }
-                        else
-                        {
-                            TransactionCharges transactionCharges = new()
-                            {
-                                RtgsSameBank = rtgsSameBank,
-                                RtgsOtherBank = rtgsOtherBank,
-                                ImpsSameBank = impsSameBank,
-                                ImpsOtherBank = impsOtherBank,
-                                IsActive = 1
-                            };
-
-                            charges.Add(transactionCharges);
-                            branch.Charges = charges;
-                            _fileService.WriteFile(banks);
-                            message.Result = true;
-                            message.ResultMessage = $"Transaction Charges Added Successfully";
-                        }
-
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Branch Not Found.";
-                    }
+                    message.Result = true;
+                    message.ResultMessage = $"Transaction Charges Exist";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found.";
+                    message.ResultMessage = $"Transaction Charges Not Exist";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "Branch Authentiaction Failed";
+                message.ResultMessage = "BranchId Authentication Failed";
             }
             return message;
         }
 
-        public Task<Message> UpdateTransactionChargesAsync(string bankId, string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
+        public async Task<Message> AddTransactionChargesAsync(string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                TransactionCharges transactionCharges = new()
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
-                    {
-                        branch.Charges ??= new List<TransactionCharges>();
-                        if (branch.Charges.Count == 1)
-                        {
-                            var charges = branch.Charges.Find(c => c.IsActive == 1);
-                            if (rtgsOtherBank is not 101 && charges is not null)
-                            {
-                                charges.RtgsOtherBank = rtgsOtherBank;
-                            }
-
-                            if (rtgsSameBank is not 101 && charges is not null)
-                            {
-                                charges.RtgsSameBank = rtgsSameBank;
-                            }
-
-                            if (impsSameBank is not 101 && charges is not null)
-                            {
-                                charges.ImpsSameBank = impsSameBank;
-                            }
-
-                            if (impsOtherBank is not 101 && charges is not null)
-                            {
-                                charges.ImpsOtherBank = impsOtherBank;
-                            }
-
-                            _fileService.WriteFile(banks);
-                            message.Result = true;
-                            message.ResultMessage = "Transaction Charges Updated Successfully";
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = "No Charges Available to Update";
-                        }
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Branch Not Found.";
-                    }
+                    RtgsSameBank = rtgsSameBank,
+                    RtgsOtherBank = rtgsOtherBank,
+                    ImpsSameBank = impsSameBank,
+                    ImpsOtherBank = impsOtherBank
+                };
+                bool isTransactionChargesAdded = await _transactionChargeRepository.AddTransactionCharges(transactionCharges, branchId);
+                if (isTransactionChargesAdded)
+                {
+                    message.Result = true;
+                    message.ResultMessage = "Transaction Charges Added Successfully";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found.";
+                    message.ResultMessage = "Failed to Transaction Charges";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "Branch Authentiaction Failed";
+                message.ResultMessage = "BankId Authentication Failed";
             }
-
             return message;
         }
 
-        public Task<Message> DeleteTransactionChargesAsync(string bankId, string branchId)
+        public async Task<Message> UpdateTransactionChargesAsync(string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
-            Message message = new();
-            banks = _fileService.GetData();
-            message = _branchService.AuthenticateBranchId(bankId, branchId);
+            Message message;
+            message = await ValidateTransactionChargesAsync(branchId);
             if (message.Result)
             {
-                var bank = banks.FirstOrDefault(b => b.BankId.Equals(bankId));
-                if (bank is not null)
+                TransactionCharges transactionCharges = new()
                 {
-                    var branch = bank.Branches.FirstOrDefault(br => br.BranchId.Equals(branchId));
-                    if (branch is not null)
-                    {
-                        branch.Charges ??= new List<TransactionCharges>();
-                        if (branch.Charges.Count.Equals(1))
-                        {
-                            var transactionCharges = branch.Charges.Find(c => c.IsActive == 1);
-                            if (transactionCharges is not null)
-                            {
-                                transactionCharges.IsActive = 0;
-                            }
-                            _fileService.WriteFile(banks);
-                            message.Result = true;
-                            message.ResultMessage = "Charges Deleted Successfully";
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = "No Charges Available to Delete";
-                        }
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Branch Not Found.";
-                    }
+                    RtgsSameBank = rtgsSameBank,
+                    RtgsOtherBank = rtgsOtherBank,
+                    ImpsSameBank = impsSameBank,
+                    ImpsOtherBank = impsOtherBank
+                };
+                bool isTransactionChargeUpdated = await _transactionChargeRepository.AddTransactionCharges(transactionCharges, branchId);
+                if (isTransactionChargeUpdated)
+                {
+                    message.Result = true;
+                    message.ResultMessage = "Transaction Charges Updated Successfully";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Bank Not Found.";
+                    message.ResultMessage = "Updating Transaction Charges Failed";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "Branch Authentiaction Failed";
+                message.ResultMessage = "Transaction Charges not Found";
+            }
+            return message;
+        }
+
+        public async Task<Message> DeleteTransactionChargesAsync(string branchId)
+        {
+            Message message;
+            message = await ValidateTransactionChargesAsync(branchId);
+            if (message.Result)
+            {
+                bool isTransactionChargeDeleted = await _transactionChargeRepository.DeleteTransactionCharges(branchId);
+                if (isTransactionChargeDeleted)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Transaction Charges Deleted Successfully.";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Failed to Delete Transaction Charges";
+                }
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = $"Transaction Charges not Found";
             }
             return message;
         }

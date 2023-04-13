@@ -7,7 +7,7 @@ namespace BankApplicationServices.Services
     public class BankService : IBankService
     {
 
-        IBankRepository _bankRepository;
+        private readonly IBankRepository _bankRepository;
         public BankService(IBankRepository bankRepository)
         {
             _bankRepository = bankRepository;
@@ -25,9 +25,8 @@ namespace BankApplicationServices.Services
 
         public async Task<Message> AuthenticateBankIdAsync(string bankId)
         {
-            bool isBankExist = await _bankRepository.IsBankExist(bankId);
-
             Message message = new();
+            bool isBankExist = await _bankRepository.IsBankExist(bankId);
             if (isBankExist)
             {
                 message.Result = true;
@@ -64,9 +63,18 @@ namespace BankApplicationServices.Services
                     IsActive = true
                 };
 
-                await _bankRepository.AddBank(bank);
-                message.Result = true;
-                message.ResultMessage = $"Bank {bankName} is Created with {bankId}";
+                bool isBankAdded =  await _bankRepository.AddBank(bank);
+                if (isBankAdded)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Bank {bankName} is Created with {bankId}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Failed to Create a Bank";
+                }
+               
             }
             return message;
         }
@@ -79,16 +87,23 @@ namespace BankApplicationServices.Services
             Message messageResult = await AuthenticateBankIdAsync(bankId);
             if (messageResult.Result)
             {
-                Bank bank = new Bank
+                Bank bank = new()
                 {
                     BankName = bankName,
                     BankId = bankId,
                     IsActive = true
                 };
-                _bankRepository.UpdateBank(bank);
-
-                message.Result = true;
-                message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
+                bool isBankUpdated = await _bankRepository.UpdateBank(bank);
+                if (isBankUpdated)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"bankId :{bankId} is Updated with BankName : {bankName} Successfully.";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Failed to Update Branch.";
+                }
             }
             else
             {

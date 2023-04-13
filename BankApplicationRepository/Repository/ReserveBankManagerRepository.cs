@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -47,18 +48,43 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+       
         public async Task<bool> UpdateReserveBankManager(ReserveBankManager reserveBankManager)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE ReserveBankManagers SET Name=@name,Salt=@salt,HashedPassword=@hasedPassword WHERE AccountId=@accountId AND IsActive = 1 ";
+            var queryBuilder = new StringBuilder("UPDATE ReserveBankManagers SET ");
+
+            if (reserveBankManager.Name is not null)
+            {
+                queryBuilder.Append("Name = @name, ");
+                command.Parameters.AddWithValue("@name", reserveBankManager.Name);
+            }
+
+            if (reserveBankManager.Salt is not null)
+            {
+                queryBuilder.Append("Salt = @salt, ");
+                command.Parameters.AddWithValue("@salt", reserveBankManager.Salt);
+
+                if (reserveBankManager.HashedPassword != null)
+                {
+                    queryBuilder.Append("HashedPassword = @hashedPassword, ");
+                    command.Parameters.AddWithValue("@hashedPassword", reserveBankManager.HashedPassword);
+                }
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE AccountId = @accountId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", reserveBankManager.AccountId);
-            command.Parameters.AddWithValue("@name", reserveBankManager.Name);
-            command.Parameters.AddWithValue("@salt", reserveBankManager.Salt);
-            command.Parameters.AddWithValue("@hasedPassword", reserveBankManager.HashedPassword);
+
+            command.CommandText = queryBuilder.ToString();
+
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
         public async Task<bool> DeleteReserveBankManager(string reserveBankManagerAccountId)
         {
             var command = _connection.CreateCommand();

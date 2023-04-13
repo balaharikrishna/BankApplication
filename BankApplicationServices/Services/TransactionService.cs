@@ -1,58 +1,44 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
+using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
 {
     public class TransactionService : ITransactionService
     {
-        private readonly IFileService _fileService;
-        private List<Bank> banks;
-        public TransactionService(IFileService fileService)
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly ICustomerRepository _customerRepository;
+        public TransactionService(ITransactionRepository transactionRepository, ICustomerRepository customerRepository)
         {
-            _fileService = fileService;
-            banks = new List<Bank>();
+            _transactionRepository = transactionRepository;
+            _customerRepository = customerRepository;
         }
 
-        public Task<Message> IsTransactionsAvailableAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId)
+        public async Task<Message> IsTransactionsAvailableAsync(string fromCustomerAccountId)
         {
             Message message = new();
-            banks = _fileService.GetData();
-            int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(fromBankId));
-            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
-            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
-
-            List<Transactions> transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
-            if (transactions is null || transactions.Count < 0)
-            {
-                message.Result = false;
-                message.ResultMessage = "No Transactions Available.";
-            }
-            else
+            bool isTransactionsAvlable = await _transactionRepository.IsTransactionsExist(fromCustomerAccountId);
+            if (isTransactionsAvlable)
             {
                 message.Result = true;
                 message.ResultMessage = "Transactions Available.";
             }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "No Transactions Available.";
+            }
             return message;
         }
 
-        public async void TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
+        public async Task<Message> TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
           decimal creditAmount, decimal fromCustomerbalance, int transactionType)
         {
-            banks = _fileService.GetData();
-            int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(fromBankId));
-            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
-            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
-
+            Message message = new();
             string date = DateTime.Now.ToString("yyyyMMddHHmmss");
             string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
-            var transactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
-            if (transactions is null)
-            {
-                transactions = new List<Transactions>();
-            }
-
-            Transactions transaction = new()
+            Transaction transaction = new()
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
@@ -64,38 +50,28 @@ namespace BankApplicationServices.Services
                 Balance = fromCustomerbalance,
                 TransactionDate = date,
             };
-
-            transactions.Add(transaction);
-            banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions = transactions;
-            _fileService.WriteFile(banks);
+            bool isTransactionAdded = await _transactionRepository.AddTransaction(transaction);
+            if (isTransactionAdded)
+            {
+                message.Result = true;
+                message.ResultMessage = "Transaction Added Successfully";
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Failed to Add Transaction.";
+            }
+            return message;
         }
 
-        public async void TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
+        public async Task<Message> TransactionHistoryFromAndToAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
             decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, int transactionType)
         {
-            banks = _fileService.GetData();
-            int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(fromBankId));
-            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
-            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
-            int toBankIndex = banks.FindIndex(b => b.BankId.Equals(toBankId));
-            int toBranchIndex = banks[toBankIndex].Branches.FindIndex(br => br.BranchId.Equals(toBranchId));
-            int toCustomerIndex = banks[toBankIndex].Branches[toBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(toCustomerAccountId));
-
+            Message message = new();
             string date = DateTime.Now.ToString("yyyyMMddHHmmss");
             string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
-            var fromCustomertransactions = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
-            var toCustomertransactions = banks[toBankIndex].Branches[toBranchIndex].Customers[toCustomerIndex].Transactions;
 
-            if (fromCustomertransactions is null)
-            {
-                fromCustomertransactions = new List<Transactions>();
-            }
-            else if (toCustomertransactions is null)
-            {
-                toCustomertransactions = new List<Transactions>();
-            }
-
-            Transactions fromCustomertransaction = new()
+            Transaction fromCustomertransaction = new()
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
@@ -111,7 +87,7 @@ namespace BankApplicationServices.Services
                 TransactionDate = date
             };
 
-            Transactions toCustomertransaction = new()
+            Transaction toCustomertransaction = new()
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
@@ -126,172 +102,79 @@ namespace BankApplicationServices.Services
                 Balance = toCustomerBalance,
                 TransactionDate = date
             };
-
-            fromCustomertransactions.Add(fromCustomertransaction);
-            toCustomertransactions.Add(toCustomertransaction);
-            banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions = fromCustomertransactions;
-            banks[toBankIndex].Branches[toBranchIndex].Customers[toCustomerIndex].Transactions = toCustomertransactions;
-            _fileService.WriteFile(banks);
+            bool isFromTransactionAdded = await _transactionRepository.AddTransaction(fromCustomertransaction);
+            bool isToTransactionAdded = await _transactionRepository.AddTransaction(toCustomertransaction);
+            if (isFromTransactionAdded && isToTransactionAdded)
+            {
+                message.Result = true;
+                message.ResultMessage = "Transactions Added Succesfully";
+            }
+            else
+            {
+                message.Result = false;
+                message.ResultMessage = "Failed to Add Transactions";
+            }
+            return message;
         }
-        public Task<List<string>> GetTransactionHistory(string fromBankId, string fromBranchId, string fromCustomerAccountId)
+        public async Task<IEnumerable<Transaction>> GetTransactionHistory(string fromCustomerAccountId)
         {
-            banks = _fileService.GetData();
-            int fromBankIndex = banks.FindIndex(b => b.BankId.Equals(fromBankId));
-            int fromBranchIndex = banks[fromBankIndex].Branches.FindIndex(br => br.BranchId.Equals(fromBranchId));
-            int fromCustomerIndex = banks[fromBankIndex].Branches[fromBranchIndex].Customers.FindIndex(c => c.AccountId.Equals(fromCustomerAccountId));
-
-            List<Transactions> transactionList = banks[fromBankIndex].Branches[fromBranchIndex].Customers[fromCustomerIndex].Transactions;
-            return transactionList.Select(t => t.ToString()).ToList();
+            return await _transactionRepository.GetAllTransactions(fromCustomerAccountId);
         }
 
-        public Task<Message> RevertTransactionAsync(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
+        public async Task<Message> RevertTransactionAsync(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
           string toBranchId, string toCustomerAccountId)
         {
             Message message = new();
-            banks = _fileService.GetData();
-            Customer? fromBranchCustomer = null;
-            Transactions? fromCustomerTransaction = null;
-
-            var bank = banks.Find(bk => bk.BankId.Equals(fromBankId));
-            if (bank is not null)
+            Transaction fromCustomerTransaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
+            if (fromCustomerTransaction is not null)
             {
-                var branch = bank.Branches.Find(br => br.BranchId.Equals(fromBranchId));
-                if (branch is not null)
+                Transaction toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId);
+                if (fromCustomerTransaction is not null)
                 {
-                    List<Customer> customers = branch.Customers;
-                    if (customers is not null)
+                    Customer toCustomer = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
+                    Customer fromCustomer = await _customerRepository.GetCustomerById(fromCustomerAccountId, fromBranchId);
+                    decimal toCustomerAmount = toCustomer.Balance;
+                    if (toCustomerAmount >= fromCustomerTransaction.Debit)
                     {
-                        var customerData = customers.Find(cu => cu.AccountId.Equals(fromCustomerAccountId));
-                        if (customerData is not null)
+                        Customer fromCustomerObject = new()
                         {
-                            fromBranchCustomer = customerData;
-                            var fromCustomerTransactionData = customerData.Transactions.Find(tr => tr.TransactionId.Equals(transactionId));
-                            if (fromCustomerTransactionData is not null)
-                            {
-                                fromCustomerTransaction = fromCustomerTransactionData;
-                            }
-                            else
-                            {
-                                message.Result = false;
-                                message.ResultMessage = "Transaction Data Not Available";
-                            }
-                        }
-                        else
+                            Balance = fromCustomer.Balance + toCustomerTransaction.Credit
+                        };
+
+                        Customer toCustomerObject = new()
                         {
-                            message.Result = false;
-                            message.ResultMessage = "Customer Doesn't Exist";
+                            Balance = toCustomer.Balance - toCustomerTransaction.Credit
+                        };
+                        bool isFromAccUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, fromBranchId);
+                        bool isToAccUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
+                        if (isFromAccUpdated && isToAccUpdated)
+                        {
+                            message = await TransactionHistoryFromAndToAsync(fromBankId, fromBranchId, fromCustomerAccountId,
+                            toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit,
+                            fromCustomer.Balance, toCustomer.Balance, 4);
+                            if (message.Result)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromCustomer.Balance}";
+                            }
                         }
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "No Customers Available in the Branch";
+                        message.ResultMessage = "To Customer doesn't have the Required Amount to be Deducted.";
                     }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Branch Not Found";
+                    message.ResultMessage = "To Customer Transaction Data Not Available";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = "Bank Not Found";
-            }
-
-            Customer? toBranchCustomer = null;
-            Transactions? toCustomerTransaction = null;
-            var toBank = banks.Find(bk => bk.BankId.Equals(toBankId));
-            if (toBank is not null)
-            {
-                var toBranches = toBank.Branches;
-                if (toBranches is not null)
-                {
-                    var tobranch = toBranches.Find(br => br.BranchId.Equals(toBranchId));
-                    if (tobranch is not null)
-                    {
-                        var toCustomers = tobranch.Customers;
-                        if (toCustomerAccountId is not null)
-                        {
-                            var toCustomerData = toCustomers.Find(cu => cu.AccountId.Equals(toCustomerAccountId));
-                            if (toCustomerData is not null)
-                            {
-                                toBranchCustomer = toCustomerData;
-
-                                var toCustomerTransactionData = toCustomerData.Transactions.Find(tr => tr.TransactionId.Equals(transactionId));
-                                if (toCustomerTransactionData is not null)
-                                {
-                                    toCustomerTransaction = toCustomerTransactionData; //entire Transaction Data
-                                }
-                                else
-                                {
-                                    message.Result = false;
-                                    message.ResultMessage = "To Customer Transaction Data Not Available";
-                                }
-                            }
-                            else
-                            {
-                                message.Result = false;
-                                message.ResultMessage = "Customer Doesn't Exist";
-                            }
-                        }
-                        else
-                        {
-                            message.Result = false;
-                            message.ResultMessage = "No Customers Available in the Branch";
-                        }
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Branch Not Found";
-                    }
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = "No Branches Available in Bank";
-                }
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "Bank Not Found";
-            }
-
-
-            if (toBranchCustomer is not null && toCustomerTransaction is not null && fromCustomerTransaction is not null && fromBranchCustomer is not null && toCustomerAccountId is not null)
-            {
-                decimal toCustomerAmount = toBranchCustomer.Balance;
-                if (toCustomerAmount >= fromCustomerTransaction.Debit)
-                {
-                    if (toCustomerTransaction.TransactionId.Equals(fromCustomerTransaction.TransactionId))
-                    {
-                        fromBranchCustomer.Balance += toCustomerTransaction.Credit;
-                        toBranchCustomer.Balance -= toCustomerTransaction.Credit;
-                        _fileService.WriteFile(banks);
-                        TransactionHistory(fromBankId, fromBranchId, fromCustomerAccountId, toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit, fromBranchCustomer.Balance, toBranchCustomer.Balance, 4);
-                        message.Result = true;
-                        message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromBranchCustomer.Balance}";
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Transaction Id are Mismatching.";
-                    }
-                }
-                else
-                {
-                    message.Result = false;
-                    message.ResultMessage = "To Customer doesn't have the Required Amount to be Deducted.";
-                }
-
-            }
-            else
-            {
-                message.Result = false;
-                message.ResultMessage = "Customer Transactions are not Matching.";
+                message.ResultMessage = "From Customer Transaction Data Not Available";
             }
             return message;
         }

@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -91,12 +92,31 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> UpdateBranch(Branch branch)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Branches SET BranchName=@branchName,BranchAddress=@branchAddress" +
-                "BranchPhoneNumber=@branchPhoneNumber WHERE BranchId=@branchId and IsActive=1";
-            command.Parameters.AddWithValue("@branchName", branch.BranchName);
+            var query = new StringBuilder("UPDATE Branches SET ");
+
+            if (!string.IsNullOrEmpty(branch.BranchName))
+            {
+                query.Append("BranchName=@branchName,");
+                command.Parameters.AddWithValue("@branchName", branch.BranchName);
+            }
+
+            if (!string.IsNullOrEmpty(branch.BranchAddress))
+            {
+                query.Append("BranchAddress=@branchAddress,");
+                command.Parameters.AddWithValue("@branchAddress", branch.BranchAddress);
+            }
+
+            if (!string.IsNullOrEmpty(branch.BranchPhoneNumber))
+            {
+                query.Append("BranchPhoneNumber=@branchPhoneNumber,");
+                command.Parameters.AddWithValue("@branchPhoneNumber", branch.BranchPhoneNumber);
+            }
+
+            query.Remove(query.Length - 1, 1); 
+            query.Append(" WHERE BranchId=@branchId and IsActive=1");
             command.Parameters.AddWithValue("@branchId", branch.BranchId);
-            command.Parameters.AddWithValue("@branchAddress", branch.BranchAddress);
-            command.Parameters.AddWithValue("@branchPhoneNumber", branch.BranchPhoneNumber);
+
+            command.CommandText = query.ToString();
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;

@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -110,13 +111,27 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> UpdateBank(Bank bank)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Banks SET BankName=@bankName, WHERE BankId=@bankId and IsActive=1";
-            await _connection.OpenAsync();
-            command.Parameters.AddWithValue("@bankName", bank.BankName);
+            var queryBuilder = new StringBuilder("UPDATE Banks SET ");
+
+            if (bank.BankName is not null)
+            {
+                queryBuilder.Append("BankName = @bankName, ");
+                command.Parameters.AddWithValue("@bankName", bank.BankName);
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE BankId = @bankId and IsActive = 1");
             command.Parameters.AddWithValue("@bankId", bank.BankId);
+
+            command.CommandText = queryBuilder.ToString();
+
+            await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
 
         public async Task<bool> DeleteBank(string id)
         {

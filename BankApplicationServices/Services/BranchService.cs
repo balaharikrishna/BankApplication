@@ -1,6 +1,5 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -52,7 +51,7 @@ namespace BankApplicationServices.Services
         {
             Message message = new();
 
-            Branch? _branchName =await _branchRepository.GetBranchByName(branchName);
+            Branch? _branchName = await _branchRepository.GetBranchByName(branchName);
             if (_branchName != null)
             {
                 message.Result = false;
@@ -73,9 +72,16 @@ namespace BankApplicationServices.Services
                     IsActive = true
                 };
 
-                await _branchRepository.AddBranch(branch, bankId);
-                message.Result = true;
-                message.ResultMessage = $"Branch {branchName} is Created with {branchId}";
+                bool isBranchAdded =  await _branchRepository.AddBranch(branch, bankId);
+                if (isBranchAdded) {
+                    message.Result = true;
+                    message.ResultMessage = $"Branch {branchName} is Created with {branchId}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Branch {branchName} is Created with {branchId}";
+                }
             }
             return message;
         }
@@ -95,10 +101,17 @@ namespace BankApplicationServices.Services
                     BranchAddress = branchAddress,
                     IsActive = true
                 };
-                _branchRepository.UpdateBranch(branch);
-
-                message.Result = true;
-                message.ResultMessage = $"Updated BranchId:{branchId} with Branch Name:{branch.BranchName},Branch Phone Number:{branch.BranchPhoneNumber},Branch Address:{branch.BranchAddress}";
+                bool isBranchUpdated = await _branchRepository.UpdateBranch(branch);
+                if (isBranchUpdated)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Updated BranchId:{branchId} with Branch Name:{branch.BranchName},Branch Phone Number:{branch.BranchPhoneNumber},Branch Address:{branch.BranchAddress}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = "Failed to Update the Branch";
+                }
             }
             else
             {

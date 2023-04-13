@@ -61,7 +61,7 @@ namespace BankApplicationServices.IServices
         /// <param name="bankId">BankId of the Bank</param>
         /// <param name="headManagerAccountId">Account Id of the Head Manager</param>
         /// <returns>Details of the Head Manager account.</returns>
-        Task<Message> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId);
+        Task<HeadManager> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId);
 
     }
 }

@@ -2,7 +2,7 @@
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
-using System.Xml.Linq;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -69,36 +69,92 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+
         public async Task<bool> UpdateCustomerAccount(Customer customer, string branchId)
         {
             var command = _connection.CreateCommand();
-            var text = "UPDATE Customers SET ";
-            if(!string.IsNullOrEmpty(customer.Name))
+            var queryBuilder = new StringBuilder("UPDATE Customers SET ");
+
+            if (customer.Name is not null)
             {
+                queryBuilder.Append("Name = @name, ");
                 command.Parameters.AddWithValue("@name", customer.Name);
-                text.Concat("Name=@name,");
             }
-            text.Concat(" WHERE AccountId=@accountId And BranchId=@branchId AND IsActive = 1");
-            command.CommandText = "UPDATE Customers SET Name=@name,Salt=@salt,HashedPassword=@hasedPassword,Balance=@balance,Gender=@gender," +
-                "AccountType=@accountType,Address=@address,DateOfBirth=@dateOfBirth,EmailId=@emailId,PhoneNumber=@phoneNumber," +
-                "PassbookIssueDate=@passbookIssueDate WHERE AccountId=@accountId And BranchId=@branchId AND IsActive = 1";
+
+            if (customer.Salt is not null)
+            {
+                queryBuilder.Append("Salt = @salt, ");
+                command.Parameters.AddWithValue("@salt", customer.Salt);
+
+                if (customer.HashedPassword is not null)
+                {
+                    queryBuilder.Append("HashedPassword = @hashedPassword, ");
+                    command.Parameters.AddWithValue("@hashedPassword", customer.HashedPassword);
+                }
+            }
+
+            if (customer.Balance >= 0)
+            {
+                queryBuilder.Append("Balance = @balance, ");
+                command.Parameters.AddWithValue("@balance", customer.Balance);
+            }
+
+            if (Enum.IsDefined(typeof(Gender), customer.Gender))
+            {
+                queryBuilder.Append("Gender = @gender, ");
+                command.Parameters.AddWithValue("@gender", customer.Gender);
+            }
+
+            if (Enum.IsDefined(typeof(AccountType), customer.AccountType))
+            {
+                queryBuilder.Append("AccountType = @accountType, ");
+                command.Parameters.AddWithValue("@accountType", customer.AccountType);
+            }
+
+            if (customer.Address is not null)
+            {
+                queryBuilder.Append("Address = @address, ");
+                command.Parameters.AddWithValue("@address", customer.Address);
+            }
+
+            if (customer.DateOfBirth is not null)
+            {
+                queryBuilder.Append("DateOfBirth = @dateOfBirth, ");
+                command.Parameters.AddWithValue("@dateOfBirth", customer.DateOfBirth);
+            }
+
+            if (customer.EmailId is not null)
+            {
+                queryBuilder.Append("EmailId = @emailId, ");
+                command.Parameters.AddWithValue("@emailId", customer.EmailId);
+            }
+
+            if (customer.PhoneNumber is not null)
+            {
+                queryBuilder.Append("PhoneNumber = @phoneNumber, ");
+                command.Parameters.AddWithValue("@phoneNumber", customer.PhoneNumber);
+            }
+
+            if (customer.PassbookIssueDate is not null)
+            {
+                queryBuilder.Append("PassbookIssueDate = @passbookIssueDate, ");
+                command.Parameters.AddWithValue("@passbookIssueDate", customer.PassbookIssueDate);
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE AccountId = @accountId AND BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", customer.AccountId);
-            
-            command.Parameters.AddWithValue("@salt", customer.Salt);
-            command.Parameters.AddWithValue("@hasedPassword", customer.HashedPassword);
-            command.Parameters.AddWithValue("@balance", customer.Balance);
-            command.Parameters.AddWithValue("@gender", customer.Gender);
-            command.Parameters.AddWithValue("@accounType", customer.AccountType);
-            command.Parameters.AddWithValue("@address", customer.Address);
-            command.Parameters.AddWithValue("@dateOfBirth", customer.DateOfBirth);
-            command.Parameters.AddWithValue("@emailId", customer.EmailId);
-            command.Parameters.AddWithValue("@phoneNumber", customer.PhoneNumber);
-            command.Parameters.AddWithValue("@passbookIssueDate", customer.PassbookIssueDate);
             command.Parameters.AddWithValue("@branchId", branchId);
+
+            command.CommandText = queryBuilder.ToString();
+
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
         public async Task<bool> DeleteCustomerAccount(string customerAccountId, string branchId)
         {
             var command = _connection.CreateCommand();

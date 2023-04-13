@@ -11,16 +11,14 @@ namespace BankApplicationServices.IServices
         /// <param name="fromBranchId">The branch ID of the source account.</param>
         /// <param name="fromCustomerAccountId">The customer account ID of the source account.</param>
         /// <returns>A message indicating status of Transactions Availability.</returns>
-        Task<Message> IsTransactionsAvailableAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId);
+        Task<Message> IsTransactionsAvailableAsync(string fromCustomerAccountId);
 
         /// <summary>
         /// Retrieves the transaction history for the specified customer account.
         /// </summary>
-        /// <param name="fromBankId">The bank ID of the source account.</param>
-        /// <param name="fromBranchId">The branch ID of the source account.</param>
         /// <param name="fromCustomerAccountId">The customer account ID of the source account.</param>
         /// <returns>A list of strings representing the transaction history.</returns>
-        Task<Message> GetTransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId);
+        Task<IEnumerable<Transaction>> GetTransactionHistory(string fromCustomerAccountId);
 
         /// <summary>
         /// Reverts a transaction with the specified ID.
@@ -45,7 +43,8 @@ namespace BankApplicationServices.IServices
         /// <param name="creditAmount">The amount of money being credited to the account.</param>
         /// <param name="fromCustomerbalance">The remaining balance in the account after the transaction is completed.</param>
         /// <param name="transactionType">An integer code indicating the type of transaction being logged.</param>
-        Task<Message> TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, int transactionType);
+        Task<Message> TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
+          decimal creditAmount, decimal fromCustomerbalance, int transactionType);
 
         /// <summary>
         /// Logs transaction history for From and To Customer accounts with both debit and credit information.
@@ -61,7 +60,8 @@ namespace BankApplicationServices.IServices
         /// <param name="fromCustomerbalance">The remaining balance in the debited account after the transaction is completed.</param>
         /// <param name="toCustomerBalance">The remaining balance in the credited account after the transaction is completed.</param>
         /// <param name="transactionType">An integer code indicating the type of transaction being logged.</param>
-        Task<Message> TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId, decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, int transactionType);
+        Task<Message> TransactionHistoryFromAndToAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
+            decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, int transactionType);
     }
 }
 

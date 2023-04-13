@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -49,19 +50,44 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+       
         public async Task<bool> UpdateStaffAccount(Staff staff, string branchId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Staffs SET Name=@name,Salt=@salt,HashedPassword=@hasedPassword WHERE AccountId=@accountId And BranchId=@branchId AND IsActive = 1 ";
+            var queryBuilder = new StringBuilder("UPDATE Staffs SET ");
+
+            if (staff.Name is not null)
+            {
+                queryBuilder.Append("Name = @name, ");
+                command.Parameters.AddWithValue("@name", staff.Name);
+            }
+
+            if (staff.Salt is not null)
+            {
+                queryBuilder.Append("Salt = @salt, ");
+                command.Parameters.AddWithValue("@salt", staff.Salt);
+
+                if (staff.HashedPassword is not null)
+                {
+                    queryBuilder.Append("HashedPassword = @hashedPassword, ");
+                    command.Parameters.AddWithValue("@hashedPassword", staff.HashedPassword);
+                }
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE AccountId = @accountId AND BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", staff.AccountId);
-            command.Parameters.AddWithValue("@name", staff.Name);
-            command.Parameters.AddWithValue("@salt", staff.Salt);
-            command.Parameters.AddWithValue("@hasedPassword", staff.HashedPassword);
             command.Parameters.AddWithValue("@branchId", branchId);
+
+            command.CommandText = queryBuilder.ToString();
+
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
         public async Task<bool> DeleteStaffAccount(string staffAccountId, string branchId)
         {
             var command = _connection.CreateCommand();

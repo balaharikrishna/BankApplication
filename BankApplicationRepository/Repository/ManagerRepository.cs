@@ -1,12 +1,7 @@
 ﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace BankApplicationRepository.Repository
 {
@@ -55,19 +50,44 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+
         public async Task<bool> UpdateManagerAccount(Manager manager, string branchId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Managers SET Name=@name,Salt=@salt,HashedPassword=@hasedPassword WHERE AccountId=@accountId And BranchId=@branchId AND IsActive =1";
+            var queryBuilder = new StringBuilder("UPDATE Managers SET ");
+
+            if (manager.Name is not null)
+            {
+                queryBuilder.Append("Name = @name, ");
+                command.Parameters.AddWithValue("@name", manager.Name);
+            }
+
+            if (manager.Salt is not null)
+            {
+                queryBuilder.Append("Salt = @salt, ");
+                command.Parameters.AddWithValue("@salt", manager.Salt);
+
+                if (manager.HashedPassword is not null)
+                {
+                    queryBuilder.Append("HashedPassword = @hashedPassword, ");
+                    command.Parameters.AddWithValue("@hashedPassword", manager.HashedPassword);
+                }
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE AccountId = @accountId AND BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", manager.AccountId);
-            command.Parameters.AddWithValue("@name", manager.Name);
-            command.Parameters.AddWithValue("@salt", manager.Salt);
-            command.Parameters.AddWithValue("@hasedPassword", manager.HashedPassword);
             command.Parameters.AddWithValue("@branchId", branchId);
+
+            command.CommandText = queryBuilder.ToString();
+
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
         public async Task<bool> DeleteManagerAccount(string managerAccountId, string branchId)
         {
             var command = _connection.CreateCommand();

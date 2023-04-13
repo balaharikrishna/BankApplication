@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -46,17 +47,30 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+       
         public async Task<bool> UpdateCurrency(Currency currency, string bankId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Currencies SET CurrencyCode=@currencyCode,ExchangeRate=@exchangeRate WHERE BankId=@bankId AND IsActive = 1";
-            command.Parameters.AddWithValue("@currencyCode", currency.CurrencyCode);
-            command.Parameters.AddWithValue("@exchangeRate", currency.ExchangeRate);
+            var query = new StringBuilder("UPDATE Currencies SET ");
+
+            if (currency.CurrencyCode is not null)
+            {
+                query.Append("CurrencyCode=@currencyCode,");
+                command.Parameters.AddWithValue("@currencyCode", currency.CurrencyCode);
+
+                query.Append("ExchangeRate=@exchangeRate,");
+                command.Parameters.AddWithValue("@exchangeRate", currency.ExchangeRate);
+            }
+
+            query.Append("WHERE BankId=@bankId AND IsActive = 1");
             command.Parameters.AddWithValue("@bankId", bankId);
+
+            command.CommandText = query.ToString();
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+
         public async Task<bool> DeleteCurrency(string currencyCode, string bankId)
         {
             var command = _connection.CreateCommand();

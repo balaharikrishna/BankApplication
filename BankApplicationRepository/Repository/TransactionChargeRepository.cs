@@ -1,7 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
-using System.Data.Common;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -53,20 +53,49 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
+
         public async Task<bool> UpdateTransactionCharges(TransactionCharges transactionCharges, string branchId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "UPDATE TransactionCharges SET RtgsSameBank=@rtgsSameBank,RtgsOtherBank=@rtgsOtherBank," +
-                "ImpsSameBank=@impsSameBank,ImpsOtherBank=@impsOtherBank WHERE BranchId=@branchId AND IsActive = 1";
-            command.Parameters.AddWithValue("@rtgsSameBank", transactionCharges.RtgsSameBank);
-            command.Parameters.AddWithValue("@rtgsOtherBank", transactionCharges.RtgsOtherBank);
-            command.Parameters.AddWithValue("@impsSameBank", transactionCharges.ImpsSameBank);
-            command.Parameters.AddWithValue("@impsOtherBank", transactionCharges.ImpsOtherBank);
+            var queryBuilder = new StringBuilder("UPDATE TransactionCharges SET ");
+
+            if (transactionCharges.RtgsSameBank >= 0 && transactionCharges.RtgsSameBank <= 100)
+            {
+                queryBuilder.Append("RtgsSameBank = @rtgsSameBank, ");
+                command.Parameters.AddWithValue("@rtgsSameBank", transactionCharges.RtgsSameBank);
+            }
+
+            if (transactionCharges.RtgsOtherBank >= 0 && transactionCharges.RtgsOtherBank <= 100)
+            {
+                queryBuilder.Append("RtgsOtherBank = @rtgsOtherBank, ");
+                command.Parameters.AddWithValue("@rtgsOtherBank", transactionCharges.RtgsOtherBank);
+            }
+
+            if (transactionCharges.ImpsSameBank >= 0 && transactionCharges.ImpsSameBank <= 100)
+            {
+                queryBuilder.Append("ImpsSameBank = @impsSameBank, ");
+                command.Parameters.AddWithValue("@impsSameBank", transactionCharges.ImpsSameBank);
+            }
+
+            if (transactionCharges.ImpsOtherBank >= 0 && transactionCharges.ImpsOtherBank <= 100)
+            {
+                queryBuilder.Append("ImpsOtherBank = @impsOtherBank, ");
+                command.Parameters.AddWithValue("@impsOtherBank", transactionCharges.ImpsOtherBank);
+            }
+
+            queryBuilder.Remove(queryBuilder.Length - 2, 2);
+
+            queryBuilder.Append(" WHERE BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@branchId", branchId);
+
+            command.CommandText = queryBuilder.ToString();
+
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
+
             return rowsAffected > 0;
         }
+
         public async Task<bool> DeleteTransactionCharges(string branchId)
         {
             var command = _connection.CreateCommand();
@@ -85,6 +114,6 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
-        
+
     }
 }

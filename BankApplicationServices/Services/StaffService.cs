@@ -16,6 +16,23 @@ namespace BankApplicationServices.Services
             _encryptionService = encryptionService;
             _staffRepository = staffRepository;
         }
+
+        public async Task<IEnumerable<Staff>> GetAllManagersAsync(string branchId)
+        {
+            return await _staffRepository.GetAllStaffs(branchId);
+        }
+
+        public async Task<Staff> GetManagerByIdAsync(string branchId, string staffAccountId)
+        {
+            Staff staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
+            return staff;
+        }
+
+        public async Task<Staff> GetManagerByNameAsync(string branchId, string staffName)
+        {
+            Staff staff = await _staffRepository.GetStaffByName(staffName, branchId);
+            return staff;
+        }
         public async Task<Message> IsStaffExistAsync(string branchId)
         {
             Message message;

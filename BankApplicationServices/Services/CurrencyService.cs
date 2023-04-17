@@ -1,5 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -14,6 +15,10 @@ namespace BankApplicationServices.Services
             _bankService = bankService;
         }
 
+        public async Task<IEnumerable<Currency>> GetAllCurrenciesAsync(string bankId)
+        {
+            return await _currencyRepository.GetAllCurrency(bankId);
+        }
         public async Task<Message> ValidateCurrencyAsync(string bankId, string currencyCode)
         {
             Message message;
@@ -39,6 +44,11 @@ namespace BankApplicationServices.Services
                 message.ResultMessage = "BranchId Authentication Failed";
             }
             return message;
+        }
+
+        public async Task<Currency> GetCurrencyByCode(string currencyCode, string bankId)
+        {
+           return await _currencyRepository.GetCurrencyByCode(currencyCode,bankId);
         }
         public async Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {

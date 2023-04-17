@@ -1,7 +1,5 @@
 ﻿using BankApplication.IHelperServices;
 using BankApplicationHelperMethods;
-using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
 
 namespace BankApplication
@@ -27,25 +25,25 @@ namespace BankApplication
             _customerService = customerService;
             _validateInputs = validateInputs;
         }
-        
+
         public void SelectedOption(ushort Option, string staffBankId, string staffBranchId)
         {
             switch (Option)
             {
                 case 1: //OpenCustomerAccount
-                    _commonHelperService.OpenCustomerAccount(staffBankId, staffBranchId, _customerService, _validateInputs);
+                    _commonHelperService.OpenCustomerAccount(staffBranchId, _customerService, _validateInputs);
                     break;
 
                 case 2: //UpdateCustomerAccount
-                    _commonHelperService.UpdateCustomerAccount(staffBankId, staffBranchId, _validateInputs, _customerService);
+                    _commonHelperService.UpdateCustomerAccount(staffBranchId, _validateInputs, _customerService);
                     break;
 
                 case 3://DeleteCustomerAccount
-                    _commonHelperService.DeleteCustomerAccount(staffBankId, staffBranchId, _customerService, _validateInputs);
+                    _commonHelperService.DeleteCustomerAccount(staffBranchId, _customerService, _validateInputs);
                     break;
 
                 case 4://Displaying Customer Transaction History
-                    _commonHelperService.GetTransactoinHistory(staffBankId, staffBranchId, _customerService, _validateInputs,
+                    _commonHelperService.GetTransactoinHistory(staffBranchId, _customerService, _validateInputs,
                         _transactionService, Miscellaneous.staff, null);
                     break;
 
@@ -55,7 +53,7 @@ namespace BankApplication
                     break;
 
                 case 6://Check Customer Account Balance
-                    _commonHelperService.GetCustomerAccountBalance(staffBankId, staffBranchId, _customerService, _validateInputs,
+                    _commonHelperService.GetCustomerAccountBalance(staffBranchId, _customerService, _validateInputs,
                         Miscellaneous.staff, null);
                     break;
 
@@ -64,11 +62,11 @@ namespace BankApplication
                     break;
 
                 case 8:// Get TransactionCharges
-                    _commonHelperService.GetTransactionCharges(staffBankId, staffBranchId, _branchService);
+                    _commonHelperService.GetTransactionCharges(staffBranchId, _branchService);
                     break;
 
                 case 9://Deposit Amount in Customer Account
-                    _commonHelperService.DepositAmountInCustomerAccount(staffBankId, staffBranchId, _customerService, _validateInputs,
+                    _commonHelperService.DepositAmountInCustomerAccount(staffBranchId, _customerService, _validateInputs,
                         _currencyService);
                     break;
 

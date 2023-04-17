@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
+using BankApplicationViewModels;
 
 namespace BankApplicationServices.Services
 {
@@ -8,19 +9,22 @@ namespace BankApplicationServices.Services
     {
 
         private readonly IBankRepository _bankRepository;
-        public BankService(IBankRepository bankRepository)
+        public  BankService(IBankRepository bankRepository)
         {
             _bankRepository = bankRepository;
         }
 
-        public Task<IEnumerable<Bank>> GetAllBanksAsync()
+        public async Task<IEnumerable<Bank>> GetAllBanksAsync()
         {
-            return _bankRepository.GetAllBanks();
+            return await _bankRepository.GetAllBanks();
         }
-
-        public Task<Bank> GetBankByIdAsync(string id)
+        public async Task<Bank> GetBankByIdAsync(string id)
         {
-            return _bankRepository.GetBankById(id);
+            return await _bankRepository.GetBankById(id);
+        }
+        public async Task<Bank?> GetBankByNameAsync(string name)
+        {
+            return await _bankRepository.GetBankByName(name);
         }
 
         public async Task<Message> AuthenticateBankIdAsync(string bankId)
@@ -44,16 +48,16 @@ namespace BankApplicationServices.Services
         {
             Message message = new();
 
-            Task<Bank?> _bankName = _bankRepository.GetBankByName(bankName);
-            if (_bankName != null)
+            Bank bankDetails = await _bankRepository.GetBankByName(bankName);
+            if (bankDetails != null)
             {
                 message.Result = false;
                 message.ResultMessage = $"BankName:{bankName} is Already Registered.";
             }
             else
             {
-                string date = DateTime.Now.ToString("yyyyMMddHHmmss");
-                string bankFirstThreeCharecters = bankName.Substring(0, 3);
+                string date = DateTime.Now.ToString("yyyyMMdd");
+                string bankFirstThreeCharecters = bankName.Substring(0, 3).ToUpper();
                 string bankId = bankFirstThreeCharecters + date + "M";
 
                 Bank bank = new()
@@ -74,7 +78,6 @@ namespace BankApplicationServices.Services
                     message.Result = false;
                     message.ResultMessage = "Failed to Create a Bank";
                 }
-               
             }
             return message;
         }

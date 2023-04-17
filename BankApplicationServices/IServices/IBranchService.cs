@@ -4,6 +4,9 @@ namespace BankApplicationServices.IServices
 {
     public interface IBranchService
     {
+        Task<IEnumerable<Branch>> GetAllBranchesAsync(string bankId);
+        Task<Branch> GetBranchByIdAsync(string id);
+        Task<Branch> GetBranchByNameAsync(string name);
         /// <summary>
         /// Checks whether any branches exist for a given bank.
         /// </summary>

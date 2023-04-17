@@ -77,9 +77,9 @@ namespace BankApplication
                             message = _headManagerService.IsHeadManagerExistAsync(bankId, headManagerAccountId).Result;
                             if (message.Result)
                             {
-                                string headManagerDetatils = _headManagerService.GetHeadManagerDetailsAsync(bankId, headManagerAccountId).Result;
+                                HeadManager headManager = _headManagerService.GetHeadManagerDetailsAsync(bankId, headManagerAccountId).Result;
                                 Console.WriteLine("Head Manager Details:");
-                                Console.WriteLine(headManagerDetatils);
+                                Console.WriteLine(headManager.ToString());
 
                                 string headManagerName;
                                 while (true)

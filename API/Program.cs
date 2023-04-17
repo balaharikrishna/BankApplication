@@ -1,4 +1,6 @@
 using API.Mappings;
+using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 using BankApplicationServices.Services;
 using System.Data.SqlClient;
@@ -24,7 +26,17 @@ builder.Services.AddScoped<IReserveBankManagerService, ReserveBankManagerService
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<ITransactionChargeService, TransactionChargeService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<IBankRepository, BankRepository>();
+builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IHeadManagerRepository, HeadManagerRepository>();
+builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+builder.Services.AddScoped<IReserveBankManagerRepository, ReserveBankManagerRepository>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<ITransactionChargeRepository, TransactionChargeRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 //static void Main(string[] args)
 //{
 //    CreateHostBuilder(args).Build().Run();
@@ -45,8 +57,6 @@ builder.Services.AddScoped<IFileService, FileService>();
 //        });
 //builder.Services.AddAutoMapper(typeof(MapperProfile));
 // Add services to the container.
-
-
 
 builder.Services.AddControllers();
 

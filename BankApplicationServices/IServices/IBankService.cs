@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationViewModels;
 
 namespace BankApplicationServices.IServices
 {
@@ -11,6 +12,8 @@ namespace BankApplicationServices.IServices
         Task<IEnumerable<Bank>> GetAllBanksAsync();
 
         Task<Bank> GetBankByIdAsync(string id);
+
+        Task<Bank> GetBankByNameAsync(string name);
 
         /// <summary>
         /// Creates a new bank.

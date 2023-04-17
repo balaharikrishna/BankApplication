@@ -1,5 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -18,6 +19,22 @@ namespace BankApplicationServices.Services
             _managerRepository = managerRepository;
         }
 
+        public async Task<IEnumerable<Manager>> GetAllManagersAsync(string branchId)
+        {
+            return await _managerRepository.GetAllManagers(branchId);
+        }
+    
+        public async Task<Manager> GetManagerByIdAsync(string branchId, string managerAccountId)
+        {
+            Manager manager = await _managerRepository.GetManagerById(managerAccountId,branchId);
+            return manager;
+        }
+
+        public async Task<Manager> GetManagerByNameAsync(string branchId, string managerName)
+        {
+            Manager manager = await _managerRepository.GetManagerByName(managerName, branchId);
+            return manager;
+        }
         public async Task<Message> IsManagersExistAsync(string branchId)
         {
             Message message;
@@ -241,11 +258,6 @@ namespace BankApplicationServices.Services
                 message.ResultMessage = $"Manager with Account Id:{accountId} doesn't Exist.";
             }
             return message;
-        }
-
-        public async Task<Manager> GetManagerDetailsAsync(string branchId, string managerAccountId)
-        {
-            return await _managerRepository.GetManagerById(managerAccountId, branchId);
         }
     }
 }

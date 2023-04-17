@@ -43,6 +43,11 @@ namespace BankApplicationServices.Services
             return message;
         }
 
+        public async Task<TransactionCharges> GetTransactionCharges(string branchId)
+        {
+            return await _transactionChargeRepository.GetTransactionCharges(branchId);
+        }
+
         public async Task<Message> AddTransactionChargesAsync(string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank)
         {
             Message message;

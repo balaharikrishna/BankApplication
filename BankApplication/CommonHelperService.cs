@@ -3,7 +3,6 @@ using BankApplicationHelperMethods;
 using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationServices.IServices;
-using Newtonsoft.Json;
 
 namespace BankApplication
 {
@@ -148,7 +147,7 @@ namespace BankApplication
                 Message isValidBranchId = _validateInputs.ValidateBranchIdFormat(branchId);
                 if (isValidBranchId.Result)
                 {
-                    message = _branchService.AuthenticateBranchIdAsync(bankId, branchId).Result;
+                    message = _branchService.AuthenticateBranchIdAsync(branchId).Result;
                     if (message.Result)
                     {
                         break;
@@ -497,7 +496,7 @@ namespace BankApplication
             IHeadManagerHelperService? headManagerHelperService = null, IReserveBankManagerHelperService? reserveBankManagerHelperService = null, ICustomerService? customerService = null, IStaffService? staffService = null, IManagerService? managerService = null,
             IHeadManagerService? headManagerService = null, IReserveBankManagerService? reserveBankManagerService = null)
         {
-            Message message = new ();
+            Message message = new();
             while (true)
             {
                 string bankId = string.Empty;
@@ -522,7 +521,7 @@ namespace BankApplication
                             if (!level.Equals("Head Manager") && !level.Equals("Reserve Bank Manager"))
                             {
                                 branchId = GetBranchId(level, branchService, validateInputs);
-                                message = branchService.AuthenticateBranchIdAsync(bankId, branchId).Result;
+                                message = branchService.AuthenticateBranchIdAsync(branchId).Result;
                             }
 
                             if (message.Result || level.Equals("Head Manager") || level.Equals("Reserve Bank Manager"))
@@ -530,15 +529,15 @@ namespace BankApplication
 
                                 if (level.Equals("Customer") && customerService is not null)
                                 {
-                                    message = customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                                    message = customerService.IsCustomersExistAsync(branchId).Result;
                                 }
                                 else if (level.Equals("Staff") && staffService is not null)
                                 {
-                                    message = staffService.IsStaffExistAsync(bankId, branchId).Result;
+                                    message = staffService.IsStaffExistAsync(branchId).Result;
                                 }
                                 else if (level.Equals("Branch Manager") && managerService is not null)
                                 {
-                                    message = managerService.IsManagersExistAsync(bankId, branchId).Result;
+                                    message = managerService.IsManagersExistAsync(branchId).Result;
                                 }
                                 else if (level.Equals("Head Manager") && headManagerService is not null)
                                 {
@@ -558,15 +557,15 @@ namespace BankApplication
 
                                         if (level.Equals("Customer") && customerService is not null)
                                         {
-                                            message = customerService.IsAccountExistAsync(bankId, branchId, accountId).Result;
+                                            message = customerService.IsAccountExistAsync(branchId, accountId).Result;
                                         }
                                         else if (level.Equals("Staff") && staffService is not null)
                                         {
-                                            message = staffService.IsAccountExistAsync(bankId, branchId, accountId).Result;
+                                            message = staffService.IsAccountExistAsync(branchId, accountId).Result;
                                         }
                                         else if (level.Equals("Branch Manager") && managerService is not null)
                                         {
-                                            message = managerService.IsAccountExistAsync(bankId, branchId, accountId).Result;
+                                            message = managerService.IsAccountExistAsync(branchId, accountId).Result;
                                         }
                                         else if (level.Equals("Head Manager") && headManagerService is not null)
                                         {
@@ -591,15 +590,15 @@ namespace BankApplication
 
                                             if (level.Equals("Customer") && customerService is not null)
                                             {
-                                                message = customerService.AuthenticateCustomerAccountAsync(bankId, branchId, accountId, password).Result;
+                                                message = customerService.AuthenticateCustomerAccountAsync(branchId, accountId, password).Result;
                                             }
                                             else if (level.Equals("Staff") && staffService is not null)
                                             {
-                                                message = staffService.AuthenticateStaffAccountAsync(bankId, branchId, accountId, password).Result;
+                                                message = staffService.AuthenticateStaffAccountAsync(branchId, accountId, password).Result;
                                             }
                                             else if (level.Equals("Branch Manager") && managerService is not null)
                                             {
-                                                message = managerService.AuthenticateManagerAccountAsync(bankId, branchId, accountId, password).Result;
+                                                message = managerService.AuthenticateManagerAccountAsync(branchId, accountId, password).Result;
                                             }
                                             else if (level.Equals("Head Manager") && headManagerService is not null)
                                             {
@@ -607,7 +606,7 @@ namespace BankApplication
                                             }
                                             else if (level.Equals("Reserve Bank Manager") && reserveBankManagerService is not null)
                                             {
-                                                message = reserveBankManagerService.AuthenticateReserveBankManagerAsync(ReserveBankManagerName!, password).Result;
+                                                message = reserveBankManagerService.AuthenticateManagerAccountAsync(accountId, password).Result;
                                             }
 
                                             if (message.Result)
@@ -731,19 +730,19 @@ namespace BankApplication
         }
 
         //Get AccountBalance
-        public void GetCustomerAccountBalance(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, string level, string? userAccountId = null)
+        public void GetCustomerAccountBalance(string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, string level, string? userAccountId = null)
         {
             Message message;
             while (true)
             {
-                message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                message = _customerService.IsCustomersExistAsync(branchId).Result;
                 if (message.Result || level.Equals("Customer"))
                 {
                     string customerAccountId;
                     if (!level.Equals("Customer"))
                     {
                         customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.IsAccountExistAsync(bankId, branchId, customerAccountId).Result;
+                        message = _customerService.IsAccountExistAsync(branchId, customerAccountId).Result;
                     }
                     else
                     {
@@ -752,7 +751,7 @@ namespace BankApplication
 
                     if (message.Result || level.Equals("Customer"))
                     {
-                        message = _customerService.CheckAccountBalanceAsync(bankId, branchId, customerAccountId).Result;
+                        message = _customerService.CheckAccountBalanceAsync(branchId, customerAccountId).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);
@@ -778,14 +777,14 @@ namespace BankApplication
             }
         }
         //Get Transaction History
-        public void GetTransactoinHistory(string bankId, string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, ITransactionService _transactionService, string level, string? userAccountId = null)
+        public void GetTransactoinHistory(string branchId, ICustomerService _customerService, IValidateInputs _validateInputs, ITransactionService _transactionService, string level, string? userAccountId = null)
         {
             Message message = new();
             while (true)
             {
                 if (!level.Equals("Customer"))
                 {
-                    message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                    message = _customerService.IsCustomersExistAsync(branchId).Result;
                 }
 
                 if (message.Result || level.Equals("Customer"))
@@ -794,7 +793,7 @@ namespace BankApplication
                     if (!level.Equals("Customer"))
                     {
                         customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.IsAccountExistAsync(bankId, branchId, customerAccountId).Result;
+                        message = _customerService.IsAccountExistAsync(branchId, customerAccountId).Result;
                     }
                     else
                     {
@@ -802,11 +801,11 @@ namespace BankApplication
                     }
                     if (message.Result || level.Equals("Customer"))
                     {
-                        message = _transactionService.IsTransactionsAvailableAsync(bankId, branchId, customerAccountId).Result;
+                        message = _transactionService.IsTransactionsAvailableAsync(customerAccountId).Result;
                         if (message.Result)
                         {
-                            List<string> transactions = _transactionService.GetTransactionHistoryAsync(bankId, branchId, customerAccountId).Result;
-                            foreach (string transaction in transactions)
+                            IEnumerable<Transaction> transactions = _transactionService.GetTransactionHistory(customerAccountId).Result;
+                            foreach (Transaction transaction in transactions)
                             {
                                 Console.WriteLine();
                                 Console.WriteLine(transaction);
@@ -838,45 +837,43 @@ namespace BankApplication
         {
             while (true)
             {
-                Message message;
-                message = _bankService.GetExchangeRatesAsync(bankId).Result;
-
-                Dictionary<string, decimal>? exchangeRates = JsonConvert.DeserializeObject<Dictionary<string, decimal>>(message.Data);
-
-                if (exchangeRates != null)
+                IEnumerable<Currency> currencies = _bankService.GetExchangeRatesAsync(bankId).Result;
+                if (currencies is not null)
                 {
                     Console.WriteLine("Available Exchange Rates:");
-                    foreach (KeyValuePair<string, decimal> rates in exchangeRates)
+                    foreach (Currency currency in currencies)
                     {
-                        Console.WriteLine($"{rates.Key} : {rates.Value} Rupees");
+                        Console.WriteLine($"{currency.CurrencyCode} : {currency.ExchangeRate} Rupees");
                     }
                     Console.WriteLine();
                     break;
                 }
                 else
                 {
-                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine("No Exchange Rates Available");
                     continue;
                 }
             }
         }
 
         //Get Transaction Charges
-        public void GetTransactionCharges(string bankId, string branchId, IBranchService _branchService)
+        public void GetTransactionCharges(string branchId, IBranchService _branchService)
         {
             while (true)
             {
-                Message message;
-                message = _branchService.GetTransactionChargesAsync(bankId, branchId).Result;
-                if (message.Result)
+                IEnumerable<TransactionCharges> transactionCharges = _branchService.GetTransactionChargesAsync(branchId).Result;
+                if (transactionCharges is not null)
                 {
-                    Console.WriteLine(message.Data);
+                    foreach (TransactionCharges charges in transactionCharges)
+                    {
+                        Console.WriteLine($"{charges.RtgsSameBank},{charges.RtgsOtherBank},{charges.ImpsSameBank},{charges.ImpsOtherBank}");
+                    }
                     Console.WriteLine();
                     break;
                 }
                 else
                 {
-                    Console.WriteLine(message.ResultMessage);
+                    Console.WriteLine("Transaction Charges Not Available");
                     Console.WriteLine();
                     break;
                 }
@@ -891,7 +888,7 @@ namespace BankApplication
             {
                 if (!level.Equals("Customer"))
                 {
-                    message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                    message = _customerService.IsCustomersExistAsync(branchId).Result;
                 }
                 if (message.Result || level.Equals("Customer"))
                 {
@@ -899,7 +896,7 @@ namespace BankApplication
                     if (!level.Equals("Customer"))
                     {
                         fromCustomerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                        message = _customerService.IsAccountExistAsync(bankId, branchId, fromCustomerAccountId).Result;
+                        message = _customerService.IsAccountExistAsync(userBranchId, fromCustomerAccountId).Result;
                     }
                     else
                     {
@@ -910,7 +907,7 @@ namespace BankApplication
                     {
                         int transferMethod = ValidateTransferMethod();
                         decimal amount = ValidateAmount();
-                        message = _customerService.IsAccountExistAsync(userBankId, userBranchId, fromCustomerAccountId).Result;
+                        message = _customerService.IsAccountExistAsync(userBranchId, fromCustomerAccountId).Result;
 
                         if (message.Result)
                         {
@@ -921,11 +918,11 @@ namespace BankApplication
                                 if (message.Result)
                                 {
                                     string toCustomerBranchId = GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                                    message = _branchService.AuthenticateBranchIdAsync(toCustomerBankId, toCustomerBranchId).Result;
+                                    message = _branchService.AuthenticateBranchIdAsync(toCustomerBranchId).Result;
                                     if (message.Result)
                                     {
                                         string toCustomerAccountId = GetAccountId(Miscellaneous.toCustomer, _validateInputs);
-                                        message = _customerService.IsAccountExistAsync(toCustomerBankId, toCustomerBranchId, toCustomerAccountId).Result;
+                                        message = _customerService.IsAccountExistAsync(toCustomerBranchId, toCustomerAccountId).Result;
                                         if (message.Result)
                                         {
                                             message = _customerService.TransferAmountAsync(userBankId, userBranchId, fromCustomerAccountId,
@@ -982,7 +979,7 @@ namespace BankApplication
             }
         }
 
-        public void OpenCustomerAccount(string bankId,string branchId,ICustomerService _customerService,IValidateInputs _validateInputs)
+        public void OpenCustomerAccount(string branchId, ICustomerService _customerService, IValidateInputs _validateInputs)
         {
             Message message;
             while (true)
@@ -996,9 +993,9 @@ namespace BankApplication
                 string customerDOB = GetDateOfBirth(Miscellaneous.customer, _validateInputs);
                 int customerGender = GetGender(Miscellaneous.customer, _validateInputs);
 
-                message = _customerService.OpenCustomerAccountAsync(bankId,
-                branchId, customerName, customerPassword, customerPhoneNumber, customerEmailId,
-                customerAccountType, customerAddress, customerDOB, customerGender).Result;
+                message = _customerService.OpenCustomerAccountAsync(branchId, customerName, customerPassword,
+                customerPhoneNumber, customerEmailId,customerAccountType, customerAddress, customerDOB, 
+                customerGender).Result;
                 if (message.Result)
                 {
                     Console.WriteLine(message.ResultMessage);
@@ -1014,21 +1011,21 @@ namespace BankApplication
             };
         }
 
-        public void UpdateCustomerAccount(string bankId,string branchId,IValidateInputs _validateInputs,ICustomerService _customerService)
+        public void UpdateCustomerAccount(string branchId, IValidateInputs _validateInputs, ICustomerService _customerService)
         {
             Message message;
             while (true)
             {
-                message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                message = _customerService.IsCustomersExistAsync(branchId).Result;
                 if (message.Result)
                 {
                     string customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                    message = _customerService.IsAccountExistAsync(bankId, branchId, customerAccountId).Result;
+                    message = _customerService.IsAccountExistAsync(branchId, customerAccountId).Result;
                     if (message.Result)
                     {
-                        string passbookDetatils = _customerService.GetPassbookAsync(bankId, branchId, customerAccountId).Result;
-                        Console.WriteLine("Passbook Details:");
-                        Console.WriteLine(passbookDetatils);
+                        Customer customer = _customerService.GetPassbookAsync(branchId, customerAccountId).Result;
+                        Console.WriteLine($"Passbook Details:");
+                        Console.WriteLine(customer.ToString());
 
                         string customerName;
                         while (true)
@@ -1238,7 +1235,7 @@ namespace BankApplication
                             }
                         }
 
-                        message = _customerService.UpdateCustomerAccountAsync(bankId, branchId, customerAccountId, customerName, customerPassword, customerPhoneNumber,
+                        message = _customerService.UpdateCustomerAccountAsync(branchId, customerAccountId, customerName, customerPassword, customerPhoneNumber,
                             customerEmailId, customerAccountType, customerAddress, customerDOB, customerGender).Result;
                         if (message.Result)
                         {
@@ -1270,16 +1267,16 @@ namespace BankApplication
             }
         }
 
-        public void DeleteCustomerAccount(string bankId,string branchId,ICustomerService _customerService,IValidateInputs _validateInputs)
+        public void DeleteCustomerAccount(string branchId, ICustomerService _customerService, IValidateInputs _validateInputs)
         {
             Message message;
             while (true)
             {
-                message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                message = _customerService.IsCustomersExistAsync(branchId).Result;
                 if (message.Result)
                 {
                     string customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                    message = _customerService.DeleteCustomerAccountAsync(bankId, branchId, customerAccountId).Result;
+                    message = _customerService.DeleteCustomerAccountAsync(branchId, customerAccountId).Result;
                     if (message.Result)
                     {
                         Console.WriteLine(message.ResultMessage);
@@ -1303,22 +1300,22 @@ namespace BankApplication
             }
         }
 
-        public void RevertCustomerTransaction(string bankId, string branchId, ICustomerService _customerService, 
-            IValidateInputs _validateInputs,ITransactionService _transactionService,IBankService _bankService,
+        public void RevertCustomerTransaction(string bankId, string branchId, ICustomerService _customerService,
+            IValidateInputs _validateInputs, ITransactionService _transactionService, IBankService _bankService,
             IBranchService _branchService)
         {
             Message message;
             while (true)
             {
-                message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                message = _customerService.IsCustomersExistAsync(branchId).Result;
                 if (message.Result)
                 {
                     string fromCustomerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                    message = _customerService.IsAccountExistAsync(bankId, branchId,fromCustomerAccountId).Result;
+                    message = _customerService.IsAccountExistAsync(branchId, fromCustomerAccountId).Result;
 
                     if (message.Result)
                     {
-                        message = _transactionService.IsTransactionsAvailableAsync(bankId, branchId, fromCustomerAccountId).Result;
+                        message = _transactionService.IsTransactionsAvailableAsync(fromCustomerAccountId).Result;
                         if (message.Result)
                         {
                             string toCustomerBankId = GetBankId(Miscellaneous.toCustomer, _bankService, _validateInputs);
@@ -1326,12 +1323,12 @@ namespace BankApplication
                             if (message.Result)
                             {
                                 string toCustomerBranchId = GetBranchId(Miscellaneous.toCustomer, _branchService, _validateInputs);
-                                message = _branchService.AuthenticateBranchIdAsync(toCustomerBankId, toCustomerBranchId).Result;
+                                message = _branchService.AuthenticateBranchIdAsync(toCustomerBranchId).Result;
                                 if (message.Result)
                                 {
                                     string toCustomerAccountId = GetAccountId(Miscellaneous.toCustomer, _validateInputs);
 
-                                    message = _customerService.AuthenticateToCustomerAccountAsync(toCustomerBankId, toCustomerBranchId, toCustomerAccountId).Result;
+                                    message = _customerService.AuthenticateToCustomerAccountAsync(toCustomerBranchId, toCustomerAccountId).Result;
                                     if (message.Result)
                                     {
                                         string transactionId = ValidateTransactionIdFormat();
@@ -1377,17 +1374,17 @@ namespace BankApplication
             }
         }
 
-        public void DepositAmountInCustomerAccount(string bankId, string branchId, ICustomerService _customerService,
-            IValidateInputs _validateInputs,ICurrencyService _currencyService)
+        public void DepositAmountInCustomerAccount(string branchId, ICustomerService _customerService,
+            IValidateInputs _validateInputs, ICurrencyService _currencyService)
         {
             Message message;
             while (true)
             {
-                message = _customerService.IsCustomersExistAsync(bankId, branchId).Result;
+                message = _customerService.IsCustomersExistAsync(branchId).Result;
                 if (message.Result)
                 {
                     string customerAccountId = GetAccountId(Miscellaneous.customer, _validateInputs);
-                    message = _customerService.IsAccountExistAsync(bankId, branchId, customerAccountId).Result;
+                    message = _customerService.IsAccountExistAsync(branchId, customerAccountId).Result;
                     if (message.Result)
                     {
                         decimal depositAmount = ValidateAmount();

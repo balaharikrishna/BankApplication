@@ -13,8 +13,22 @@ namespace BankApplicationServices.Services
             _reserveBankManagerRepository = reserveBankManagerRepository;
             _encryptionService = encryptionService;
         }
-        //private static string reserveBankManagerName = "TECHNOVERT";
-        //private static string reserveBankManagerpassword = "Techno123@";
+
+        public async Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagersAsync()
+        {
+            return await _reserveBankManagerRepository.GetAllReserveBankManagers();
+        }
+
+        public async Task<ReserveBankManager> GetReserveBankManagerByIdAsync(string reserveBankManagerAccountId)
+        {
+            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(reserveBankManagerAccountId);
+            return reserveBankManager;
+        }
+        public async Task<ReserveBankManager> GetReserveBankManagerByNameAsync(string reserveBankManagerName)
+        {
+            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(reserveBankManagerName);
+            return reserveBankManager;
+        }
 
         public async Task<Message> AuthenticateManagerAccountAsync(string ReserveBankManagerAccountId, string ReserveBankManagerPassword)
         {

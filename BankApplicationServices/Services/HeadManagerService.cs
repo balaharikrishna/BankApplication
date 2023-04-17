@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
-using System.Collections;
 
 namespace BankApplicationServices.Services
 {
@@ -18,13 +17,29 @@ namespace BankApplicationServices.Services
             _headManagerRepository = headManagerRepository;
         }
 
+        public async Task<IEnumerable<HeadManager>> GetAllHeadManagersAsync(string branchId)
+        {
+            return await _headManagerRepository.GetAllHeadManagers(branchId);
+        }
+     
+        public async Task<HeadManager> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId)
+        {
+            HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
+            return headManager;
+        }
+
+        public async Task<HeadManager> GetHeadManagerByNameAsync(string bankId, string headManagerName)
+        {
+            HeadManager headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
+            return headManager;
+        }
         public async Task<Message> IsHeadManagersExistAsync(string bankId)
         {
             Message message;
             message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-               IEnumerable<HeadManager> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
+                IEnumerable<HeadManager> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
 
                 if (headManagers.Any())
                 {
@@ -171,9 +186,9 @@ namespace BankApplicationServices.Services
         {
             Message message;
             message = await IsHeadManagerExistAsync(bankId, headManagerAccountId);
-             if (message.Result)
+            if (message.Result)
             {
-              HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
+                HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
 
                 byte[] salt = headManager.Salt;
                 byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
@@ -204,7 +219,7 @@ namespace BankApplicationServices.Services
                     {
                         message.Result = false;
                         message.ResultMessage = "Failed to Update Details";
-                    }  
+                    }
                 }
             }
             else
@@ -220,8 +235,8 @@ namespace BankApplicationServices.Services
             message = await IsHeadManagerExistAsync(bankId, headManagerAccountId);
             if (message.Result)
             {
-               bool isDeleted = await _headManagerRepository.DeleteHeadManagerAccount(headManagerAccountId,bankId);
-                if(isDeleted)
+                bool isDeleted = await _headManagerRepository.DeleteHeadManagerAccount(headManagerAccountId, bankId);
+                if (isDeleted)
                 {
                     message.Result = true;
                     message.ResultMessage = $"Deleted AccountId:{headManagerAccountId} Successfully.";
@@ -242,7 +257,7 @@ namespace BankApplicationServices.Services
 
         public async Task<HeadManager> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId)
         {
-           return await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
+            return await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
         }
     }
 }

@@ -5,7 +5,11 @@ namespace BankApplicationServices.IServices
 {
     public interface IStaffService
     {
-        
+        Task<IEnumerable<Staff>> GetAllManagersAsync(string branchId);
+
+        Task<Staff> GetManagerByIdAsync(string branchId, string staffAccountId);
+
+        Task<Staff> GetManagerByNameAsync(string branchId, string staffName);
         /// <summary>
         /// Checks for staff Members account's with the given BankId and BranchId exists or not.
         /// </summary>
@@ -65,6 +69,5 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The ID of the branch where the staff member is located.</param>
         /// <param name="staffAccountId">The unique identifier for the staff member's account.</param>
         /// <returns>A string containing the staff member's details, including their name, position, and contact information.</returns>
-        Task<Staff> GetStaffDetailsAsync(string branchId, string staffAccountId);
     }
 }

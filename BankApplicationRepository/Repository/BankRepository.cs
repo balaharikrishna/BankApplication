@@ -16,46 +16,49 @@ namespace BankApplicationRepository.Repository
 
         public async Task<IEnumerable<Bank>> GetAllBanks()
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Banks WHERE IsActive = 1";
-            var banks = new List<Bank>();
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT BankId, BankName, IsActive FROM Banks WHERE IsActive = 1";
+            List<Bank> banks = new();
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var bank = new Bank
+                Bank bank = new()
                 {
-                    BankName = reader["BankName"].ToString(),
-                    BankId = reader["BankId"].ToString(),
+                    BankId = reader[0].ToString(),
+                    BankName = reader[1].ToString(),
                     IsActive = reader.GetBoolean(2)
                 };
                 banks.Add(bank);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return banks;
         }
 
         public async Task<Bank?> GetBankById(string id)
         {
             await _connection.OpenAsync();
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Banks WHERE BankId = @id AND IsActive = 1";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT BankId, BankName, IsActive FROM Banks WHERE BankId = @id AND IsActive = 1";
             command.Parameters.AddWithValue("@id", id);
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var bank = new Bank
+                Bank bank = new()
                 {
-                    BankName = reader["BankName"].ToString(),
-                    BankId = reader["BankId"].ToString(),
+                    BankId = reader[0].ToString(),
+                    BankName = reader[1].ToString(),
                     IsActive = reader.GetBoolean(2)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return bank;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
@@ -63,55 +66,58 @@ namespace BankApplicationRepository.Repository
         public async Task<Bank?> GetBankByName(string bankName)
         {
             await _connection.OpenAsync();
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Banks WHERE BankName = @bankName AND IsActive = 1";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT BankId, BankName, IsActive FROM Banks WHERE BankName = @bankName AND IsActive = 1";
             command.Parameters.AddWithValue("@bankName", bankName);
-            var reader = await command.ExecuteReaderAsync();
-
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
             {
-                var bank = new Bank
+                Bank bank = new()
                 {
-                    BankName = reader["BankName"].ToString(),
-                    BankId = reader["BankId"].ToString(),
+                    BankId = reader[0].ToString(),
+                    BankName = reader[1].ToString(),
                     IsActive = reader.GetBoolean(2)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return bank;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
 
         public async Task<bool> IsBankExist(string bankId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT BankID FROM Banks WHERE BankID = @BankId";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT BankId FROM Banks WHERE BankId = @BankId AND IsActive = 1";
             command.Parameters.AddWithValue("@BankId", bankId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isBankExist = reader.HasRows;
+            await _connection.CloseAsync();
+            return isBankExist;
         }
 
         public async Task<bool> AddBank(Bank bank)
         {
-
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Banks (BankName, BankId, IsActive) VALUES (@bankName, @bankId, @isActive)";
-            await _connection.OpenAsync();
             command.Parameters.AddWithValue("@bankName", bank.BankName);
             command.Parameters.AddWithValue("@bankId", bank.BankId);
             command.Parameters.AddWithValue("@isActive", bank.IsActive);
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.OpenAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateBank(Bank bank)
         {
-            var command = _connection.CreateCommand();
-            var queryBuilder = new StringBuilder("UPDATE Banks SET ");
+            SqlCommand command = _connection.CreateCommand();
+            StringBuilder queryBuilder = new("UPDATE Banks SET ");
 
             if (bank.BankName is not null)
             {
@@ -128,32 +134,33 @@ namespace BankApplicationRepository.Repository
 
             await _connection.OpenAsync();
             var rowsAffected = await command.ExecuteNonQueryAsync();
-
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
 
         public async Task<bool> DeleteBank(string id)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "UPDATE Banks SET IsActive=0 WHERE BankId=@id";
             command.Parameters.AddWithValue("@id", id);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<IEnumerable<Currency>> GetAllCurrencies(string bankId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT * FROM Currencies WHERE IsActive = 1 and bankId = @bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
-            var Currency = new List<Currency>();
+            List<Currency> Currency = new List<Currency>();
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var currency = new Currency
+                Currency currency = new()
                 {
                     CurrencyCode = reader["CurrencyCode"].ToString(),
                     ExchangeRate = (decimal)reader["ExchangeRate"],
@@ -162,6 +169,7 @@ namespace BankApplicationRepository.Repository
                 Currency.Add(currency);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return Currency;
         }
     }

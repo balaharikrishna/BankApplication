@@ -28,12 +28,12 @@ namespace BankApplication
             switch (Option)
             {
                 case 1: //CheckAccountBalance
-                    _commonHelperService.GetCustomerAccountBalance(bankId, branchId, _customerService, _validateInputs,
+                    _commonHelperService.GetCustomerAccountBalance(branchId, _customerService, _validateInputs,
                         Miscellaneous.customer, accountId);
                     break;
 
                 case 2: //ViewTransactionHistory
-                    _commonHelperService.GetTransactoinHistory(bankId, branchId, _customerService, _validateInputs, _transactionService,
+                    _commonHelperService.GetTransactoinHistory(branchId, _customerService, _validateInputs, _transactionService,
                         Miscellaneous.customer, accountId);
                     break;
 
@@ -42,7 +42,7 @@ namespace BankApplication
                     break;
 
                 case 4: //ViewTransactionCharges
-                    _commonHelperService.GetTransactionCharges(bankId, branchId, _branchService);
+                    _commonHelperService.GetTransactionCharges(branchId, _branchService);
                     break;
 
                 case 5: //WithdrawAmount
@@ -52,7 +52,7 @@ namespace BankApplication
                         bool result = decimal.TryParse(Console.ReadLine(), out decimal amount);
                         if (result)
                         {
-                            Message isAmountWithdrawn = _customerService.WithdrawAmount(bankId, branchId, accountId, amount);
+                            Message isAmountWithdrawn = _customerService.WithdrawAmountAsync(bankId, branchId, accountId, amount).Result;
                             if (isAmountWithdrawn.Result)
                             {
                                 Console.WriteLine(isAmountWithdrawn.ResultMessage);
@@ -80,15 +80,15 @@ namespace BankApplication
                     while (true)
                     {
                         Message message;
-                        message = _customerService.IsCustomersExist(bankId, branchId);
+                        message = _customerService.IsCustomersExistAsync(branchId).Result;
                         if (message.Result)
                         {
-                            message = _customerService.IsAccountExist(bankId, branchId, accountId);
+                            message = _customerService.IsAccountExistAsync(branchId, accountId).Result;
                             if (message.Result)
                             {
-                                string passbookDetatils = _customerService.GetPassbook(bankId, branchId, accountId);
+                                Customer customer = _customerService.GetPassbookAsync(branchId, accountId).Result;
                                 Console.WriteLine("Passbook Details:");
-                                Console.WriteLine(passbookDetatils);
+                                Console.WriteLine(customer.ToString());
                                 break;
                             }
                             else

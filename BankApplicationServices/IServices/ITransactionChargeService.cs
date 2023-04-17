@@ -16,6 +16,7 @@ namespace BankApplicationServices.IServices
         /// <returns>Message about the status of the transaction charges addition.</returns>
         Task<Message> AddTransactionChargesAsync(string branchId, ushort rtgsSameBank, ushort rtgsOtherBank, ushort impsSameBank, ushort impsOtherBank);
 
+        Task<TransactionCharges> GetTransactionCharges(string branchId);
         /// <summary>
         /// Deletes transaction charges for the specified bank and branch.
         /// </summary>

@@ -12,6 +12,21 @@ namespace BankApplicationServices.Services
             _branchRepository = branchRepository;
         }
 
+        public async Task<IEnumerable<Branch>> GetAllBranchesAsync(string bankId)
+        {
+            return await _branchRepository.GetAllBranches(bankId);
+        }
+
+        public async Task<Branch> GetBranchByIdAsync(string id)
+        {
+            return await _branchRepository.GetBranchById(id);
+        }
+
+        public async Task<Branch?> GetBranchByNameAsync(string name)
+        {
+            return await _branchRepository.GetBranchByName(name);
+        }
+
         public async Task<Message> IsBranchesExistAsync(string bankId)
         {
             IEnumerable<Branch> branches = await _branchRepository.GetAllBranches(bankId);
@@ -72,8 +87,9 @@ namespace BankApplicationServices.Services
                     IsActive = true
                 };
 
-                bool isBranchAdded =  await _branchRepository.AddBranch(branch, bankId);
-                if (isBranchAdded) {
+                bool isBranchAdded = await _branchRepository.AddBranch(branch, bankId);
+                if (isBranchAdded)
+                {
                     message.Result = true;
                     message.ResultMessage = $"Branch {branchName} is Created with {branchId}";
                 }

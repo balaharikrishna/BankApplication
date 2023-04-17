@@ -22,7 +22,7 @@ namespace BankApplicationRepository.Repository
 
             if (await reader.ReadAsync())
             {
-                var transactionCharges = new TransactionCharges
+                TransactionCharges transactionCharges = new()
                 {
                     ImpsSameBank = (ushort)reader["ImpsSameBank"],
                     ImpsOtherBank = (ushort)reader["ImpsOtherBank"],
@@ -114,6 +114,5 @@ namespace BankApplicationRepository.Repository
             var rowsAffected = await command.ExecuteNonQueryAsync();
             return rowsAffected > 0;
         }
-
     }
 }

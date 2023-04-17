@@ -357,7 +357,7 @@ namespace BankApplicationServices.Services
                         bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
                         if (isUpdated)
                         {
-                            message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, 0, exchangedAmount, customer.Balance, 1);
+                            message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, 0, exchangedAmount, customer.Balance, TransactionType.Deposit);
                             if (message.Result)
                             {
                                 message.Result = true;
@@ -452,7 +452,7 @@ namespace BankApplicationServices.Services
                     bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
                     if (isUpdated)
                     {
-                        message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, withDrawAmount, 0, customer.Balance, 2);
+                        message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, withDrawAmount, 0, customer.Balance, TransactionType.Withdraw);
                         if (message.Result)
                         {
                             message.Result = true;
@@ -483,22 +483,22 @@ namespace BankApplicationServices.Services
                 {
                     if (bankId.Substring(0, 3).Equals(toBankId.Substring(0, 3)))
                     {
-                        if (transferMethod == 1)
+                        if (transferMethod.Equals(TransferMethod.RtgsSameBank))
                         {
                             bankInterestRate = transactionCharges.RtgsSameBank;
                         }
-                        else if (transferMethod == 2)
+                        else if (transferMethod.Equals(TransferMethod.ImpsSameBank))
                         {
                             bankInterestRate = transactionCharges.ImpsSameBank;
                         }
                     }
                     else
                     {
-                        if (transferMethod == 1)
+                        if (transferMethod.Equals(TransferMethod.RtgsOtherBank))
                         {
                             bankInterestRate = transactionCharges.RtgsOtherBank;
                         }
-                        else if (transferMethod == 2)
+                        else if (transferMethod.Equals(TransferMethod.ImpsOtherBank))
                         {
                             bankInterestRate = transactionCharges.ImpsOtherBank;
                         }
@@ -529,7 +529,7 @@ namespace BankApplicationServices.Services
 
                         message = await CheckToCustomerAccountBalanceAsync(toBranchId, toCustomerAccountId);
                         decimal toCustomerBalance = decimal.Parse(message.Data);
-                        message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, 3);
+                        message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance,TransactionType.Transfer);
                         if(message.Result && isfromCustomerUpdated && isToCustomerUpdated)
                         {
                             message.Result = true;

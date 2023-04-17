@@ -804,7 +804,7 @@ namespace BankApplication
                         message = _transactionService.IsTransactionsAvailableAsync(customerAccountId).Result;
                         if (message.Result)
                         {
-                            IEnumerable<Transaction> transactions = _transactionService.GetTransactionHistory(customerAccountId).Result;
+                            IEnumerable<Transaction> transactions = _transactionService.GetAllTransactionHistory(customerAccountId).Result;
                             foreach (Transaction transaction in transactions)
                             {
                                 Console.WriteLine();
@@ -926,7 +926,7 @@ namespace BankApplication
                                         if (message.Result)
                                         {
                                             message = _customerService.TransferAmountAsync(userBankId, userBranchId, fromCustomerAccountId,
-                                                toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, transferMethod).Result;
+                                                toCustomerBankId, toCustomerBranchId, toCustomerAccountId, amount, (TransferMethod)transferMethod).Result;
                                             if (message.Result)
                                             {
                                                 Console.WriteLine(message.ResultMessage);
@@ -994,8 +994,8 @@ namespace BankApplication
                 int customerGender = GetGender(Miscellaneous.customer, _validateInputs);
 
                 message = _customerService.OpenCustomerAccountAsync(branchId, customerName, customerPassword,
-                customerPhoneNumber, customerEmailId,customerAccountType, customerAddress, customerDOB, 
-                customerGender).Result;
+                customerPhoneNumber, customerEmailId, (AccountType)customerAccountType, customerAddress, customerDOB,
+                (Gender)customerGender).Result;
                 if (message.Result)
                 {
                     Console.WriteLine(message.ResultMessage);
@@ -1023,7 +1023,7 @@ namespace BankApplication
                     message = _customerService.IsAccountExistAsync(branchId, customerAccountId).Result;
                     if (message.Result)
                     {
-                        Customer customer = _customerService.GetPassbookAsync(branchId, customerAccountId).Result;
+                        Customer customer = _customerService.GetCustomerByIdAsync(branchId, customerAccountId).Result;
                         Console.WriteLine($"Passbook Details:");
                         Console.WriteLine(customer.ToString());
 
@@ -1236,7 +1236,7 @@ namespace BankApplication
                         }
 
                         message = _customerService.UpdateCustomerAccountAsync(branchId, customerAccountId, customerName, customerPassword, customerPhoneNumber,
-                            customerEmailId, customerAccountType, customerAddress, customerDOB, customerGender).Result;
+                            customerEmailId, (AccountType)customerAccountType, customerAddress, customerDOB, (Gender)customerGender).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);

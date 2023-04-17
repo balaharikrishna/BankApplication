@@ -104,8 +104,8 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{bankId}/{currencyCode}")]
-        public async Task<IActionResult> DeleteCurrency([FromRoute] string bankId, [FromRoute] string currencyCode)
+        [HttpDelete("DeleteCurrency")]
+        public async Task<IActionResult> DeleteCurrency([FromQuery] string bankId, [FromQuery] string currencyCode)
         {
             try
             {

@@ -1,10 +1,8 @@
 ﻿using API.Models;
-using API.ViewModels.manager;
 using API.ViewModels.Manager;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -40,7 +38,7 @@ namespace API.Controllers
             catch (Exception)
             {
                 _logger.Log(LogLevel.Error, message: "Fetching the Managers Failed");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the branches.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Managers.");
             }
         }
 
@@ -52,7 +50,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching manager Account with id {managerAccountId}");
-                Manager manager = await _managerService.GetManagerByIdAsync(branchId,managerAccountId);
+                Manager manager = await _managerService.GetManagerByIdAsync(branchId, managerAccountId);
                 if (manager is null)
                 {
                     return NotFound();
@@ -93,19 +91,18 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost]
-        public async Task<IActionResult> OpenManagerAccount([FromBody] AddManagerViewModel ManagerViewModel)
+        public async Task<IActionResult> OpenManagerAccount([FromBody] AddManagerViewModel managerViewModel)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Creating manager Account");
-                Message message = await _Managerservice.OpenmanagerAccountAsync(managerViewModel.BranchId, managerViewModel.managerName,
-                managerViewModel.managerPassword, managerViewModel.managerPhoneNumber, managerViewModel.managerEmailId, managerViewModel.managerAccountType,
-                managerViewModel.managerAddress, managerViewModel.managerDateOfBirth, managerViewModel.managerGender);
+                _logger.Log(LogLevel.Information, message: $"Opening manager Account");
+                Message message = await _managerService.OpenManagerAccountAsync(managerViewModel.BranchId, managerViewModel.ManagerName,
+                managerViewModel.ManagerPassword);
                 return Ok(message.ResultMessage);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Creating a new manager Account Failed");
+                _logger.Log(LogLevel.Error, message: $"Opening a new manager Account Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating an Account.");
             }
         }
@@ -113,20 +110,19 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut]
-        public async Task<IActionResult> UpdateManagerAccount([FromBody] UpdatemanagerViewModel updatemanagerViewModel)
+        public async Task<IActionResult> UpdateManagerAccount([FromBody] UpdateManagerViewModel updatemanagerViewModel)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Updating manager with Id {updatemanagerViewModel.managerAccountId}");
-                Message message = await _Managerservice.UpdatemanagerAccountAsync(updatemanagerViewModel.BranchId, updatemanagerViewModel.managerAccountId, updatemanagerViewModel.managerName,
-                updatemanagerViewModel.managerPassword, updatemanagerViewModel.managerPhoneNumber, updatemanagerViewModel.managerEmailId, updatemanagerViewModel.managerAccountType,
-                updatemanagerViewModel.managerAddress, updatemanagerViewModel.managerDateOfBirth, updatemanagerViewModel.managerGender);
+                _logger.Log(LogLevel.Information, message: $"Updating manager with Id {updatemanagerViewModel.ManagerAccountId}");
+                Message message = await _managerService.UpdateManagerAccountAsync(updatemanagerViewModel.BranchId, updatemanagerViewModel.ManagerAccountId,
+                    updatemanagerViewModel.ManagerName, updatemanagerViewModel.ManagerPassword);
                 return Ok(message.ResultMessage);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Updating Branch with Id {updatemanagerViewModel.managerAccountId} Failed");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the Branch.");
+                _logger.Log(LogLevel.Error, message: $"Updating Manager Account with Id {updatemanagerViewModel.ManagerAccountId} Failed");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating Manager Account.");
             }
         }
 
@@ -138,7 +134,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Deleting manager Account with Id {managerAccountId}");
-                Message message = await _Managerservice.DeletemanagerAccountAsync(branchId, managerAccountId);
+                Message message = await _managerService.DeleteManagerAccountAsync(branchId, managerAccountId);
                 return Ok(message.ResultMessage);
             }
             catch (Exception)

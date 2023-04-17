@@ -1,10 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace API.Models
+﻿namespace API.Models
 {
     public class HeadManagerDto
     {
-       
+
         public string? Name { get; set; }
 
         public byte[]? Salt { get; set; }

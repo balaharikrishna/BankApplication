@@ -1,5 +1,4 @@
-﻿using API.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using BankApplicationModels.Enums;
 
 namespace API.Models
 {

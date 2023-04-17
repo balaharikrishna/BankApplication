@@ -388,7 +388,7 @@ namespace BankApplication
                             message = _staffService.IsAccountExistAsync(managerBranchId, staffAccountId).Result;
                             if (message.Result)
                             {
-                                Staff staff = _staffService.GetStaffDetailsAsync(managerBranchId, staffAccountId).Result;
+                                Staff staff = _staffService.GetStaffByIdAsync(managerBranchId, staffAccountId).Result;
                                 Console.WriteLine("Staff Details:");
                                 Console.WriteLine(staff.ToString());
 
@@ -460,7 +460,7 @@ namespace BankApplication
                                     }
                                 }
 
-                                message = _staffService.UpdateStaffAccountAsync(managerBranchId, staffAccountId, staffName, staffPassword, staffRole).Result;
+                                message = _staffService.UpdateStaffAccountAsync(managerBranchId, staffAccountId, staffName, staffPassword, (StaffRole)staffRole).Result;
 
                                 if (message.Result)
                                 {

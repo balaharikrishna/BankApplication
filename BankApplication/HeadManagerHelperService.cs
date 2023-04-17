@@ -95,7 +95,7 @@ namespace BankApplication
                                 message = _managerService.IsAccountExistAsync(branchId, managerAccountId).Result;
                                 if (message.Result)
                                 {
-                                    Manager manager = _managerService.GetManagerDetailsAsync(branchId, managerAccountId).Result;
+                                    Manager manager = _managerService.GetManagerByIdAsync(branchId, managerAccountId).Result;
                                     Console.WriteLine("Manager Details:");
                                     Console.WriteLine(manager.ToString());
 

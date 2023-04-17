@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using BankApplicationServices.IServices;
-using BankApplicationViewModels;
 
 namespace BankApplicationServices.Services
 {
@@ -9,7 +8,7 @@ namespace BankApplicationServices.Services
     {
 
         private readonly IBankRepository _bankRepository;
-        public  BankService(IBankRepository bankRepository)
+        public BankService(IBankRepository bankRepository)
         {
             _bankRepository = bankRepository;
         }
@@ -67,7 +66,7 @@ namespace BankApplicationServices.Services
                     IsActive = true
                 };
 
-                bool isBankAdded =  await _bankRepository.AddBank(bank);
+                bool isBankAdded = await _bankRepository.AddBank(bank);
                 if (isBankAdded)
                 {
                     message.Result = true;

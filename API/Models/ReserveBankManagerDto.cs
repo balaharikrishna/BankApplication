@@ -7,8 +7,5 @@ using System.Threading.Tasks;
 
 namespace API.Models
 {
-    public class ReserveBankManagerDto : HeadManagerDto
-    {
-
-    }
+    public class ReserveBankManagerDto : HeadManagerDto { }
 }

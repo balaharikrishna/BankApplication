@@ -1,9 +1,12 @@
-﻿namespace API.ViewModels.Staff
+﻿using BankApplicationModels.Enums;
+
+namespace API.ViewModels.Staff
 {
     public class AddStaffViewModel
     {
         public string? BranchId { get; set; }
         public string? StaffName { get; set; }
         public string? StaffPassword { get; set; }
+        public StaffRole StaffRole { get; set; }
     }
 }

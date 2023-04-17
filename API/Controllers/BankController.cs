@@ -109,7 +109,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut]
-        public async Task<IActionResult> UpdateBank([FromBody] UpdateBranchViewModel updateBankViewModel)
+        public async Task<IActionResult> UpdateBank([FromBody] UpdateBankViewModel updateBankViewModel)
         {
             try
             {

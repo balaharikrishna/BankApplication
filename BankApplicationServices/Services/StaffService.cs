@@ -17,18 +17,18 @@ namespace BankApplicationServices.Services
             _staffRepository = staffRepository;
         }
 
-        public async Task<IEnumerable<Staff>> GetAllManagersAsync(string branchId)
+        public async Task<IEnumerable<Staff>> GetAllStaffAsync(string branchId)
         {
             return await _staffRepository.GetAllStaffs(branchId);
         }
 
-        public async Task<Staff> GetManagerByIdAsync(string branchId, string staffAccountId)
+        public async Task<Staff> GetStaffByIdAsync(string branchId, string staffAccountId)
         {
             Staff staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
             return staff;
         }
 
-        public async Task<Staff> GetManagerByNameAsync(string branchId, string staffName)
+        public async Task<Staff> GetStaffByNameAsync(string branchId, string staffName)
         {
             Staff staff = await _staffRepository.GetStaffByName(staffName, branchId);
             return staff;
@@ -184,7 +184,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, ushort staffRole)
+        public async Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, StaffRole staffRole)
         {
             Message message;
             message = await IsAccountExistAsync(branchId, staffAccountId);

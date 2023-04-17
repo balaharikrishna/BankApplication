@@ -1,5 +1,4 @@
 ﻿using BankApplicationModels;
-using BankApplicationViewModels;
 
 namespace BankApplicationServices.IServices
 {

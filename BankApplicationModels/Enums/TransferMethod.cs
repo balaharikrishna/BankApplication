@@ -2,7 +2,9 @@
 {
     public enum TransferMethod
     {
-        Rtgs = 1,
-        Imps = 2
+        RtgsSameBank = 1,
+        RtgsOtherBank = 2,
+        ImpsSameBank = 3,
+        ImpsOtherBank = 4
     }
 }

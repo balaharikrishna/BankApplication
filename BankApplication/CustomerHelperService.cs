@@ -86,7 +86,7 @@ namespace BankApplication
                             message = _customerService.IsAccountExistAsync(branchId, accountId).Result;
                             if (message.Result)
                             {
-                                Customer customer = _customerService.GetPassbookAsync(branchId, accountId).Result;
+                                Customer customer = _customerService.GetCustomerByIdAsync(branchId, accountId).Result;
                                 Console.WriteLine("Passbook Details:");
                                 Console.WriteLine(customer.ToString());
                                 break;

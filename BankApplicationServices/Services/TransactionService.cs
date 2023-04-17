@@ -15,6 +15,17 @@ namespace BankApplicationServices.Services
             _customerRepository = customerRepository;
         }
 
+        public async Task<IEnumerable<Transaction>> GetAllTransactionHistory(string fromCustomerAccountId)
+        {
+            return await _transactionRepository.GetAllTransactions(fromCustomerAccountId);
+        }
+
+        public async Task<Transaction> GetTransactionById(string fromCustomerAccountId, string transactionId)
+        {
+            Transaction transaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
+            return transaction;
+        }
+
         public async Task<Message> IsTransactionsAvailableAsync(string fromCustomerAccountId)
         {
             Message message = new();
@@ -32,8 +43,9 @@ namespace BankApplicationServices.Services
             return message;
         }
 
+        
         public async Task<Message> TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
-          decimal creditAmount, decimal fromCustomerbalance, int transactionType)
+          decimal creditAmount, decimal fromCustomerbalance, TransactionType transactionType)
         {
             Message message = new();
             string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -42,7 +54,7 @@ namespace BankApplicationServices.Services
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
-                TransactionType = (TransactionType)transactionType,
+                TransactionType = transactionType,
                 TransactionId = transactionId,
                 FromCustomerAccountId = fromCustomerAccountId,
                 Debit = debitAmount,
@@ -65,7 +77,7 @@ namespace BankApplicationServices.Services
         }
 
         public async Task<Message> TransactionHistoryFromAndToAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId, string toBranchId, string toCustomerAccountId,
-            decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, int transactionType)
+            decimal debitAmount, decimal creditAmount, decimal fromCustomerbalance, decimal toCustomerBalance, TransactionType transactionType)
         {
             Message message = new();
             string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -79,7 +91,7 @@ namespace BankApplicationServices.Services
                 ToCustomerAccountId = toBankId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
-                TransactionType = (TransactionType)transactionType,
+                TransactionType = transactionType,
                 TransactionId = transactionId,
                 Debit = debitAmount,
                 Credit = creditAmount,
@@ -95,7 +107,7 @@ namespace BankApplicationServices.Services
                 ToCustomerAccountId = toCustomerAccountId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
-                TransactionType = (TransactionType)transactionType,
+                TransactionType = transactionType,
                 TransactionId = transactionId,
                 Debit = creditAmount,
                 Credit = debitAmount,
@@ -116,10 +128,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        public async Task<IEnumerable<Transaction>> GetTransactionHistory(string fromCustomerAccountId)
-        {
-            return await _transactionRepository.GetAllTransactions(fromCustomerAccountId);
-        }
+        
 
         public async Task<Message> RevertTransactionAsync(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
           string toBranchId, string toCustomerAccountId)
@@ -151,7 +160,7 @@ namespace BankApplicationServices.Services
                         {
                             message = await TransactionHistoryFromAndToAsync(fromBankId, fromBranchId, fromCustomerAccountId,
                             toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit,
-                            fromCustomer.Balance, toCustomer.Balance, 4);
+                            fromCustomer.Balance, toCustomer.Balance, TransactionType.Revert);
                             if (message.Result)
                             {
                                 message.Result = true;

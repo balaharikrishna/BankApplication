@@ -1,5 +1,4 @@
-﻿using API.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using BankApplicationModels.Enums;
 
 namespace API.Models
 {
@@ -15,7 +14,7 @@ namespace API.Models
 
         public string? TransactionId { get; set; }
 
-        public string?  FromCustomerAccountId { get; set; }
+        public string? FromCustomerAccountId { get; set; }
 
         public TransactionType TransactionType { get; set; }
 

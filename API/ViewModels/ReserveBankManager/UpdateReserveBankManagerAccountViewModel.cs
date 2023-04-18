@@ -1,6 +1,6 @@
 ﻿namespace API.ViewModels.ReserveBankManager
 {
-    public class UpdateReserveBankManagerAccount : AddReserveBankManagerAccountViewModel
+    public class UpdateReserveBankManagerAccountViewModel : AddReserveBankManagerAccountViewModel
     {
         public string? ReserveBankManagerAccountId { get; set; }
     }

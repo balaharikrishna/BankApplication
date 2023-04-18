@@ -25,7 +25,7 @@ namespace API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
+        [HttpGet("GetAllHeadManagers/{branchId}")]
         public async Task<IActionResult> GetAllHeadManagers([FromRoute] string branchId)
         {
             try
@@ -90,7 +90,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("OpenHeadManagerAccount")]
         public async Task<IActionResult> OpenHeadManagerAccount([FromBody] AddHeadManagerViewModel HeadManagerViewModel)
         {
             try
@@ -108,7 +108,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateHeadManagerAccount")]
         public async Task<IActionResult> UpdateHeadManagerAccount([FromBody] UpdateHeadManagerViewModel updateHeadManagerViewModel)
         {
             try

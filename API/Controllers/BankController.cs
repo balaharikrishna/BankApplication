@@ -23,9 +23,10 @@ namespace API.Controllers
             _bankService = bankService;
         }
 
-        [HttpGet]
+        
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpGet("GetAllBanks")]
         public async Task<IActionResult> GetAllBanks()
         {
             try
@@ -44,7 +45,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}")]
+        [HttpGet("GetBankById/{bankId}")]
         public async Task<IActionResult> GetBankById([FromRoute] string bankId)
         {
             try
@@ -67,7 +68,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankName}")]
+        [HttpGet("GetBankByName/{bankName}")]
         public async Task<IActionResult> GetBankByName([FromRoute] string bankName)
         {
             try
@@ -90,7 +91,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("CreateBank")]
         public async Task<IActionResult> CreateBank([FromBody] AddBankViewModel addBankViewModel)
         {
             try
@@ -108,7 +109,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateBank")]
         public async Task<IActionResult> UpdateBank([FromBody] UpdateBankViewModel updateBankViewModel)
         {
             try
@@ -126,7 +127,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{bankId}")]
+        [HttpDelete("DeleteBank/{bankId}")]
         public async Task<IActionResult> DeleteBank([FromRoute] string bankId)
         {
             try

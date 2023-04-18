@@ -12,32 +12,33 @@ namespace BankApplicationRepository.Repository
         {
             _connection = connection;
         }
-        public async Task<IEnumerable<Manager>> GetAllManagers(string branchId)
+        public async Task<IEnumerable<Manager?>> GetAllManagers(string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Managers WHERE IsActive = 1 AND BranchId=@branchId";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Managers WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
-            var managers = new List<Manager>();
+            List<Manager> managers = new(); 
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var manager = new Manager
+                Manager manager = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[1].ToString(),
+                    Name = reader[2].ToString(),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4],
+                    IsActive = reader.GetBoolean(5)
                 };
                 managers.Add(manager);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return managers;
         }
         public async Task<bool> AddManagerAccount(Manager manager, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Managers (AccountId,Name,Salt,HashedPassword,IsActive,BranchId)" +
                 " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@branchId)";
             command.Parameters.AddWithValue("@accountId", manager.AccountId);
@@ -47,14 +48,15 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@isActive", manager.IsActive);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateManagerAccount(Manager manager, string branchId)
         {
-            var command = _connection.CreateCommand();
-            var queryBuilder = new StringBuilder("UPDATE Managers SET ");
+            SqlCommand command = _connection.CreateCommand();
+            StringBuilder queryBuilder = new("UPDATE Managers SET ");
 
             if (manager.Name is not null)
             {
@@ -75,90 +77,95 @@ namespace BankApplicationRepository.Repository
             }
 
             queryBuilder.Remove(queryBuilder.Length - 2, 2);
-
             queryBuilder.Append(" WHERE AccountId = @accountId AND BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", manager.AccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
-
             command.CommandText = queryBuilder.ToString();
-
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteManagerAccount(string managerAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "UPDATE Managers SET IsActive = 0 WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerAccountId", managerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
         public async Task<bool> IsManagerExist(string managerAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT AccountId FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerAccountId", managerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isManagerExist = reader.HasRows;
+            await reader.CloseAsync();
+            await _connection.CloseAsync();
+            return isManagerExist;
         }
-        public async Task<Manager> GetManagerById(string managerAccountId, string branchId)
+        public async Task<Manager?> GetManagerById(string managerAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerAccountId", managerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var manager = new Manager
+                Manager manager = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[1].ToString(),
+                    Name = reader[2].ToString(),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4],
+                    IsActive = reader.GetBoolean(5)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return manager;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
-        public async Task<Manager> GetManagerByName(string managerName, string branchId)
+        public async Task<Manager?> GetManagerByName(string managerName, string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Managers WHERE Name=@managerName and BranchId=@branchId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Managers WHERE Name=@managerName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerName", managerName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var manager = new Manager
+                Manager manager = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[1].ToString(),
+                    Name = reader[2].ToString(),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4],
+                    IsActive = reader.GetBoolean(5)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return manager;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }

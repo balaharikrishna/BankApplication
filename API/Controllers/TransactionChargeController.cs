@@ -22,11 +22,10 @@ namespace API.Controllers
             _transactionChargeService = transactionChargeService;
         }
 
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
+        [HttpGet("GetTransactionCharges/{branchId}")]
         public async Task<IActionResult> GetTransactionCharges([FromRoute] string branchId)
         {
             try
@@ -43,10 +42,9 @@ namespace API.Controllers
             }
         }
 
-
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("AddTransactionCharges")]
         public async Task<IActionResult> AddTransactionCharges([FromBody] TransactionChargesViewModel transactionChargesViewModel)
         {
             try
@@ -65,7 +63,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateTransactionCharges")]
         public async Task<IActionResult> UpdateTransactionCharges([FromBody] TransactionChargesViewModel transactionChargesViewModel)
         {
             try
@@ -84,7 +82,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{branchId}")]
+        [HttpDelete("DeleteTransactionCharges/{branchId}")]
         public async Task<IActionResult> DeleteTransactionCharges([FromRoute] string branchId)
         {
             try

@@ -14,7 +14,7 @@ namespace BankApplicationServices.IServices
         /// <returns>A message about status of the currency addition.</returns>
         Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate);
 
-        Task<Currency> GetCurrencyByCode(string currencyCode, string bankId);
+        Task<Currency?> GetCurrencyByCode(string currencyCode, string bankId);
         /// <summary>
         /// Deletes an existing currency from the bank.
         /// </summary>

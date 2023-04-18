@@ -10,9 +10,9 @@ namespace BankApplicationServices.IServices
         /// <returns>Returns an Enumerable of banks.</returns>
         Task<IEnumerable<Bank>> GetAllBanksAsync();
 
-        Task<Bank> GetBankByIdAsync(string id);
+        Task<Bank?> GetBankByIdAsync(string id);
 
-        Task<Bank> GetBankByNameAsync(string name);
+        Task<Bank?> GetBankByNameAsync(string name);
 
         /// <summary>
         /// Creates a new bank.

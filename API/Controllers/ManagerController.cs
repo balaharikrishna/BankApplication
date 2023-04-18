@@ -25,7 +25,7 @@ namespace API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
+        [HttpGet("GetAllManagers/{branchId}")]
         public async Task<IActionResult> GetAllManagers([FromRoute] string branchId)
         {
             try
@@ -90,7 +90,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("OpenManagerAccount")]
         public async Task<IActionResult> OpenManagerAccount([FromBody] AddManagerViewModel managerViewModel)
         {
             try
@@ -109,7 +109,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateManagerAccount")]
         public async Task<IActionResult> UpdateManagerAccount([FromBody] UpdateManagerViewModel updatemanagerViewModel)
         {
             try

@@ -1,6 +1,5 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -9,7 +8,7 @@ namespace BankApplicationServices.Services
     {
         private readonly ICurrencyRepository _currencyRepository;
         private readonly IBankService _bankService;
-        public CurrencyService(ICurrencyRepository currencyRepository,IBankService bankService)
+        public CurrencyService(ICurrencyRepository currencyRepository, IBankService bankService)
         {
             _currencyRepository = currencyRepository;
             _bankService = bankService;
@@ -46,9 +45,9 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Currency> GetCurrencyByCode(string currencyCode, string bankId)
+        public async Task<Currency?> GetCurrencyByCode(string currencyCode, string bankId)
         {
-           return await _currencyRepository.GetCurrencyByCode(currencyCode,bankId);
+            return await _currencyRepository.GetCurrencyByCode(currencyCode, bankId);
         }
         public async Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {
@@ -59,7 +58,8 @@ namespace BankApplicationServices.Services
                 Currency currency = new()
                 {
                     ExchangeRate = exchangeRate,
-                    CurrencyCode = currencyCode
+                    CurrencyCode = currencyCode,
+                    IsActive = true
                 };
                 bool isCurrencyAdded = await _currencyRepository.AddCurrency(currency, bankId);
                 if (isCurrencyAdded)
@@ -90,9 +90,10 @@ namespace BankApplicationServices.Services
                 Currency currency = new()
                 {
                     ExchangeRate = exchangeRate,
-                    CurrencyCode = currencyCode
+                    CurrencyCode = currencyCode,
+                    IsActive = true
                 };
-                bool isCurrencyUpdated = await _currencyRepository.AddCurrency(currency, bankId);
+                bool isCurrencyUpdated = await _currencyRepository.UpdateCurrency(currency, bankId);
                 if (isCurrencyUpdated)
                 {
                     message.Result = true;
@@ -136,6 +137,6 @@ namespace BankApplicationServices.Services
                 message.ResultMessage = $"Currency Code :{currencyCode} not Found";
             }
             return message;
-        } 
+        }
     }
 }

@@ -22,10 +22,9 @@ namespace API.Controllers
             _currencyService = currencyService;
         }
 
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}")]
+        [HttpGet("GetAllCurrencies/{bankId}")]
         public async Task<IActionResult> GetAllCurrencies([FromRoute] string bankId)
         {
             try
@@ -50,7 +49,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Currerncy with Code {currencyCode}");
-                Currency currency = await _currencyService.GetCurrencyByCode(bankId,currencyCode);
+                Currency currency = await _currencyService.GetCurrencyByCode(currencyCode, bankId);
                 if (currency is null)
                 {
                     return NotFound();
@@ -68,7 +67,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("AddCurrency")]
         public async Task<IActionResult> AddCurrency([FromBody] CurrencyViewModel currencyViewModel)
         {
             try
@@ -86,7 +85,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateCurrency")]
         public async Task<IActionResult> UpdateCurrency([FromBody] CurrencyViewModel currencyViewModel)
         {
             try

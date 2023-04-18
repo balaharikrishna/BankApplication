@@ -9,7 +9,7 @@ namespace BankApplicationRepository.IRepository
         Task<bool> UpdateStaffAccount(Staff staff, string branchId);
         Task<bool> DeleteStaffAccount(string staffAccountId, string branchId);
         Task<bool> IsStaffExist(string staffAccountId, string branchId);
-        Task<Staff> GetStaffById(string staffAccountId, string branchId);
-        Task<Staff> GetStaffByName(string staffName, string branchId);
+        Task<Staff?> GetStaffById(string staffAccountId, string branchId);
+        Task<Staff?> GetStaffByName(string staffName, string branchId);
     }
 }

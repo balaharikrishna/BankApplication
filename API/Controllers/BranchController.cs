@@ -24,10 +24,9 @@ namespace API.Controllers
             _branchService = branchService;
         }
 
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}")]
+        [HttpGet("GetAllBranches/{bankId}")]
         public async Task<IActionResult> GetAllBranches([FromRoute] string bankId)
         {
             try
@@ -46,7 +45,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
+        [HttpGet("GetBranchById/{branchId}")]
         public async Task<IActionResult> GetBranchById([FromRoute] string branchId)
         {
             try
@@ -69,7 +68,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchName}")]
+        [HttpGet("GetBranchByName/{branchName}")]
         public async Task<IActionResult> GetBranchByName([FromRoute] string branchName)
         {
             try
@@ -92,7 +91,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("CreateBranch")]
         public async Task<IActionResult> CreateBranch([FromBody] AddBranchViewModel addBranchViewModel)
         {
             try
@@ -110,7 +109,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateBranch")]
         public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchViewModel updateBranchViewModel)
         {
             try
@@ -128,7 +127,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{branchId}")]
+        [HttpDelete("DeleteBranch/{branchId}")]
         public async Task<IActionResult> DeleteBranch([FromRoute] string branchId)
         {
             try

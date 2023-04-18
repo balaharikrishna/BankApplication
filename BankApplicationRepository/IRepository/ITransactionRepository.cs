@@ -6,7 +6,7 @@ namespace BankApplicationRepository.IRepository
     {
         Task<bool> AddTransaction(Transaction transaction);
         Task<IEnumerable<Transaction>> GetAllTransactions(string fromCustomerAccountId);
-        Task<Transaction> GetTransactionById(string fromCustomerAccountId, string transactionId);
+        Task<Transaction?> GetTransactionById(string fromCustomerAccountId, string transactionId);
         Task<bool> IsTransactionsExist(string fromCustomerAccountId);
     }
 }

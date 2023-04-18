@@ -25,7 +25,7 @@ namespace API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
+        [HttpGet("GetAllStaffs/{branchId}")]
         public async Task<IActionResult> GetAllStaffs([FromRoute] string branchId)
         {
             try
@@ -90,7 +90,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("OpenStaffAccount")]
         public async Task<IActionResult> OpenStaffAccount([FromBody] AddStaffViewModel staffViewModel)
         {
             try
@@ -109,7 +109,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
+        [HttpPut("UpdateStaffAccount")]
         public async Task<IActionResult> UpdateStaffAccount([FromBody] UpdateStaffViewModel updateStaffViewModel)
         {
             try

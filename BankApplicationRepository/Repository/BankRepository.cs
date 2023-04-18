@@ -97,6 +97,7 @@ namespace BankApplicationRepository.Repository
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             bool isBankExist = reader.HasRows;
+            await reader.CloseAsync();
             await _connection.CloseAsync();
             return isBankExist;
         }
@@ -153,17 +154,17 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Currency>> GetAllCurrencies(string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Currencies WHERE IsActive = 1 and bankId = @bankId";
+            command.CommandText = "SELECT CurrencyCode,ExchangeRate,IsActive FROM Currencies WHERE IsActive = 1 and BankId = @bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
-            List<Currency> Currency = new List<Currency>();
+            List<Currency> Currency = new();
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
                 Currency currency = new()
                 {
-                    CurrencyCode = reader["CurrencyCode"].ToString(),
-                    ExchangeRate = (decimal)reader["ExchangeRate"],
+                    CurrencyCode = reader[0].ToString(),
+                    ExchangeRate = (decimal)reader[1],
                     IsActive = reader.GetBoolean(2)
                 };
                 Currency.Add(currency);

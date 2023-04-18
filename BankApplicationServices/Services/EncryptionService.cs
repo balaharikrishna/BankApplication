@@ -8,6 +8,7 @@ namespace BankApplicationServices.Services
         public const int SALT_SIZE = 32;
         public const int HASH_SIZE = 32;
         public const int ITERATIONS = 10000;
+
         public byte[] GenerateSalt()
         {
             byte[] salt = new byte[SALT_SIZE];
@@ -20,7 +21,7 @@ namespace BankApplicationServices.Services
 
         public byte[] HashPassword(string password, byte[] salt)
         {
-            using Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, ITERATIONS);
+            using Rfc2898DeriveBytes pbkdf2 = new(password, salt, ITERATIONS);
             return pbkdf2.GetBytes(HASH_SIZE);
         }
     }

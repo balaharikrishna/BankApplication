@@ -12,32 +12,33 @@ namespace BankApplicationRepository.Repository
         {
             _connection = connection;
         }
-        public async Task<IEnumerable<HeadManager>> GetAllHeadManagers(string bankId)
+        public async Task<IEnumerable<HeadManager?>> GetAllHeadManagers(string bankId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM HeadManagers WHERE IsActive = 1 and BankId=@bankId";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,IsActive FROM HeadManagers WHERE IsActive = 1 and BankId=@bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
-            var headManagers = new List<HeadManager>();
+            List<HeadManager> headManagers = new();
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var headManager = new HeadManager
+                HeadManager headManager = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(6)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Salt = (byte[])reader[2],
+                    HashedPassword = (byte[])reader[3],
+                    IsActive = reader.GetBoolean(4)
                 };
                 headManagers.Add(headManager);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return headManagers;
         }
         public async Task<bool> AddHeadManagerAccount(HeadManager headManager, string bankId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO HeadManagers (AccountId,Name,Salt,HashedPassword,IsActive,BankId)" +
                 " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@bankId)";
             command.Parameters.AddWithValue("@accountId", headManager.AccountId);
@@ -47,14 +48,15 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@isActive", headManager.IsActive);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateHeadManagerAccount(HeadManager headManager, string bankId)
         {
-            var command = _connection.CreateCommand();
-            var queryBuilder = new StringBuilder("UPDATE HeadManagers SET ");
+            SqlCommand command = _connection.CreateCommand();
+            StringBuilder queryBuilder = new("UPDATE HeadManagers SET ");
 
             if (headManager.Name is not null)
             {
@@ -75,91 +77,95 @@ namespace BankApplicationRepository.Repository
             }
 
             queryBuilder.Remove(queryBuilder.Length - 2, 2);
-
             queryBuilder.Append(" WHERE AccountId = @accountId AND BankId = @bankId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", headManager.AccountId);
             command.Parameters.AddWithValue("@bankId", bankId);
-
             command.CommandText = queryBuilder.ToString();
-
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
-
         public async Task<bool> DeleteHeadManagerAccount(string headManagerAccountId, string bankId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "UPDATE HeadManagers SET IsActive = 0 WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@headManagerAccountId", headManagerAccountId);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
         public async Task<bool> IsHeadManagerExist(string headManagerAccountId, string bankId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT AccountId FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@headManagerAccountId", headManagerAccountId);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isHeadManagerExist = reader.HasRows;
+            await reader.CloseAsync();
+            await _connection.CloseAsync();
+            return isHeadManagerExist;
         }
-        public async Task<HeadManager> GetHeadManagerById(string headManagerAccountId, string bankId)
+        public async Task<HeadManager?> GetHeadManagerById(string headManagerAccountId, string bankId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,IsActive FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@headManagerAccountId", headManagerAccountId);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
                 var headManager = new HeadManager
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(6)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Salt = (byte[])reader[2],
+                    HashedPassword = (byte[])reader[3],
+                    IsActive = reader.GetBoolean(4)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return headManager;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
-        public async Task<HeadManager> GetHeadManagerByName(string headManagerName, string bankId)
+        public async Task<HeadManager?> GetHeadManagerByName(string headManagerName, string bankId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM HeadManagers WHERE Name=@headManagerName and BankId=@bankId AND IsActive = 1";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,IsActive FROM HeadManagers WHERE Name=@headManagerName and BankId=@bankId AND IsActive = 1";
             command.Parameters.AddWithValue("@headManagerName", headManagerName);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
                 var headManager = new HeadManager
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(6)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Salt = (byte[])reader[2],
+                    HashedPassword = (byte[])reader[3],
+                    IsActive = reader.GetBoolean(4)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return headManager;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }

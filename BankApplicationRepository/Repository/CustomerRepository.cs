@@ -13,40 +13,42 @@ namespace BankApplicationRepository.Repository
         {
             _connection = connection;
         }
-        public async Task<IEnumerable<Customer>> GetAllCustomers(string branchId)
+        public async Task<IEnumerable<Customer?>> GetAllCustomers(string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Customers WHERE IsActive = 1 AND BranchId=@branchId";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt,HashedPassword,IsActive" +
+                " FROM Customers WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
-            var customers = new List<Customer>();
+            List<Customer> customers = new();
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var customer = new Customer
+                Customer customer = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    AccountType = (AccountType)reader["AccountType"],
-                    Name = reader["Name"].ToString(),
-                    Address = reader["Address"].ToString(),
-                    EmailId = reader["EmailId"].ToString(),
-                    PhoneNumber = reader["PhoneNumber"].ToString(),
-                    DateOfBirth = reader["DateOfBirth"].ToString(),
-                    Gender = (Gender)reader["Gender"],
-                    PassbookIssueDate = reader["PassbookIssueDate"].ToString(),
-                    Balance = (decimal)reader["Balance"],
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[0].ToString(),
+                    AccountType = (AccountType)reader[1],
+                    Name = reader[2].ToString(),
+                    Address = reader[3].ToString(),
+                    EmailId = reader[4].ToString(),
+                    PhoneNumber = reader[5].ToString(),
+                    DateOfBirth = reader[6].ToString(),
+                    Gender = (Gender)reader[7],
+                    PassbookIssueDate = reader[8].ToString(),
+                    Balance = (decimal)reader[9],
+                    Salt = (byte[])reader[10],
+                    HashedPassword = (byte[])reader[11],
+                    IsActive = reader.GetBoolean(12)
                 };
                 customers.Add(customer);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return customers;
         }
         public async Task<bool> AddCustomerAccount(Customer customer, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Customers (AccountId,Name,Salt,HashedPassword,Balance,Gender," +
                 "AccountType,Address,DateOfBirth,EmailId,PhoneNumber,PassbookIssueDate,IsActive,BranchId)" +
                 " VALUES (@accountId, @name, @salt,@hasedPassword,@balance,@gender,@accountType,@address,@dateOfBirth" +
@@ -66,14 +68,15 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@isActive", customer.IsActive);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateCustomerAccount(Customer customer, string branchId)
         {
-            var command = _connection.CreateCommand();
-            var queryBuilder = new StringBuilder("UPDATE Customers SET ");
+            SqlCommand command = _connection.CreateCommand();
+            StringBuilder queryBuilder = new("UPDATE Customers SET ");
 
             if (customer.Name is not null)
             {
@@ -150,98 +153,108 @@ namespace BankApplicationRepository.Repository
             command.CommandText = queryBuilder.ToString();
 
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteCustomerAccount(string customerAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "UPDATE Customers SET IsActive = 0 WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerAccountId", customerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
         public async Task<bool> IsCustomerExist(string customerAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT AccountId FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerAccountId", customerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isCustomerExist = reader.HasRows;
+            await reader.CloseAsync();
+            await _connection.CloseAsync();
+            return isCustomerExist;
         }
         public async Task<Customer?> GetCustomerById(string customerAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt," +
+                "HashedPassword,IsActive FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerAccountId", customerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var customer = new Customer
+                Customer customer = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    AccountType = (AccountType)reader["AccountType"],
-                    Name = reader["Name"].ToString(),
-                    Address = reader["Address"].ToString(),
-                    EmailId = reader["EmailId"].ToString(),
-                    PhoneNumber = reader["PhoneNumber"].ToString(),
-                    DateOfBirth = reader["DateOfBirth"].ToString(),
-                    Gender = (Gender)reader["Gender"],
-                    PassbookIssueDate = reader["PassbookIssueDate"].ToString(),
-                    Balance = (decimal)reader["Balance"],
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[0].ToString(),
+                    AccountType = (AccountType)reader[1],
+                    Name = reader[2].ToString(),
+                    Address = reader[3].ToString(),
+                    EmailId = reader[4].ToString(),
+                    PhoneNumber = reader[5].ToString(),
+                    DateOfBirth = reader[6].ToString(),
+                    Gender = (Gender)reader[7],
+                    PassbookIssueDate = reader[8].ToString(),
+                    Balance = (decimal)reader[9],
+                    Salt = (byte[])reader[10],
+                    HashedPassword = (byte[])reader[11],
+                    IsActive = reader.GetBoolean(12)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return customer;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
         public async Task<Customer?> GetCustomerByName(string customerName, string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Customers WHERE Name=@customerName and BranchId=@branchId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt," +
+                "HashedPassword,IsActive FROM Customers WHERE Name=@customerName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerName", customerName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var customer = new Customer
+                Customer customer = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    AccountType = (AccountType)reader["AccountType"],
-                    Name = reader["Name"].ToString(),
-                    Address = reader["Address"].ToString(),
-                    EmailId = reader["EmailId"].ToString(),
-                    PhoneNumber = reader["PhoneNumber"].ToString(),
-                    DateOfBirth = reader["DateOfBirth"].ToString(),
-                    Gender = (Gender)reader["Gender"],
-                    PassbookIssueDate = reader["PassbookIssueDate"].ToString(),
-                    Balance = (decimal)reader["Balance"],
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[0].ToString(),
+                    AccountType = (AccountType)reader[1],
+                    Name = reader[2].ToString(),
+                    Address = reader[3].ToString(),
+                    EmailId = reader[4].ToString(),
+                    PhoneNumber = reader[5].ToString(),
+                    DateOfBirth = reader[6].ToString(),
+                    Gender = (Gender)reader[7],
+                    PassbookIssueDate = reader[8].ToString(),
+                    Balance = (decimal)reader[9],
+                    Salt = (byte[])reader[10],
+                    HashedPassword = (byte[])reader[11],
+                    IsActive = reader.GetBoolean(12)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return customer;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }

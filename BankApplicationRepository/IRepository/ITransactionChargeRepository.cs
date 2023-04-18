@@ -13,6 +13,6 @@ namespace BankApplicationRepository.IRepository
         Task<bool> UpdateTransactionCharges(TransactionCharges transactionCharges, string branchId);
         Task<bool> DeleteTransactionCharges(string branchId);
         Task<bool> IsTransactionChargesExist(string branchId);
-        Task<TransactionCharges> GetTransactionCharges(string branchId);
+        Task<TransactionCharges?> GetTransactionCharges(string branchId);
     }
 }

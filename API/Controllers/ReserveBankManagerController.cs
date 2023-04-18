@@ -25,7 +25,7 @@ namespace API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet]
+        [HttpGet("GetAllReserveBankManagers")]
         public async Task<IActionResult> GetAllReserveBankManagers()
         {
             try
@@ -44,13 +44,13 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{reserveBankManagerAccountId}")]
-        public async Task<IActionResult> GetReserveBankManagerById([FromRoute] string reserveBankManagerAccountId)
+        [HttpGet("GetReserveBankManagerById/{accountId}")]
+        public async Task<IActionResult> GetReserveBankManagerById([FromRoute] string accountId)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Id {reserveBankManagerAccountId}");
-                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(reserveBankManagerAccountId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Id {accountId}");
+                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(accountId);
                 if (reserveBankManager is null)
                 {
                     return NotFound();
@@ -60,20 +60,20 @@ namespace API.Controllers
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Reserve Bank Manager with id {reserveBankManagerAccountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Reserve Bank Manager with id {accountId} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Reserve Bank Manager Details.");
             }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("reserveBankManagerName")]
-        public async Task<IActionResult> GetReserveBankManagerByName([FromRoute] string reserveBankManagerName)
+        [HttpGet("GetReserveBankManagerByName/{name}")]
+        public async Task<IActionResult> GetReserveBankManagerByName([FromRoute] string name)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Name {reserveBankManagerName}");
-                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByNameAsync(reserveBankManagerName);
+                _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Name {name}");
+                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByNameAsync(name);
                 if (reserveBankManager is null)
                 {
                     return NotFound();
@@ -83,14 +83,14 @@ namespace API.Controllers
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Reserve Bank Manager with Name {reserveBankManagerName} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Reserve Bank Manager with Name {name} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Reserve Bank Manager Details.");
             }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost]
+        [HttpPost("OpenReserveBankManagerAccount")]
         public async Task<IActionResult> OpenReserveBankManagerAccount([FromBody] AddReserveBankManagerAccountViewModel addReserveBankManagerAccountViewModel)
         {
             try
@@ -109,8 +109,8 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut]
-        public async Task<IActionResult> UpdateReserveBankManagerAccount([FromBody] UpdateReserveBankManagerAccount updateReserveBankManagerAccount)
+        [HttpPut("UpdateReserveBankManagerAccount")]
+        public async Task<IActionResult> UpdateReserveBankManagerAccount([FromBody] UpdateReserveBankManagerAccountViewModel updateReserveBankManagerAccount)
         {
             try
             {
@@ -128,19 +128,19 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{reserveBankManagerAccountId}")]
-        public async Task<IActionResult> DeleteReserveBankManagerAccount([FromRoute] string reserveBankManagerAccountId)
+        [HttpDelete("DeleteReserveBankManagerAccount/{accountId}")]
+        public async Task<IActionResult> DeleteReserveBankManagerAccount([FromRoute] string accountId)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting Reserve Bank Manager Account Account with Id {reserveBankManagerAccountId}");
-                Message message = await _reserveBankManagerService.DeleteReserveBankManagerAccountAsync(reserveBankManagerAccountId);
+                _logger.Log(LogLevel.Information, message: $"Deleting Reserve Bank Manager Account Account with Id {accountId}");
+                Message message = await _reserveBankManagerService.DeleteReserveBankManagerAccountAsync(accountId);
                 return Ok(message.ResultMessage);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting Reserve Bank Manager Account Account with Id {reserveBankManagerAccountId} Failed");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Reserve Bank Manager Account Account.");
+                _logger.Log(LogLevel.Error, message: $"Deleting Reserve Bank Manager Account Account with Id {accountId} Failed");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Reserve Bank Manager Account.");
             }
         }
     }

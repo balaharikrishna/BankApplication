@@ -17,7 +17,7 @@ namespace BankApplicationServices.Services
         {
             return await _bankRepository.GetAllBanks();
         }
-        public async Task<Bank> GetBankByIdAsync(string id)
+        public async Task<Bank?> GetBankByIdAsync(string id)
         {
             return await _bankRepository.GetBankById(id);
         }
@@ -47,7 +47,7 @@ namespace BankApplicationServices.Services
         {
             Message message = new();
 
-            Bank bankDetails = await _bankRepository.GetBankByName(bankName);
+            Bank? bankDetails = await _bankRepository.GetBankByName(bankName);
             if (bankDetails != null)
             {
                 message.Result = false;

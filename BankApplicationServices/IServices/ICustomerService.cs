@@ -5,7 +5,7 @@ namespace BankApplicationServices.IServices
 {
     public interface ICustomerService
     {
-        Task<IEnumerable<Customer>> GetAllCustomersAsync(string branchId);
+        Task<IEnumerable<Customer?>> GetAllCustomersAsync(string branchId);
 
         /// <summary>
         /// Retrieves the Customer Passbook.

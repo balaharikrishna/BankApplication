@@ -14,30 +14,31 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<IEnumerable<Staff>> GetAllStaffs(string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Staffs WHERE IsActive = 1 AND BranchId=@branchId";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Staffs WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
-            var staffs = new List<Staff>();
+            List<Staff> staffs = new();
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var staff = new Staff
+                Staff staff = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(7)
+                    AccountId = reader[1].ToString(),
+                    Name = reader[2].ToString(),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4],
+                    IsActive = reader.GetBoolean(5)
                 };
                 staffs.Add(staff);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return staffs;
         }
         public async Task<bool> AddStaffAccount(Staff staff, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Staffs (AccountId,Name,Salt,HashedPassword,IsActive,BranchId)" +
                 " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@branchId)";
             command.Parameters.AddWithValue("@accountId", staff.AccountId);
@@ -47,14 +48,15 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@isActive", staff.IsActive);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
        
         public async Task<bool> UpdateStaffAccount(Staff staff, string branchId)
         {
-            var command = _connection.CreateCommand();
-            var queryBuilder = new StringBuilder("UPDATE Staffs SET ");
+            SqlCommand command = _connection.CreateCommand();
+            StringBuilder queryBuilder = new("UPDATE Staffs SET ");
 
             if (staff.Name is not null)
             {
@@ -75,90 +77,95 @@ namespace BankApplicationRepository.Repository
             }
 
             queryBuilder.Remove(queryBuilder.Length - 2, 2);
-
             queryBuilder.Append(" WHERE AccountId = @accountId AND BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@accountId", staff.AccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
-
             command.CommandText = queryBuilder.ToString();
-
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteStaffAccount(string staffAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "UPDATE Staffs SET IsActive = 0 WHERE AccountId=@staffAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@staffAccountId", staffAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
         public async Task<bool> IsStaffExist(string staffAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT AccountId FROM Staffs WHERE AccountId=@staffAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@staffAccountId", staffAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isStaffExist = reader.HasRows;
+            await reader.CloseAsync();
+            await _connection.CloseAsync();
+            return isStaffExist;
         }
-        public async Task<Staff> GetStaffById(string staffAccountId, string branchId)
+        public async Task<Staff?> GetStaffById(string staffAccountId, string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Staffs WHERE AccountId=@staffAccountId and BranchId=@branchId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Staffs WHERE AccountId=@staffAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@staffAccountId", staffAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var staff = new Staff
+                Staff staff = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[1].ToString(),
+                    Name = reader[2].ToString(),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4],
+                    IsActive = reader.GetBoolean(5)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return staff;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
-        public async Task<Staff> GetStaffByName(string staffName, string branchId)
+        public async Task<Staff?> GetStaffByName(string staffName, string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Staffs WHERE AccountId=@staffName and BranchId=@branchId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Staffs WHERE AccountId=@staffName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@staffName", staffName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var staff = new Staff
+                Staff staff = new()
                 {
-                    AccountId = reader["AccountId"].ToString(),
-                    Name = reader["Name"].ToString(),
-                    Salt = (byte[])reader["Salt"],
-                    HashedPassword = (byte[])reader["HashedPassword"],
-                    IsActive = reader.GetBoolean(14)
+                    AccountId = reader[1].ToString(),
+                    Name = reader[2].ToString(),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4],
+                    IsActive = reader.GetBoolean(5)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return staff;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }

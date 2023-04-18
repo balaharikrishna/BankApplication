@@ -14,80 +14,89 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<IEnumerable<Transaction>> GetAllTransactions(string fromCustomerAccountId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Transactions WHERE FromCustomerAccountId=@fromCustomerAccountId";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT TransactionId,FromCustomerBankId,ToCustomerBankId,FromCustomerBranchId,ToCustomerBranchId,ToCustomerAccountId," +
+                "TransactionType,TransactionDate,Debit,Credit,Balance,FromCustomerAccountId FROM Transactions WHERE FromCustomerAccountId=@fromCustomerAccountId";
             command.Parameters.AddWithValue("@fromCustomerAccountId", fromCustomerAccountId);
-            var transactions = new List<Transaction>();
+            List<Transaction> transactions = new();
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                var transaction = new Transaction
+                Transaction transaction = new()
                 {
-                    TransactionId = reader["TransactionId"].ToString(),
-                    FromCustomerBankId = reader["FromCustomerBankId"].ToString(),
-                    ToCustomerBankId = reader["ToCustomerBankId"].ToString(),
-                    FromCustomerBranchId = reader["FromCustomerBranchId"].ToString(),
-                    ToCustomerBranchId = reader["ToCustomerBranchId"].ToString(),
-                    ToCustomerAccountId = reader["ToCustomerAccountId"].ToString(),
-                    TransactionType = (TransactionType)reader["TransactionType"],
-                    TransactionDate = reader["TransactionDate"].ToString(),
-                    Debit = (decimal)reader["Debit"],
-                    Credit = (decimal)reader["Credit"],
-                    Balance = (decimal)reader["Balance"],
-                    FromCustomerAccountId = reader["FromCustomerAccountId"].ToString(),
+                    TransactionId = reader[0].ToString(),
+                    FromCustomerBankId = reader[1].ToString(),
+                    ToCustomerBankId = reader[2].ToString(),
+                    FromCustomerBranchId = reader[3].ToString(),
+                    ToCustomerBranchId = reader[4].ToString(),
+                    ToCustomerAccountId = reader[5].ToString(),
+                    TransactionType = (TransactionType)reader[6],
+                    TransactionDate = reader[7].ToString(),
+                    Debit = (decimal)reader[8],
+                    Credit = (decimal)reader[9],
+                    Balance = (decimal)reader[10],
+                    FromCustomerAccountId = reader[11].ToString(),
                 };
                 transactions.Add(transaction);
             }
             await reader.CloseAsync();
+            await _connection.CloseAsync();
             return transactions;
         }
-        public async Task<Transaction> GetTransactionById(string fromCustomerAccountId, string transactionId)
+        public async Task<Transaction?> GetTransactionById(string fromCustomerAccountId, string transactionId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Transactions WHERE FromCustomerAccountId=@fromCustomerAccountId and TransactionId=@TransactionId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT TransactionId,FromCustomerBankId,ToCustomerBankId,FromCustomerBranchId,ToCustomerBranchId,ToCustomerAccountId," +
+                "TransactionType,TransactionDate,Debit,Credit,Balance,FromCustomerAccountId FROM Transactions WHERE FromCustomerAccountId=@fromCustomerAccountId" +
+                " and TransactionId=@TransactionId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@fromCustomerAccountId", fromCustomerAccountId);
             command.Parameters.AddWithValue("@transactionId", transactionId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                var transaction = new Transaction
+                Transaction transaction = new()
                 {
-                    TransactionId = reader["TransactionId"].ToString(),
-                    FromCustomerBankId = reader["FromCustomerBankId"].ToString(),
-                    ToCustomerBankId = reader["ToCustomerBankId"].ToString(),
-                    FromCustomerBranchId = reader["FromCustomerBranchId"].ToString(),
-                    ToCustomerBranchId = reader["ToCustomerBranchId"].ToString(),
-                    ToCustomerAccountId = reader["ToCustomerAccountId"].ToString(),
-                    TransactionType = (TransactionType)reader["TransactionType"],
-                    TransactionDate = reader["TransactionDate"].ToString(),
-                    Debit = (decimal)reader["Debit"],
-                    Credit = (decimal)reader["Credit"],
-                    Balance = (decimal)reader["Balance"],
-                    FromCustomerAccountId = reader["FromCustomerAccountId"].ToString(),
+                    TransactionId = reader[0].ToString(),
+                    FromCustomerBankId = reader[1].ToString(),
+                    ToCustomerBankId = reader[2].ToString(),
+                    FromCustomerBranchId = reader[3].ToString(),
+                    ToCustomerBranchId = reader[4].ToString(),
+                    ToCustomerAccountId = reader[5].ToString(),
+                    TransactionType = (TransactionType)reader[6],
+                    TransactionDate = reader[7].ToString(),
+                    Debit = (decimal)reader[8],
+                    Credit = (decimal)reader[9],
+                    Balance = (decimal)reader[10],
+                    FromCustomerAccountId = reader[11].ToString(),
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return transaction;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
         public async Task<bool> IsTransactionsExist(string fromCustomerAccountId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT TransactionId FROM Transactions WHERE FromCustomerAccountId=@fromCustomerAccountId";
             command.Parameters.AddWithValue("@fromCustomerAccountId", fromCustomerAccountId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isTransactionsExist = reader.HasRows;
+            await reader.CloseAsync();
+            await _connection.CloseAsync();
+            return isTransactionsExist;
         }
         public async Task<bool> AddTransaction(Transaction transaction)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Transactions (TransactionId,FromCustomerBankId,ToCustomerBankId,FromCustomerBranchId,ToCustomerBranchId" +
                 "ToCustomerAccountId,TransactionType,TransactionDate,Debit,Credit,Balance,FromCustomerAccountId)" +
                 " VALUES (@transactionId, @fromCustomerBankId,@toCustomerBankId,@fromCustomerBranchId,@toCustomerBranchId,@toCustomerAccountId," +
@@ -105,7 +114,8 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@balance", transaction.Balance);
             command.Parameters.AddWithValue("@fromCustomerAccountId", transaction.FromCustomerAccountId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
     }

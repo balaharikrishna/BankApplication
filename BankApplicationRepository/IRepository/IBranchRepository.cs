@@ -7,7 +7,7 @@ namespace BankApplicationRepository.IRepository
         Task<bool> AddBranch(Branch branch, string bankId);
         Task<bool> DeleteBranch(string branchId);
         Task<IEnumerable<Branch>> GetAllBranches(string bankId);
-        Task<Branch> GetBranchById(string branchId);
+        Task<Branch?> GetBranchById(string branchId);
         Task<bool> UpdateBranch(Branch branch);
         Task<bool> IsBranchExist(string branchId);
         Task<Branch?> GetBranchByName(string branchName);

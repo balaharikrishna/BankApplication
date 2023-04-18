@@ -26,21 +26,21 @@ namespace BankApplicationServices.Services
             _transactionChargeService = transactionChargeService;
         }
 
-        public async Task<IEnumerable<Customer>> GetAllCustomersAsync(string branchId)
+        public async Task<IEnumerable<Customer?>> GetAllCustomersAsync(string branchId)
         {
             return await  _customerRepository.GetAllCustomers(branchId);
         }
 
         public async Task<Customer> GetCustomerByIdAsync(string branchId, string customerAccountId)
         {
-            Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-            return customer;
+            Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+            return customer!;
         }
 
         public async Task<Customer> GetCustomerByNameAsync(string branchId, string customerName)
         {
-            Customer customer = await _customerRepository.GetCustomerByName(customerName, branchId);
-            return customer;
+            Customer? customer = await _customerRepository.GetCustomerByName(customerName, branchId);
+            return customer!;
         }
 
         public async Task<Message> IsCustomersExistAsync(string branchId)
@@ -49,7 +49,7 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                IEnumerable<Customer> customers = await _customerRepository.GetAllCustomers(branchId);
+                IEnumerable<Customer?> customers = await _customerRepository.GetAllCustomers(branchId);
 
                 if (customers.Any())
                 {
@@ -75,18 +75,18 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                IEnumerable<Customer> customers = await _customerRepository.GetAllCustomers(branchId);
+                IEnumerable<Customer?> customers = await _customerRepository.GetAllCustomers(branchId);
                 if (customers.Any())
                 {
                     byte[] salt = new byte[32];
-                    Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                    Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
                     if (customer is not null)
                     {
                         salt = customer.Salt;
                     }
 
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    bool isValidPassword = Convert.ToBase64String(customer!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                     if (isValidPassword)
                     {
                         message.Result = true;
@@ -146,9 +146,9 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                Customer customer = await _customerRepository.GetCustomerByName(customerName, branchId);
+                Customer? customer = await _customerRepository.GetCustomerByName(customerName, branchId);
 
-                bool isCustomerAlreadyAvailabe = customer.Name.Equals(customerName);
+                bool isCustomerAlreadyAvailabe = customer!.Name.Equals(customerName);
                 if (!isCustomerAlreadyAvailabe)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -163,10 +163,10 @@ namespace BankApplicationServices.Services
                         Name = customerName,
                         PhoneNumber = customerPhoneNumber,
                         EmailId = customerEmailId,
-                        AccountType = (AccountType)customerAccountType,
+                        AccountType = customerAccountType,
                         Address = customerAddress,
                         DateOfBirth = customerDateOfBirth,
-                        Gender = (Gender)customerGender,
+                        Gender = customerGender,
                         Salt = salt,
                         PassbookIssueDate = date,
                         Balance = OpeningBalance,
@@ -207,7 +207,7 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                IEnumerable<Customer> customers = await _customerRepository.GetAllCustomers(branchId);
+                IEnumerable<Customer?> customers = await _customerRepository.GetAllCustomers(branchId);
                 if (customers.Any())
                 {
                     bool isToCustomerExist = await _customerRepository.IsCustomerExist(customerAccountId, branchId);
@@ -242,9 +242,9 @@ namespace BankApplicationServices.Services
             message = await IsAccountExistAsync(branchId, customerAccountId);
             if (message.Result)
             {
-                Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
 
-                byte[] salt = customer.Salt;
+                byte[] salt = customer!.Salt;
                 byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
                 if (Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                 {
@@ -337,8 +337,8 @@ namespace BankApplicationServices.Services
 
                         if (message.Result)
                         {
-                            Currency currencyObject = await _currencyService.GetCurrencyByCode(currencyCode, bankId);
-                            exchangedAmount = depositAmount * currencyObject.ExchangeRate;
+                            Currency? currencyObject = await _currencyService.GetCurrencyByCode(currencyCode, bankId);
+                            exchangedAmount = depositAmount * currencyObject!.ExchangeRate;
                         }
                         else
                         {
@@ -349,10 +349,10 @@ namespace BankApplicationServices.Services
 
                     if (exchangedAmount > 0)
                     {
-                        Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                        Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
                         Customer customerObject = new()
                         {
-                            Balance = customer.Balance + exchangedAmount
+                            Balance = customer!.Balance + exchangedAmount
                         };
                         bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
                         if (isUpdated)
@@ -396,8 +396,8 @@ namespace BankApplicationServices.Services
             message = await IsAccountExistAsync(branchId, customerAccountId);
             if (message.Result)
             {
-                Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                message.ResultMessage = $"Available Balance :{customer.Balance}";
+                Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                message.ResultMessage = $"Available Balance :{customer!.Balance}";
                 message.Data = $"{customer.Balance}";
             }
             else
@@ -414,8 +414,8 @@ namespace BankApplicationServices.Services
             message = await IsAccountExistAsync(branchId, customerAccountId);
             if (message.Result)
             {
-                Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                message.ResultMessage = $"Available Balance :{customer.Balance}";
+                Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                message.ResultMessage = $"Available Balance :{customer!.Balance}";
                 message.Data = $"{customer.Balance}";
             }
             else
@@ -432,8 +432,8 @@ namespace BankApplicationServices.Services
             message = await IsAccountExistAsync(branchId, customerAccountId);
             if (message.Result)
             {
-                Customer customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                if (customer.Balance == 0)
+                Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                if (customer!.Balance == 0)
                 {
                     message.Result = false;
                     message.ResultMessage = "Failed ! Account Balance: 0 Rupees";
@@ -510,16 +510,16 @@ namespace BankApplicationServices.Services
                     decimal fromCustomerBalanace = decimal.Parse(message.Data);
                     if (fromCustomerBalanace >= transferAmountInterest + transferAmount)
                     {
-                        Customer fromCustomerData = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                        Customer toCustomerData = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
+                        Customer? fromCustomerData = await _customerRepository.GetCustomerById(customerAccountId, branchId);
+                        Customer? toCustomerData = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
                         Customer fromCustomerObject = new()
                         {
-                            Balance = fromCustomerData.Balance - transferAmountWithInterest
+                            Balance = fromCustomerData!.Balance - transferAmountWithInterest
                         };
 
                         Customer toCustomerObject = new()
                         {
-                            Balance = toCustomerData.Balance + transferAmountInterest
+                            Balance = toCustomerData!.Balance + transferAmountInterest
                         };
 
                         bool isfromCustomerUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, branchId);

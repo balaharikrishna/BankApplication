@@ -17,7 +17,7 @@ namespace BankApplicationServices.Services
             return await _branchRepository.GetAllBranches(bankId);
         }
 
-        public async Task<Branch> GetBranchByIdAsync(string id)
+        public async Task<Branch?> GetBranchByIdAsync(string id)
         {
             return await _branchRepository.GetBranchById(id);
         }
@@ -67,7 +67,7 @@ namespace BankApplicationServices.Services
             Message message = new();
 
             Branch? _branchName = await _branchRepository.GetBranchByName(branchName);
-            if (_branchName != null)
+            if (_branchName is not null)
             {
                 message.Result = false;
                 message.ResultMessage = $"BranchName:{branchName} is Already Registered.";

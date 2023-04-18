@@ -12,35 +12,37 @@ namespace BankApplicationRepository.Repository
         {
             _connection = connection;
         }
-        public async Task<TransactionCharges> GetTransactionCharges(string branchId)
+        public async Task<TransactionCharges?> GetTransactionCharges(string branchId)
         {
-            var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM TransactionCharges WHERE  BranchId = @bankId AND IsActive = 1 ";
+            SqlCommand command = _connection.CreateCommand();
+            command.CommandText = "SELECT ImpsSameBank,ImpsOtherBank,RtgsSameBank,RtgsOtherBank,IsActive FROM TransactionCharges WHERE  BranchId = @bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+            SqlDataReader reader = await command.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
                 TransactionCharges transactionCharges = new()
                 {
-                    ImpsSameBank = (ushort)reader["ImpsSameBank"],
-                    ImpsOtherBank = (ushort)reader["ImpsOtherBank"],
-                    RtgsSameBank = (ushort)reader["ImpsOtherBank"],
-                    RtgsOtherBank = (ushort)reader["RtgsOtherBank"],
-                    IsActive = reader.GetBoolean(6)
+                    ImpsSameBank = (ushort)reader[0],
+                    ImpsOtherBank = (ushort)reader[1],
+                    RtgsSameBank = (ushort)reader[2],
+                    RtgsOtherBank = (ushort)reader[3],
+                    IsActive = reader.GetBoolean(4)
                 };
                 await reader.CloseAsync();
+                await _connection.CloseAsync();
                 return transactionCharges;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }
         public async Task<bool> AddTransactionCharges(TransactionCharges transactionCharges, string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO TransactionCharges (RtgsSameBank,RtgsOtherBank,ImpsSameBank,ImpsOtherBank,IsActive,BranchId)" +
                 " VALUES (@rtgsSameBank, @rtgsOtherBank,@impsSameBank,@impsOtherBank,@isActive,@branchId)";
             command.Parameters.AddWithValue("@rtgsSameBank", transactionCharges.RtgsSameBank);
@@ -50,14 +52,15 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@isActive", transactionCharges.IsActive);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateTransactionCharges(TransactionCharges transactionCharges, string branchId)
         {
-            var command = _connection.CreateCommand();
-            var queryBuilder = new StringBuilder("UPDATE TransactionCharges SET ");
+            SqlCommand command = _connection.CreateCommand();
+            StringBuilder queryBuilder = new("UPDATE TransactionCharges SET ");
 
             if (transactionCharges.RtgsSameBank >= 0 && transactionCharges.RtgsSameBank <= 100)
             {
@@ -84,25 +87,23 @@ namespace BankApplicationRepository.Repository
             }
 
             queryBuilder.Remove(queryBuilder.Length - 2, 2);
-
             queryBuilder.Append(" WHERE BranchId = @branchId AND IsActive = 1");
             command.Parameters.AddWithValue("@branchId", branchId);
-
             command.CommandText = queryBuilder.ToString();
-
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteTransactionCharges(string branchId)
         {
-            var command = _connection.CreateCommand();
+            SqlCommand command = _connection.CreateCommand();
             command.CommandText = "UPDATE TransactionCharges SET IsActive = 0 WHERE BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
+            int rowsAffected = await command.ExecuteNonQueryAsync();
+            await _connection.CloseAsync();
             return rowsAffected > 0;
         }
         public async Task<bool> IsTransactionChargesExist(string branchId)
@@ -111,8 +112,11 @@ namespace BankApplicationRepository.Repository
             command.CommandText = "SELECT * FROM TransactionCharges WHERE BranchId = @bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
-            var rowsAffected = await command.ExecuteNonQueryAsync();
-            return rowsAffected > 0;
+            SqlDataReader reader = await command.ExecuteReaderAsync();
+            bool isTransactionChargesExist = reader.HasRows;
+            await reader.CloseAsync();
+            await _connection.CloseAsync();
+            return isTransactionChargesExist;
         }
     }
 }

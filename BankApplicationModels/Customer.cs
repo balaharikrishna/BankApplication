@@ -34,9 +34,9 @@ namespace BankApplicationModels
 
 
         //public List<Transactions> Transactions { get; set; }
-        public override string ToString()
-        {
-            return $"\nAccountID: {AccountId}  Name:{Name}  Avl.Bal:{Balance}  PhoneNumber:{PhoneNumber}\nEmailId:{EmailId}  AccountType:{AccountType}  Address:{Address}  DateOfBirth:{DateOfBirth}\nGender:{Gender}  PassbookIssueDate:{PassbookIssueDate}\n";
-        }
+        //public override string ToString()
+        //{
+        //    return $"\nAccountID: {AccountId}  Name:{Name}  Avl.Bal:{Balance}  PhoneNumber:{PhoneNumber}\nEmailId:{EmailId}  AccountType:{AccountType}  Address:{Address}  DateOfBirth:{DateOfBirth}\nGender:{Gender}  PassbookIssueDate:{PassbookIssueDate}\n";
+        //}
     }
 }

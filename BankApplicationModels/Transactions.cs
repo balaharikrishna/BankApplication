@@ -30,12 +30,12 @@ namespace BankApplicationModels
         [Required]
         public decimal Balance { get; set; }
 
-        public override string ToString()
-        {
-            return $"{TransactionId}: {TransactionType} " +
-         $"From BankId:{FromCustomerBankId}-BranchId:{FromCustomerBranchId}-AccountId:{FromCustomerAccountId} " +
-         $"To BankId:{ToCustomerBankId}-BranchId:{ToCustomerBranchId}-AccountId:{ToCustomerAccountId} " +
-         $"on {TransactionDate}: Debited Amount:{Debit}, Credited Amount:{Credit}, Balance:{Balance}";
-        }
+        //public override string ToString()
+        //{
+        //    return $"{TransactionId}: {TransactionType} " +
+        // $"From BankId:{FromCustomerBankId}-BranchId:{FromCustomerBranchId}-AccountId:{FromCustomerAccountId} " +
+        // $"To BankId:{ToCustomerBankId}-BranchId:{ToCustomerBranchId}-AccountId:{ToCustomerAccountId} " +
+        // $"on {TransactionDate}: Debited Amount:{Debit}, Credited Amount:{Credit}, Balance:{Balance}";
+        //}
     }
 }

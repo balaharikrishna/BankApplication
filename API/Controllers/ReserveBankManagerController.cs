@@ -22,7 +22,6 @@ namespace API.Controllers
             _reserveBankManagerService = reserveBankManagerService;
         }
 
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetAllReserveBankManagers")]

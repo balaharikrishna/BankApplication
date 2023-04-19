@@ -15,19 +15,18 @@ namespace BankApplicationRepository.Repository
         public async Task<TransactionCharges?> GetTransactionCharges(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT ImpsSameBank,ImpsOtherBank,RtgsSameBank,RtgsOtherBank,IsActive FROM TransactionCharges WHERE  BranchId = @bankId AND IsActive = 1 ";
+            command.CommandText = "SELECT ImpsSameBank,ImpsOtherBank,RtgsSameBank,RtgsOtherBank,IsActive FROM TransactionCharges WHERE  BranchId = @branchId AND IsActive = 1";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
-
             if (await reader.ReadAsync())
             {
                 TransactionCharges transactionCharges = new()
                 {
-                    ImpsSameBank = (ushort)reader[0],
-                    ImpsOtherBank = (ushort)reader[1],
-                    RtgsSameBank = (ushort)reader[2],
-                    RtgsOtherBank = (ushort)reader[3],
+                    ImpsSameBank = Convert.ToUInt16(reader[0]),
+                    ImpsOtherBank = Convert.ToUInt16(reader[1]),
+                    RtgsSameBank = Convert.ToUInt16(reader[2]),
+                    RtgsOtherBank = Convert.ToUInt16(reader[3]),
                     IsActive = reader.GetBoolean(4)
                 };
                 await reader.CloseAsync();
@@ -45,16 +44,16 @@ namespace BankApplicationRepository.Repository
             SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO TransactionCharges (RtgsSameBank,RtgsOtherBank,ImpsSameBank,ImpsOtherBank,IsActive,BranchId)" +
                 " VALUES (@rtgsSameBank, @rtgsOtherBank,@impsSameBank,@impsOtherBank,@isActive,@branchId)";
-            command.Parameters.AddWithValue("@rtgsSameBank", transactionCharges.RtgsSameBank);
-            command.Parameters.AddWithValue("@rtgsOtherBank", transactionCharges.RtgsOtherBank);
-            command.Parameters.AddWithValue("@impsSameBank", transactionCharges.ImpsSameBank);
-            command.Parameters.AddWithValue("@impsOtherBank", transactionCharges.ImpsOtherBank);
+            command.Parameters.AddWithValue("@rtgsSameBank", Convert.ToInt16(transactionCharges.RtgsSameBank));
+            command.Parameters.AddWithValue("@rtgsOtherBank", Convert.ToInt16(transactionCharges.RtgsOtherBank));
+            command.Parameters.AddWithValue("@impsSameBank", Convert.ToInt16(transactionCharges.ImpsSameBank));
+            command.Parameters.AddWithValue("@impsOtherBank", Convert.ToInt16(transactionCharges.ImpsOtherBank));
             command.Parameters.AddWithValue("@isActive", transactionCharges.IsActive);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
             await _connection.CloseAsync();
-            return rowsAffected > 0;
+            return rowsAffected>0;
         }
 
         public async Task<bool> UpdateTransactionCharges(TransactionCharges transactionCharges, string branchId)
@@ -65,25 +64,25 @@ namespace BankApplicationRepository.Repository
             if (transactionCharges.RtgsSameBank >= 0 && transactionCharges.RtgsSameBank <= 100)
             {
                 queryBuilder.Append("RtgsSameBank = @rtgsSameBank, ");
-                command.Parameters.AddWithValue("@rtgsSameBank", transactionCharges.RtgsSameBank);
+                command.Parameters.AddWithValue("@rtgsSameBank", Convert.ToInt16(transactionCharges.RtgsSameBank));
             }
 
             if (transactionCharges.RtgsOtherBank >= 0 && transactionCharges.RtgsOtherBank <= 100)
             {
                 queryBuilder.Append("RtgsOtherBank = @rtgsOtherBank, ");
-                command.Parameters.AddWithValue("@rtgsOtherBank", transactionCharges.RtgsOtherBank);
+                command.Parameters.AddWithValue("@rtgsOtherBank", Convert.ToInt16(transactionCharges.RtgsOtherBank));
             }
 
             if (transactionCharges.ImpsSameBank >= 0 && transactionCharges.ImpsSameBank <= 100)
             {
                 queryBuilder.Append("ImpsSameBank = @impsSameBank, ");
-                command.Parameters.AddWithValue("@impsSameBank", transactionCharges.ImpsSameBank);
+                command.Parameters.AddWithValue("@impsSameBank", Convert.ToInt16(transactionCharges.ImpsSameBank));
             }
 
             if (transactionCharges.ImpsOtherBank >= 0 && transactionCharges.ImpsOtherBank <= 100)
             {
                 queryBuilder.Append("ImpsOtherBank = @impsOtherBank, ");
-                command.Parameters.AddWithValue("@impsOtherBank", transactionCharges.ImpsOtherBank);
+                command.Parameters.AddWithValue("@impsOtherBank", Convert.ToInt16(transactionCharges.ImpsOtherBank));
             }
 
             queryBuilder.Remove(queryBuilder.Length - 2, 2);
@@ -109,7 +108,7 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> IsTransactionChargesExist(string branchId)
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "SELECT * FROM TransactionCharges WHERE BranchId = @bankId AND IsActive = 1 ";
+            command.CommandText = "SELECT RtgsSameBank,RtgsOtherBank,ImpsSameBank,ImpsOtherBank FROM TransactionCharges WHERE BranchId = @branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();

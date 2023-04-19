@@ -14,10 +14,10 @@ namespace BankApplicationModels
         public ushort ImpsOtherBank { get; set; }
         [Required]
         public bool IsActive { get; set; }
-        public override string ToString()
-        {
-            return $"TransactionCharges: RtgsSameBank:{RtgsSameBank}% , RtgsOtherBank:{RtgsOtherBank}% , ImpsSameBank:{ImpsSameBank}% , ImpsOtherBank:{ImpsOtherBank}%";
-        }
+        //public override string ToString()
+        //{
+        //    return $"TransactionCharges: RtgsSameBank:{RtgsSameBank}% , RtgsOtherBank:{RtgsOtherBank}% , ImpsSameBank:{ImpsSameBank}% , ImpsOtherBank:{ImpsOtherBank}%";
+        //}
     }
 
 

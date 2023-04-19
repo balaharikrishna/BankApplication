@@ -123,7 +123,7 @@ namespace API.Controllers
             catch (Exception)
             {
                 _logger.Log(LogLevel.Error, message: $"Updating Branch with Id {updateCustomerViewModel.CustomerAccountId} Failed");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the Branch.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the Customer Details.");
             }
         }
 

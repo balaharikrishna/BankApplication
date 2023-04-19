@@ -88,7 +88,7 @@ namespace BankApplicationServices.Services
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
                 FromCustomerAccountId = fromCustomerAccountId,
-                ToCustomerAccountId = toBankId,
+                ToCustomerAccountId = toCustomerAccountId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
                 TransactionType = transactionType,
@@ -103,8 +103,8 @@ namespace BankApplicationServices.Services
             {
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
-                FromCustomerAccountId = fromCustomerAccountId,
-                ToCustomerAccountId = toCustomerAccountId,
+                FromCustomerAccountId = toCustomerAccountId,
+                ToCustomerAccountId = fromCustomerAccountId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
                 TransactionType = transactionType,
@@ -137,7 +137,8 @@ namespace BankApplicationServices.Services
             Transaction fromCustomerTransaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
             if (fromCustomerTransaction is not null)
             {
-                Transaction toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId);
+                string location = "to";
+                Transaction toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId, location);
                 if (fromCustomerTransaction is not null)
                 {
                     Customer toCustomer = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);

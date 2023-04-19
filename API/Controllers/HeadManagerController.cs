@@ -22,7 +22,6 @@ namespace API.Controllers
             _headManagerService = headManagerService;
         }
 
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetAllHeadManagers/{branchId}")]

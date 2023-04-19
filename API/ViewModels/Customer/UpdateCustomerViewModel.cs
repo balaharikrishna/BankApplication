@@ -2,6 +2,6 @@
 {
     public class UpdateCustomerViewModel : AddCustomerViewModel
     {
-        public string? CustomerAccountId { get; set; }
+        public string CustomerAccountId { get; set; }
     }
 }

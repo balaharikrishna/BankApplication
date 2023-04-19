@@ -22,10 +22,10 @@ namespace BankApplicationModels
         [RegularExpression("^[01]+$")]
         public bool IsActive { get; set; }
 
-        public override string ToString()
-        {
-            return $"\nAccountID: {AccountId}  Name:{Name}";
-        }
+        //public override string ToString()
+        //{
+        //    return $"\nAccountID: {AccountId}  Name:{Name}";
+        //}
 
     }
 }

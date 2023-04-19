@@ -118,8 +118,8 @@ namespace BankApplicationServices.Services
             message = await IsCustomersExistAsync(branchId);
             if (message.Result)
             {
-                bool isManagerExist = await _customerRepository.IsCustomerExist(customerAccountId, branchId);
-                if (isManagerExist)
+                bool isCustomerExist = await _customerRepository.IsCustomerExist(customerAccountId, branchId);
+                if (isCustomerExist)
                 {
                     message.Result = true;
                     message.ResultMessage = "Customer Exist.";
@@ -146,52 +146,42 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                Customer? customer = await _customerRepository.GetCustomerByName(customerName, branchId);
+                string date = DateTime.Now.ToString("yyyyMMddHHmmss");
+                string UserFirstThreeCharecters = customerName.Substring(0, 3);
+                string customerAccountId = string.Concat(UserFirstThreeCharecters, date);
 
-                bool isCustomerAlreadyAvailabe = customer!.Name.Equals(customerName);
-                if (!isCustomerAlreadyAvailabe)
+                byte[] salt = _encryptionService.GenerateSalt();
+                byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
+                decimal OpeningBalance = 500; //INR
+                Customer customerObject = new()
                 {
-                    string date = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    string UserFirstThreeCharecters = customerName.Substring(0, 3);
-                    string customerAccountId = string.Concat(UserFirstThreeCharecters, date);
+                    Name = customerName,
+                    PhoneNumber = customerPhoneNumber,
+                    EmailId = customerEmailId,
+                    AccountType = customerAccountType,
+                    Address = customerAddress,
+                    DateOfBirth = customerDateOfBirth,
+                    Gender = customerGender,
+                    Salt = salt,
+                    PassbookIssueDate = date,
+                    Balance = OpeningBalance,
+                    HashedPassword = hashedPassword,
+                    AccountId = customerAccountId,
+                    IsActive = true
+                };
 
-                    byte[] salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
-                    decimal OpeningBalance = 500; //INR
-                    Customer customerObject = new()
-                    {
-                        Name = customerName,
-                        PhoneNumber = customerPhoneNumber,
-                        EmailId = customerEmailId,
-                        AccountType = customerAccountType,
-                        Address = customerAddress,
-                        DateOfBirth = customerDateOfBirth,
-                        Gender = customerGender,
-                        Salt = salt,
-                        PassbookIssueDate = date,
-                        Balance = OpeningBalance,
-                        HashedPassword = hashedPassword,
-                        AccountId = customerAccountId,
-                        IsActive = true
-                    };
-
-                    bool isCustomerAdded = await _customerRepository.AddCustomerAccount(customerObject, branchId);
-                    if (isCustomerAdded)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = $"Failed to Create Customer Account for {customerName}";
-                    }
+                bool isCustomerAdded = await _customerRepository.AddCustomerAccount(customerObject, branchId);
+                if (isCustomerAdded)
+                {
+                    message.Result = true;
+                    message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = $"Customer: {customerName} Already Existed";
+                    message.ResultMessage = $"Failed to Create Customer Account for {customerName}";
                 }
+
             }
             else
             {
@@ -243,29 +233,40 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-
-                byte[] salt = customer!.Salt;
-                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                if (Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                byte[] salt = null;
+                byte[] hashedPassword = null;
+                bool canContinue = true;
+                if (customerPassword is not null)
                 {
-                    message.Result = false;
-                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                    salt = customer!.Salt;
+                    byte[]  hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
+                    if (Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        canContinue = false;
+                    }
+                    
+                    if (customerPassword is not null)
+                    {
+                        salt = _encryptionService.GenerateSalt();
+                        hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
+                    }
                 }
-                else
+
+                if (canContinue)
                 {
-                    salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
                     Customer customerObject = new()
                     {
                         AccountId = customerAccountId,
                         Name = customerName,
                         PhoneNumber = customerPhoneNumber,
                         EmailId = customerEmailId,
-                        AccountType = (AccountType)customerAccountType,
+                        AccountType = customerAccountType,
                         HashedPassword = hashedPassword,
                         Address = customerAddress,
                         DateOfBirth = customerDateOfBirth,
-                        Gender = (Gender)customerGender,
+                        Gender = customerGender,
                         Salt = salt,
                         IsActive = true
                     };
@@ -273,7 +274,7 @@ namespace BankApplicationServices.Services
                     if (isDetailsUpdated)
                     {
                         message.Result = true;
-                        message.ResultMessage = "Updated Password Sucessfully";
+                        message.ResultMessage = "Updated Details Sucessfully";
                     }
                     else
                     {
@@ -352,16 +353,17 @@ namespace BankApplicationServices.Services
                         Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
                         Customer customerObject = new()
                         {
-                            Balance = customer!.Balance + exchangedAmount
+                            Balance = customer!.Balance + exchangedAmount,
+                            AccountId = customerAccountId
                         };
                         bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
                         if (isUpdated)
                         {
-                            message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, 0, exchangedAmount, customer.Balance, TransactionType.Deposit);
+                            message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, 0, exchangedAmount, customerObject.Balance, TransactionType.Deposit);
                             if (message.Result)
                             {
                                 message.Result = true;
-                                message.ResultMessage = $"Amount:'{exchangedAmount}' Added Succesfully";
+                                message.ResultMessage = $"Amount:'{exchangedAmount}'INR Added Succesfully., Avl.Bal:{customerObject.Balance}INR";
                             }
                             else
                             {
@@ -397,7 +399,7 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                message.ResultMessage = $"Available Balance :{customer!.Balance}";
+                message.ResultMessage = $"Available Balance :{customer!.Balance} INR";
                 message.Data = $"{customer.Balance}";
             }
             else
@@ -447,16 +449,17 @@ namespace BankApplicationServices.Services
                 {
                     Customer customerObject = new()
                     {
-                        Balance = customer.Balance - withDrawAmount
+                        Balance = customer.Balance - withDrawAmount,
+                        AccountId = customerAccountId
                     };
                     bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
                     if (isUpdated)
                     {
-                        message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, withDrawAmount, 0, customer.Balance, TransactionType.Withdraw);
+                        message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, withDrawAmount, 0, customerObject.Balance, TransactionType.Withdraw);
                         if (message.Result)
                         {
                             message.Result = true;
-                            message.ResultMessage = $"Withdraw Successful!! Aval.Bal is {customer.Balance}Rupees";
+                            message.ResultMessage = $"Withdrawn Amount:{withDrawAmount}INR Successful!! Aval.Bal is {customerObject.Balance}INR";
                         }
                         else
                         {
@@ -514,21 +517,22 @@ namespace BankApplicationServices.Services
                         Customer? toCustomerData = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
                         Customer fromCustomerObject = new()
                         {
-                            Balance = fromCustomerData!.Balance - transferAmountWithInterest
+                            Balance = fromCustomerData!.Balance - transferAmountWithInterest,
+                            AccountId = customerAccountId
                         };
 
                         Customer toCustomerObject = new()
                         {
-                            Balance = toCustomerData!.Balance + transferAmountInterest
+                            Balance = toCustomerData!.Balance + transferAmount,
+                            AccountId = toCustomerAccountId
                         };
 
                         bool isfromCustomerUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, branchId);
-                        bool isToCustomerUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
-                        message = await CheckAccountBalanceAsync(branchId, customerAccountId);
-                        fromCustomerBalanace = decimal.Parse(message.Data);
+                        fromCustomerBalanace = fromCustomerObject.Balance;
 
-                        message = await CheckToCustomerAccountBalanceAsync(toBranchId, toCustomerAccountId);
-                        decimal toCustomerBalance = decimal.Parse(message.Data);
+                        bool isToCustomerUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
+                        decimal toCustomerBalance = toCustomerObject.Balance;
+
                         message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance,TransactionType.Transfer);
                         if(message.Result && isfromCustomerUpdated && isToCustomerUpdated)
                         {

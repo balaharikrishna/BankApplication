@@ -54,24 +54,35 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                TransactionCharges transactionCharges = new()
+                TransactionCharges transactionChargesObject = await GetTransactionCharges(branchId);
+                if (transactionChargesObject is null)
                 {
-                    RtgsSameBank = rtgsSameBank,
-                    RtgsOtherBank = rtgsOtherBank,
-                    ImpsSameBank = impsSameBank,
-                    ImpsOtherBank = impsOtherBank
-                };
-                bool isTransactionChargesAdded = await _transactionChargeRepository.AddTransactionCharges(transactionCharges, branchId);
-                if (isTransactionChargesAdded)
-                {
-                    message.Result = true;
-                    message.ResultMessage = "Transaction Charges Added Successfully";
+                    TransactionCharges transactionCharges = new()
+                    {
+                        RtgsSameBank = rtgsSameBank,
+                        RtgsOtherBank = rtgsOtherBank,
+                        ImpsSameBank = impsSameBank,
+                        ImpsOtherBank = impsOtherBank,
+                        IsActive = true
+                    };
+                    bool isTransactionChargesAdded = await _transactionChargeRepository.AddTransactionCharges(transactionCharges, branchId);
+                    if (isTransactionChargesAdded)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "Transaction Charges Added Successfully";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "Failed to Transaction Charges";
+                    }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "Failed to Transaction Charges";
+                    message.ResultMessage = "Transaction Charges already Available.";
                 }
+                
             }
             else
             {
@@ -92,9 +103,10 @@ namespace BankApplicationServices.Services
                     RtgsSameBank = rtgsSameBank,
                     RtgsOtherBank = rtgsOtherBank,
                     ImpsSameBank = impsSameBank,
-                    ImpsOtherBank = impsOtherBank
+                    ImpsOtherBank = impsOtherBank,
+                    IsActive= true
                 };
-                bool isTransactionChargeUpdated = await _transactionChargeRepository.AddTransactionCharges(transactionCharges, branchId);
+                bool isTransactionChargeUpdated = await _transactionChargeRepository.UpdateTransactionCharges(transactionCharges, branchId);
                 if (isTransactionChargeUpdated)
                 {
                     message.Result = true;

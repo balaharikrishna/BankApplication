@@ -22,7 +22,6 @@ namespace API.Controllers
             _transactionChargeService = transactionChargeService;
         }
 
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetTransactionCharges/{branchId}")]
@@ -33,7 +32,15 @@ namespace API.Controllers
                 _logger.Log(LogLevel.Information, message: "Fetching Transaction Charges");
                 TransactionCharges transactionCharges = await _transactionChargeService.GetTransactionCharges(branchId);
                 TransactionChargesDto transactionChargesDto = _mapper.Map<TransactionChargesDto>(transactionCharges);
-                return Ok(transactionChargesDto);
+                if(transactionChargesDto != null)
+                {
+                    return Ok(transactionChargesDto);
+                }
+                else
+                {
+                    return Ok("Transaction Charges Not Available");
+                }
+                
             }
             catch (Exception)
             {

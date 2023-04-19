@@ -51,7 +51,7 @@ namespace BankApplicationRepository.Repository
             SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Customers (AccountId,Name,Salt,HashedPassword,Balance,Gender," +
                 "AccountType,Address,DateOfBirth,EmailId,PhoneNumber,PassbookIssueDate,IsActive,BranchId)" +
-                " VALUES (@accountId, @name, @salt,@hasedPassword,@balance,@gender,@accountType,@address,@dateOfBirth" +
+                " VALUES (@accountId, @name, @salt,@hasedPassword,@balance,@gender,@accountType,@address,@dateOfBirth," +
                 "@emailId,@phoneNumber,@passbookIssueDate,@isActive,@branchId)";
             command.Parameters.AddWithValue("@accountId", customer.AccountId);
             command.Parameters.AddWithValue("@name", customer.Name);
@@ -70,7 +70,7 @@ namespace BankApplicationRepository.Repository
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
             await _connection.CloseAsync();
-            return rowsAffected > 0;
+            return rowsAffected>0;
         }
 
         public async Task<bool> UpdateCustomerAccount(Customer customer, string branchId)

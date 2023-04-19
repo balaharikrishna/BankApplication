@@ -1,6 +1,6 @@
 ﻿namespace BankApplicationModels.Enums
 {
-    public enum Gender
+    public enum Gender : short
     {
         Male = 1,
         Female = 2,

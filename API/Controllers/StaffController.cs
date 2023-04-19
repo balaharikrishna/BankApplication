@@ -22,7 +22,6 @@ namespace API.Controllers
             _StaffService = StaffService;
         }
 
-        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetAllStaffs/{branchId}")]

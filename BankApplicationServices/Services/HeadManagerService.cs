@@ -1,5 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -136,9 +137,8 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 HeadManager headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
-
-                bool isHeadManagerAlreadyAvailabe = headManager.Name.Equals(headManagerName);
-                if (!isHeadManagerAlreadyAvailabe)
+                
+                if (headManager is null)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string UserFirstThreeCharecters = headManagerName.Substring(0, 3);
@@ -189,18 +189,25 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
-
-                byte[] salt = headManager.Salt;
-                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
-                if (Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                byte[] salt = null;
+                byte[] hashedPassword = null;
+                bool canContinue = true;
+                if (headManagerPassword is not null)
                 {
-                    message.Result = false;
-                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
-                }
-                else
-                {
+                    salt = headManager!.Salt;
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
+                    if (Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        canContinue = false;
+                    }
                     salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
+                    hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
+                }
+
+                if (canContinue)
+                {
                     HeadManager headManagerObject = new()
                     {
                         AccountId = headManagerAccountId,
@@ -213,7 +220,7 @@ namespace BankApplicationServices.Services
                     if (isDetailsUpdated)
                     {
                         message.Result = true;
-                        message.ResultMessage = "Updated Password Sucessfully";
+                        message.ResultMessage = "Updated Details Sucessfully";
                     }
                     else
                     {

@@ -4,9 +4,9 @@ namespace API.ViewModels.Transactions
 {
     public class AddCustomerTransactionViewModel
     {
-        public string? FromCustomerBankId { get; set; }
-        public string? FromCustomerBranchId { get; set; }
-        public string? FromCustomerAccountId { get; set; }
+        public string? CustomerBankId { get; set; }
+        public string? CustomerBranchId { get; set; }
+        public string? CustomerAccountId { get; set; }
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public string? TransactionDate { get; set; }

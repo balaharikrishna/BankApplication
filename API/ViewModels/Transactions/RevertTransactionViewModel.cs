@@ -2,6 +2,7 @@
 {
     public class RevertTransactionViewModel
     {
+
         public string? TransactionId { get; set; }
         public string? FromCustomerBankId { get; set; }
         public string? FromCustomerAccountId { get; set; }

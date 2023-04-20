@@ -25,7 +25,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetAllTransactions/{customerAccountId}")]
-        public async Task<IActionResult> GetAllTransactions([FromRoute] string customerAccountId)
+        public async Task<ActionResult<List<Transaction>>> GetAllTransactions([FromRoute] string customerAccountId)
         {
             try
             {
@@ -44,12 +44,12 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetTransactionById")]
-        public async Task<IActionResult> GetTransactionById([FromQuery] string fromCustomerAccountId, [FromQuery] string transactionId)
+        public async Task<IActionResult> GetTransactionById([FromQuery] string customerAccountId, [FromQuery] string transactionId)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Transaction");
-                Transaction transaction = await _transactionService.GetTransactionById(fromCustomerAccountId, transactionId);
+                Transaction transaction = await _transactionService.GetTransactionById(customerAccountId, transactionId);
                 TransactionDto transactionDto = _mapper.Map<TransactionDto>(transaction);
                 return Ok(transactionDto);
             }
@@ -68,8 +68,8 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Adding new Transaction");
-                Message message = await _transactionService.TransactionHistoryAsync(addCustomerTransactionViewModel.FromCustomerBankId, addCustomerTransactionViewModel.FromCustomerBranchId,
-                addCustomerTransactionViewModel.FromCustomerAccountId, addCustomerTransactionViewModel.Debit, addCustomerTransactionViewModel.Credit,
+                Message message = await _transactionService.TransactionHistoryAsync(addCustomerTransactionViewModel.CustomerBankId, addCustomerTransactionViewModel.CustomerBranchId,
+                    addCustomerTransactionViewModel.CustomerAccountId,addCustomerTransactionViewModel.Debit, addCustomerTransactionViewModel.Credit,
                 addCustomerTransactionViewModel.Balance, addCustomerTransactionViewModel.TransactionType);
                 return Ok(message.ResultMessage);
             }

@@ -15,21 +15,21 @@ namespace BankApplicationServices.Services
             _customerRepository = customerRepository;
         }
 
-        public async Task<IEnumerable<Transaction>> GetAllTransactionHistory(string fromCustomerAccountId)
+        public async Task<IEnumerable<Transaction>> GetAllTransactionHistory(string accountId)
         {
-            return await _transactionRepository.GetAllTransactions(fromCustomerAccountId);
+            return await _transactionRepository.GetAllTransactions(accountId);
         }
 
-        public async Task<Transaction> GetTransactionById(string fromCustomerAccountId, string transactionId)
+        public async Task<Transaction> GetTransactionById(string accountId, string transactionId)
         {
-            Transaction transaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
+            Transaction transaction = await _transactionRepository.GetTransactionById(accountId, transactionId);
             return transaction;
         }
 
-        public async Task<Message> IsTransactionsAvailableAsync(string fromCustomerAccountId)
+        public async Task<Message> IsTransactionsAvailableAsync(string accountId)
         {
             Message message = new();
-            bool isTransactionsAvlable = await _transactionRepository.IsTransactionsExist(fromCustomerAccountId);
+            bool isTransactionsAvlable = await _transactionRepository.IsTransactionsExist(accountId);
             if (isTransactionsAvlable)
             {
                 message.Result = true;
@@ -44,22 +44,22 @@ namespace BankApplicationServices.Services
         }
 
         
-        public async Task<Message> TransactionHistoryAsync(string fromBankId, string fromBranchId, string fromCustomerAccountId, decimal debitAmount,
-          decimal creditAmount, decimal fromCustomerbalance, TransactionType transactionType)
+        public async Task<Message> TransactionHistoryAsync(string bankId, string branchId, string customerAccountId, decimal debitAmount,
+          decimal creditAmount, decimal customerbalance, TransactionType transactionType)
         {
             Message message = new();
             string date = DateTime.Now.ToString("yyyyMMddHHmmss");
-            string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
+            string transactionId = string.Concat("TXN", bankId.AsSpan(0, 3), customerAccountId.AsSpan(0, 3), date);
             Transaction transaction = new()
             {
-                FromCustomerBankId = fromBankId,
-                FromCustomerBranchId = fromBranchId,
+                CustomerAccountId= customerAccountId,
+                CustomerBankId= bankId,
+                CustomerBranchId= branchId,
                 TransactionType = transactionType,
                 TransactionId = transactionId,
-                FromCustomerAccountId = fromCustomerAccountId,
                 Debit = debitAmount,
                 Credit = creditAmount,
-                Balance = fromCustomerbalance,
+                Balance = customerbalance,
                 TransactionDate = date,
             };
             bool isTransactionAdded = await _transactionRepository.AddTransaction(transaction);
@@ -84,10 +84,13 @@ namespace BankApplicationServices.Services
             string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
 
             Transaction fromCustomertransaction = new()
-            {
-                FromCustomerBankId = fromBankId,
-                FromCustomerBranchId = fromBranchId,
-                FromCustomerAccountId = fromCustomerAccountId,
+            {   
+                CustomerAccountId = fromCustomerAccountId,
+                CustomerBankId= fromBankId,
+                CustomerBranchId= fromBranchId,
+                //FromCustomerBankId = fromBankId,
+                //FromCustomerBranchId = fromBranchId,
+                //FromCustomerAccountId = fromCustomerAccountId,  
                 ToCustomerAccountId = toCustomerAccountId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
@@ -101,12 +104,12 @@ namespace BankApplicationServices.Services
 
             Transaction toCustomertransaction = new()
             {
+                CustomerAccountId = toCustomerAccountId,
+                CustomerBankId= toBankId,
+                CustomerBranchId= toBranchId,
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
-                FromCustomerAccountId = toCustomerAccountId,
-                ToCustomerAccountId = fromCustomerAccountId,
-                ToCustomerBankId = toBankId,
-                ToCustomerBranchId = toBranchId,
+                FromCustomerAccountId = fromCustomerAccountId,
                 TransactionType = transactionType,
                 TransactionId = transactionId,
                 Debit = creditAmount,
@@ -137,9 +140,8 @@ namespace BankApplicationServices.Services
             Transaction fromCustomerTransaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
             if (fromCustomerTransaction is not null)
             {
-                string location = "to";
-                Transaction toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId, location);
-                if (fromCustomerTransaction is not null)
+                Transaction toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId);
+                if (toCustomerTransaction is not null)
                 {
                     Customer toCustomer = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
                     Customer fromCustomer = await _customerRepository.GetCustomerById(fromCustomerAccountId, fromBranchId);
@@ -148,12 +150,14 @@ namespace BankApplicationServices.Services
                     {
                         Customer fromCustomerObject = new()
                         {
-                            Balance = fromCustomer.Balance + toCustomerTransaction.Credit
+                            Balance = fromCustomer.Balance + toCustomerTransaction.Credit,
+                            AccountId= fromCustomerAccountId
                         };
 
                         Customer toCustomerObject = new()
                         {
-                            Balance = toCustomer.Balance - toCustomerTransaction.Credit
+                            Balance = toCustomer.Balance - toCustomerTransaction.Credit,
+                            AccountId = toCustomerAccountId
                         };
                         bool isFromAccUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, fromBranchId);
                         bool isToAccUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);

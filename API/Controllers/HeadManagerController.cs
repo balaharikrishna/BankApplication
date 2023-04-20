@@ -24,13 +24,13 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllHeadManagers/{branchId}")]
-        public async Task<IActionResult> GetAllHeadManagers([FromRoute] string branchId)
+        [HttpGet("GetAllHeadManagers/{bankId}")]
+        public async Task<IActionResult> GetAllHeadManagers([FromRoute] string bankId)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching all HeadManagers");
-                IEnumerable<HeadManager> headManagers = await _headManagerService.GetAllHeadManagersAsync(branchId);
+                IEnumerable<HeadManager> headManagers = await _headManagerService.GetAllHeadManagersAsync(bankId);
                 List<HeadManagerDto> headManagerDtos = _mapper.Map<List<HeadManagerDto>>(headManagers);
                 return Ok(headManagerDtos);
             }

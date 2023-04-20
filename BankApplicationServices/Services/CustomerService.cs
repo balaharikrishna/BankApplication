@@ -146,42 +146,50 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                string date = DateTime.Now.ToString("yyyyMMddHHmmss");
-                string UserFirstThreeCharecters = customerName.Substring(0, 3);
-                string customerAccountId = string.Concat(UserFirstThreeCharecters, date);
-
-                byte[] salt = _encryptionService.GenerateSalt();
-                byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
-                decimal OpeningBalance = 500; //INR
-                Customer customerObject = new()
+                Customer customer = await _customerRepository.GetCustomerByName(customerName, branchId);
+                if (customer is null)
                 {
-                    Name = customerName,
-                    PhoneNumber = customerPhoneNumber,
-                    EmailId = customerEmailId,
-                    AccountType = customerAccountType,
-                    Address = customerAddress,
-                    DateOfBirth = customerDateOfBirth,
-                    Gender = customerGender,
-                    Salt = salt,
-                    PassbookIssueDate = date,
-                    Balance = OpeningBalance,
-                    HashedPassword = hashedPassword,
-                    AccountId = customerAccountId,
-                    IsActive = true
-                };
+                    string date = DateTime.Now.ToString("yyyyMMddHHmmss");
+                    string UserFirstThreeCharecters = customerName.Substring(0, 3);
+                    string customerAccountId = string.Concat(UserFirstThreeCharecters, date);
 
-                bool isCustomerAdded = await _customerRepository.AddCustomerAccount(customerObject, branchId);
-                if (isCustomerAdded)
-                {
-                    message.Result = true;
-                    message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
+                    byte[] salt = _encryptionService.GenerateSalt();
+                    byte[] hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
+                    decimal OpeningBalance = 500; //INR
+                    Customer customerObject = new()
+                    {
+                        Name = customerName,
+                        PhoneNumber = customerPhoneNumber,
+                        EmailId = customerEmailId,
+                        AccountType = customerAccountType,
+                        Address = customerAddress,
+                        DateOfBirth = customerDateOfBirth,
+                        Gender = customerGender,
+                        Salt = salt,
+                        PassbookIssueDate = date,
+                        Balance = OpeningBalance,
+                        HashedPassword = hashedPassword,
+                        AccountId = customerAccountId,
+                        IsActive = true
+                    };
+
+                    bool isCustomerAdded = await _customerRepository.AddCustomerAccount(customerObject, branchId);
+                    if (isCustomerAdded)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = $"Failed to Create Customer Account for {customerName}";
+                    }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = $"Failed to Create Customer Account for {customerName}";
+                    message.ResultMessage = $"Customer Name:{customerName} Already Exist.";
                 }
-
             }
             else
             {
@@ -246,12 +254,9 @@ namespace BankApplicationServices.Services
                         message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
                         canContinue = false;
                     }
-                    
-                    if (customerPassword is not null)
-                    {
-                        salt = _encryptionService.GenerateSalt();
-                        hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
-                    }
+
+                    salt = _encryptionService.GenerateSalt();
+                    hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
                 }
 
                 if (canContinue)

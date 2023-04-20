@@ -6,20 +6,20 @@ namespace BankApplicationModels
     public class Transaction
     {
         [Required]
+        public string CustomerAccountId { get; set; }
+        [Required]
+        public string CustomerBankId { get; set; }
+        [Required]
+        public string CustomerBranchId { get; set; }
         public string FromCustomerBankId { get; set; }
-        [Required]
         public string ToCustomerBankId { get; set; }
-        [Required]
         public string FromCustomerBranchId { get; set; }
-        [Required]
         public string ToCustomerBranchId { get; set; }
+        public string FromCustomerAccountId { get; set; }
         [Required]
         public string TransactionId { get; set; }
         [Required]
-        public string FromCustomerAccountId { get; set; }
-        [Required]
         public TransactionType TransactionType { get; set; }
-        [Required]
         public string ToCustomerAccountId { get; set; }
         [Required]
         public string TransactionDate { get; set; }

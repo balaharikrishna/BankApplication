@@ -204,7 +204,7 @@ namespace API.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("TransferAmount")]
+        [HttpPut("TransferAmount")] 
         public async Task<IActionResult> TransferAmount([FromBody] TransferAmountViewModel transferAmountViewModel)
         {
             try

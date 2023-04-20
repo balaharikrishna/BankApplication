@@ -24,5 +24,6 @@ namespace BankApplicationServices.Services
             using Rfc2898DeriveBytes pbkdf2 = new(password, salt, ITERATIONS);
             return pbkdf2.GetBytes(HASH_SIZE);
         }
+
     }
 }

@@ -4,6 +4,9 @@ namespace API.Models
 {
     public class TransactionDto
     {
+        public string? CustomerAccountId { get; set; }
+        public string? CustomerBankId { get; set; }
+        public string? CustomerBranchId { get; set; }
         public string? FromCustomerBankId { get; set; }
 
         public string? ToCustomerBankId { get; set; }

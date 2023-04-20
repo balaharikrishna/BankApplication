@@ -151,7 +151,7 @@ namespace BankApplicationRepository.Repository
 
             if (await reader.ReadAsync())
             {
-                var headManager = new HeadManager
+                HeadManager headManager = new()
                 {
                     AccountId = reader[0].ToString(),
                     Name = reader[1].ToString(),

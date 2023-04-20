@@ -154,7 +154,7 @@ namespace BankApplicationServices.Services
                     if (isDetailsUpdated)
                     {
                         message.Result = true;
-                        message.ResultMessage = "Updated Password Sucessfully";
+                        message.ResultMessage = "Updated Details Sucessfully";
                     }
                     else
                     {

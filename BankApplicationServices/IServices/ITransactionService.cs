@@ -5,7 +5,7 @@ namespace BankApplicationServices.IServices
 {
     public interface ITransactionService
     {
-        Task<Transaction> GetTransactionById(string fromCustomerAccountId, string transactionId);
+        Task<Transaction> GetTransactionById(string accountId, string transactionId);
         /// <summary>
         /// Checks if transactions are available for the specified customer account.
         /// </summary>
@@ -13,14 +13,14 @@ namespace BankApplicationServices.IServices
         /// <param name="fromBranchId">The branch ID of the source account.</param>
         /// <param name="fromCustomerAccountId">The customer account ID of the source account.</param>
         /// <returns>A message indicating status of Transactions Availability.</returns>
-        Task<Message> IsTransactionsAvailableAsync(string fromCustomerAccountId);
+        Task<Message> IsTransactionsAvailableAsync(string accountId);
 
         /// <summary>
         /// Retrieves the transaction history for the specified customer account.
         /// </summary>
         /// <param name="fromCustomerAccountId">The customer account ID of the source account.</param>
         /// <returns>A list of strings representing the transaction history.</returns>
-        Task<IEnumerable<Transaction>> GetAllTransactionHistory(string fromCustomerAccountId);
+        Task<IEnumerable<Transaction>> GetAllTransactionHistory(string accountId);
 
         /// <summary>
         /// Reverts a transaction with the specified ID.

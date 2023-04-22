@@ -7,6 +7,6 @@ namespace API.ViewModels.Staff
         public string? BranchId { get; set; }
         public string? StaffName { get; set; }
         public string? StaffPassword { get; set; }
-        public StaffRole StaffRole { get; set; }
+        public Roles StaffRole { get; set; }
     }
 }

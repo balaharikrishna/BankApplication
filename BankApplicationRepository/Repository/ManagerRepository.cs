@@ -15,7 +15,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Manager?>> GetAllManagers(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Managers WHERE IsActive = 1 AND BranchId=@branchId";
+            command.CommandText = "SELECT AccountId,Name FROM Managers WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
             List<Manager> managers = new(); 
             await _connection.OpenAsync();
@@ -24,11 +24,8 @@ namespace BankApplicationRepository.Repository
             {
                 Manager manager = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString()
                 };
                 managers.Add(manager);
             }
@@ -114,7 +111,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Manager?> GetManagerById(string managerAccountId, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerAccountId", managerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -124,11 +121,10 @@ namespace BankApplicationRepository.Repository
             {
                 Manager manager = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Salt = (byte[])reader[2],
+                    HashedPassword = (byte[])reader[3],
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -143,7 +139,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Manager?> GetManagerByName(string managerName, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Managers WHERE Name=@managerName and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name FROM Managers WHERE Name=@managerName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerName", managerName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -153,11 +149,8 @@ namespace BankApplicationRepository.Repository
             {
                 Manager manager = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString()
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

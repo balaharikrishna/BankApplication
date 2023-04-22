@@ -23,14 +23,19 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllStaffs/{branchId}")]
-        public async Task<IActionResult> GetAllStaffs([FromRoute] string branchId)
+        [HttpGet("{branchId}")]
+        public async Task<ActionResult<List<Staff>>> GetAllStaffs([FromRoute] string branchId)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Staffs");
                 IEnumerable<Staff> staffs = await _StaffService.GetAllStaffAsync(branchId);
+                if (staffs is null || !staffs.Any())
+                {
+                    return NotFound("Reserve Bank Managers Not Found.");
+                }
                 List<StaffDto> StaffDtos = _mapper.Map<List<StaffDto>>(staffs);
                 return Ok(StaffDtos);
             }
@@ -42,58 +47,65 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetStaffById")]
-        public async Task<IActionResult> GetStaffById([FromQuery] string branchId, [FromQuery] string StaffAccountId)
+        [HttpGet("{branchId}/accountId/{accountId}")]
+        public async Task<ActionResult<StaffDto>> GetStaffById([FromRoute] string branchId, [FromRoute] string accountId)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with id {StaffAccountId}");
-                Staff Staff = await _StaffService.GetStaffByIdAsync(branchId, StaffAccountId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with id {accountId}");
+                Staff Staff = await _StaffService.GetStaffByIdAsync(branchId, accountId);
                 if (Staff is null)
                 {
-                    return NotFound();
+                    return NotFound("Staff Not Found");
                 }
                 StaffDto StaffDto = _mapper.Map<StaffDto>(Staff);
                 return Ok(StaffDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Staff with id {StaffAccountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Staff with id {accountId} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Staff Details.");
             }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetStaffByName")]
-        public async Task<IActionResult> GetStaffByName([FromQuery] string branchId, [FromQuery] string StaffName)
+        [HttpGet("{branchId}/name/{name}")]
+        public async Task<ActionResult<StaffDto>> GetStaffByName([FromRoute] string branchId, [FromRoute] string name)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with Name {StaffName}");
-                Staff Staff = await _StaffService.GetStaffByNameAsync(branchId, StaffName);
+                _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with Name {name}");
+                Staff Staff = await _StaffService.GetStaffByNameAsync(branchId, name);
                 if (Staff is null)
                 {
-                    return NotFound();
+                    return NotFound("Staff Not Found");
                 }
                 StaffDto StaffDto = _mapper.Map<StaffDto>(Staff);
                 return Ok(StaffDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Staff with Name {StaffName} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Staff with Name:{name} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Staff Details.");
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost("OpenStaffAccount")]
-        public async Task<IActionResult> OpenStaffAccount([FromBody] AddStaffViewModel staffViewModel)
+        [HttpPost]
+        public async Task<ActionResult<Message>> OpenStaffAccount([FromBody] AddStaffViewModel staffViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Opening Staff Account");
                 Message message = await _StaffService.OpenStaffAccountAsync(staffViewModel.BranchId, staffViewModel.StaffName,
                 staffViewModel.StaffPassword, staffViewModel.StaffRole);
@@ -107,16 +119,30 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("UpdateStaffAccount")]
-        public async Task<IActionResult> UpdateStaffAccount([FromBody] UpdateStaffViewModel updateStaffViewModel)
+        [HttpPut]
+        public async Task<ActionResult<Message>> UpdateStaffAccount([FromBody] UpdateStaffViewModel updateStaffViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
                 _logger.Log(LogLevel.Information, message: $"Updating Staff with Id {updateStaffViewModel.StaffAccountId}");
                 Message message = await _StaffService.UpdateStaffAccountAsync(updateStaffViewModel.BranchId, updateStaffViewModel.StaffAccountId,
-                    updateStaffViewModel.StaffName, updateStaffViewModel.StaffPassword, updateStaffViewModel.StaffRole);
-                return Ok(message.ResultMessage);
+                 updateStaffViewModel.StaffName, updateStaffViewModel.StaffPassword, updateStaffViewModel.StaffRole);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Staff Not Found");
+                }
             }
             catch (Exception)
             {
@@ -126,15 +152,23 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("DeleteStaffAccount")]
-        public async Task<IActionResult> DeleteStaffAccount([FromQuery] string branchId, [FromQuery] string StaffAccountId)
+        [HttpDelete]
+        public async Task<ActionResult<Message>> DeleteStaffAccount([FromQuery] string branchId, [FromQuery] string StaffAccountId)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Deleting Staff Account with Id {StaffAccountId}");
                 Message message = await _StaffService.DeleteStaffAccountAsync(branchId, StaffAccountId);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Staff Not Found");
+                }
             }
             catch (Exception)
             {

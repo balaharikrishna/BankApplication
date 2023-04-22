@@ -17,7 +17,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Bank>> GetAllBanks()
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BankId, BankName, IsActive FROM Banks WHERE IsActive = 1";
+            command.CommandText = "SELECT BankId, BankName FROM Banks WHERE IsActive = 1";
             List<Bank> banks = new();
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -26,8 +26,7 @@ namespace BankApplicationRepository.Repository
                 Bank bank = new()
                 {
                     BankId = reader[0].ToString(),
-                    BankName = reader[1].ToString(),
-                    IsActive = reader.GetBoolean(2)
+                    BankName = reader[1].ToString()
                 };
                 banks.Add(bank);
             }
@@ -40,7 +39,7 @@ namespace BankApplicationRepository.Repository
         {
             await _connection.OpenAsync();
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BankId, BankName, IsActive FROM Banks WHERE BankId = @id AND IsActive = 1";
+            command.CommandText = "SELECT BankId, BankName FROM Banks WHERE BankId = @id AND IsActive = 1";
             command.Parameters.AddWithValue("@id", id);
             SqlDataReader reader = await command.ExecuteReaderAsync();
 
@@ -49,8 +48,7 @@ namespace BankApplicationRepository.Repository
                 Bank bank = new()
                 {
                     BankId = reader[0].ToString(),
-                    BankName = reader[1].ToString(),
-                    IsActive = reader.GetBoolean(2)
+                    BankName = reader[1].ToString()
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -67,7 +65,7 @@ namespace BankApplicationRepository.Repository
         {
             await _connection.OpenAsync();
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BankId, BankName, IsActive FROM Banks WHERE BankName = @bankName AND IsActive = 1";
+            command.CommandText = "SELECT BankId, BankName FROM Banks WHERE BankName = @bankName AND IsActive = 1";
             command.Parameters.AddWithValue("@bankName", bankName);
             SqlDataReader reader = await command.ExecuteReaderAsync();
             if (await reader.ReadAsync())
@@ -75,8 +73,7 @@ namespace BankApplicationRepository.Repository
                 Bank bank = new()
                 {
                     BankId = reader[0].ToString(),
-                    BankName = reader[1].ToString(),
-                    IsActive = reader.GetBoolean(2)
+                    BankName = reader[1].ToString()
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -143,7 +140,7 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> DeleteBank(string id)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Banks SET IsActive=0 WHERE BankId=@id";
+            command.CommandText = "UPDATE Banks SET IsActive=0 WHERE BankId=@id AND IsActive = 1";
             command.Parameters.AddWithValue("@id", id);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -154,7 +151,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Currency>> GetAllCurrencies(string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT CurrencyCode,ExchangeRate,IsActive FROM Currencies WHERE IsActive = 1 and BankId = @bankId";
+            command.CommandText = "SELECT CurrencyCode,ExchangeRate FROM Currencies WHERE IsActive = 1 and BankId = @bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
             List<Currency> Currency = new();
             await _connection.OpenAsync();
@@ -164,8 +161,7 @@ namespace BankApplicationRepository.Repository
                 Currency currency = new()
                 {
                     CurrencyCode = reader[0].ToString(),
-                    ExchangeRate = (decimal)reader[1],
-                    IsActive = reader.GetBoolean(2)
+                    ExchangeRate = (decimal)reader[1]
                 };
                 Currency.Add(currency);
             }

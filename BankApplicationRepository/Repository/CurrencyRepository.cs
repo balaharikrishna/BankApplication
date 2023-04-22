@@ -16,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Currency>> GetAllCurrency(string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT CurrencyCode,ExchangeRate,IsActive FROM Currencies WHERE IsActive = 1 AND BankId=@bankId";
+            command.CommandText = "SELECT CurrencyCode,ExchangeRate FROM Currencies WHERE IsActive = 1 AND BankId=@bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
             List<Currency> currencies = new();
             await _connection.OpenAsync();
@@ -26,8 +26,7 @@ namespace BankApplicationRepository.Repository
                 var currency = new Currency
                 {
                     CurrencyCode = reader[0].ToString(),
-                    ExchangeRate = (decimal)reader[1],
-                    IsActive = reader.GetBoolean(2)
+                    ExchangeRate = (decimal)reader[1]
                 };
                 currencies.Add(currency);
             }
@@ -100,7 +99,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Currency?> GetCurrencyByCode(string currencyCode, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT CurrencyCode,ExchangeRate,IsActive FROM Currencies WHERE CurrencyCode = @currencyCode AND IsActive = 1 AND BankId=@bankId";
+            command.CommandText = "SELECT CurrencyCode,ExchangeRate FROM Currencies WHERE CurrencyCode = @currencyCode AND IsActive = 1 AND BankId=@bankId";
             command.Parameters.AddWithValue("@currencyCode", currencyCode);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
@@ -111,8 +110,7 @@ namespace BankApplicationRepository.Repository
                 Currency currency = new()
                 {
                     CurrencyCode = reader[0].ToString(),
-                    ExchangeRate = (decimal)reader[1],
-                    IsActive = reader.GetBoolean(2)
+                    ExchangeRate = (decimal)reader[1]
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

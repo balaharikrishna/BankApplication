@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BankApplicationModels.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace BankApplicationModels
 {
-    public class HeadManager
+    public class HeadManager 
     {
         [Required]
         [RegularExpression("^[a-zA-Z]+$")]
@@ -22,10 +23,6 @@ namespace BankApplicationModels
         [RegularExpression("^[01]+$")]
         public bool IsActive { get; set; }
 
-        //public override string ToString()
-        //{
-        //    return $"\nAccountID: {AccountId}  Name:{Name}";
-        //}
-
+        public Roles Role = Roles.HeadManager;
     }
 }

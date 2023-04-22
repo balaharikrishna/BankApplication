@@ -32,7 +32,7 @@ namespace BankApplicationModels
         [Required]
         public string PassbookIssueDate { get; set; }
 
-
+        public new Roles Role = Roles.Customer;
         //public List<Transactions> Transactions { get; set; }
         //public override string ToString()
         //{

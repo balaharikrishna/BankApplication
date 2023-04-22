@@ -1,5 +1,7 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -85,8 +87,8 @@ namespace BankApplicationServices.Services
             Message message = new();
             ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
 
-            bool isReserveBankManagerAlreadyAvailabe = reserveBankManager.Name.Equals(reserveBankManagerName);
-            if (!isReserveBankManagerAlreadyAvailabe)
+            
+            if (reserveBankManager is null)
             {
                 string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                 string UserFirstThreeCharecters = reserveBankManagerName.Substring(0, 3);
@@ -101,7 +103,8 @@ namespace BankApplicationServices.Services
                     Salt = salt,
                     HashedPassword = hashedPassword,
                     AccountId = reserveBankManagerAccountId,
-                    IsActive = true
+                    IsActive = true,
+                    Role = Roles.ReserveBankManager
                 };
 
                 bool isReserveBankManagerAdded = await _reserveBankManagerRepository.AddReserveBankManager(reserveBankManagerObject);
@@ -130,18 +133,25 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
-
-                byte[] salt = reserveBankManager.Salt;
-                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
-                if (Convert.ToBase64String(reserveBankManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                byte[] salt = null;
+                byte[] hashedPassword = null;
+                bool canContinue = true;
+                if (ReserveBankManagerPassword is not null && reserveBankManager is not null)
                 {
-                    message.Result = false;
-                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
-                }
-                else
-                {
+                    salt = reserveBankManager!.Salt;
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
+                    if (Convert.ToBase64String(reserveBankManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        canContinue = false;
+                    }
                     salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
+                    hashedPassword = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
+                }
+
+                if (canContinue && reserveBankManager is not null)
+                {
                     ReserveBankManager reserveBankManagerObject = new()
                     {
                         AccountId = ReserveBankManagerAccountId,
@@ -168,7 +178,6 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "ReserveBankManager Validation Failed.";
             }
-
             return message;
         }
         public async Task<Message> DeleteReserveBankManagerAccountAsync(string ReserveBankManagerAccountId)

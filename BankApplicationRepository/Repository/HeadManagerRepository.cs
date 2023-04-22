@@ -15,7 +15,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<HeadManager?>> GetAllHeadManagers(string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,IsActive FROM HeadManagers WHERE IsActive = 1 and BankId=@bankId";
+            command.CommandText = "SELECT AccountId,Name FROM HeadManagers WHERE IsActive = 1 and BankId=@bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
             List<HeadManager> headManagers = new();
             await _connection.OpenAsync();
@@ -25,10 +25,7 @@ namespace BankApplicationRepository.Repository
                 HeadManager headManager = new()
                 {
                     AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString(),
-                    Salt = (byte[])reader[2],
-                    HashedPassword = (byte[])reader[3],
-                    IsActive = reader.GetBoolean(4)
+                    Name = reader[1].ToString()
                 };
                 headManagers.Add(headManager);
             }
@@ -36,6 +33,7 @@ namespace BankApplicationRepository.Repository
             await _connection.CloseAsync();
             return headManagers;
         }
+
         public async Task<bool> AddHeadManagerAccount(HeadManager headManager, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
@@ -114,7 +112,7 @@ namespace BankApplicationRepository.Repository
         public async Task<HeadManager?> GetHeadManagerById(string headManagerAccountId, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,IsActive FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@headManagerAccountId", headManagerAccountId);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
@@ -127,8 +125,7 @@ namespace BankApplicationRepository.Repository
                     AccountId = reader[0].ToString(),
                     Name = reader[1].ToString(),
                     Salt = (byte[])reader[2],
-                    HashedPassword = (byte[])reader[3],
-                    IsActive = reader.GetBoolean(4)
+                    HashedPassword = (byte[])reader[3]
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -143,7 +140,7 @@ namespace BankApplicationRepository.Repository
         public async Task<HeadManager?> GetHeadManagerByName(string headManagerName, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,IsActive FROM HeadManagers WHERE Name=@headManagerName and BankId=@bankId AND IsActive = 1";
+            command.CommandText = "SELECT AccountId,Name FROM HeadManagers WHERE Name=@headManagerName and BankId=@bankId AND IsActive = 1";
             command.Parameters.AddWithValue("@headManagerName", headManagerName);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
@@ -154,10 +151,7 @@ namespace BankApplicationRepository.Repository
                 HeadManager headManager = new()
                 {
                     AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString(),
-                    Salt = (byte[])reader[2],
-                    HashedPassword = (byte[])reader[3],
-                    IsActive = reader.GetBoolean(4)
+                    Name = reader[1].ToString()
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

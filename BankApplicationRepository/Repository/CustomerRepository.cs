@@ -16,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Customer?>> GetAllCustomers(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt,HashedPassword,IsActive" +
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance" +
                 " FROM Customers WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
             List<Customer> customers = new();
@@ -35,10 +35,7 @@ namespace BankApplicationRepository.Repository
                     DateOfBirth = reader[6].ToString(),
                     Gender = (Gender)reader[7],
                     PassbookIssueDate = reader[8].ToString(),
-                    Balance = (decimal)reader[9],
-                    Salt = (byte[])reader[10],
-                    HashedPassword = (byte[])reader[11],
-                    IsActive = reader.GetBoolean(12)
+                    Balance = (decimal)reader[9]
                 };
                 customers.Add(customer);
             }
@@ -186,7 +183,7 @@ namespace BankApplicationRepository.Repository
         {
             SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt," +
-                "HashedPassword,IsActive FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
+                "HashedPassword FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerAccountId", customerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -208,7 +205,6 @@ namespace BankApplicationRepository.Repository
                     Balance = (decimal)reader[9],
                     Salt = (byte[])reader[10],
                     HashedPassword = (byte[])reader[11],
-                    IsActive = reader.GetBoolean(12)
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -223,8 +219,8 @@ namespace BankApplicationRepository.Repository
         public async Task<Customer?> GetCustomerByName(string customerName, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt," +
-                "HashedPassword,IsActive FROM Customers WHERE Name=@customerName and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance" +
+                "FROM Customers WHERE Name=@customerName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerName", customerName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -243,10 +239,7 @@ namespace BankApplicationRepository.Repository
                     DateOfBirth = reader[6].ToString(),
                     Gender = (Gender)reader[7],
                     PassbookIssueDate = reader[8].ToString(),
-                    Balance = (decimal)reader[9],
-                    Salt = (byte[])reader[10],
-                    HashedPassword = (byte[])reader[11],
-                    IsActive = reader.GetBoolean(12)
+                    Balance = (decimal)reader[9]
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

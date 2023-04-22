@@ -23,14 +23,19 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllReserveBankManagers")]
-        public async Task<IActionResult> GetAllReserveBankManagers()
+        [HttpGet]
+        public async Task<ActionResult<List<ReserveBankManagerDto>>> GetAllReserveBankManagers()
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Reserve Bank Managers");
                 IEnumerable<ReserveBankManager> reserveBankManagers = await _reserveBankManagerService.GetAllReserveBankManagersAsync();
+                if (reserveBankManagers is null || !reserveBankManagers.Any())
+                {
+                    return NotFound("Reserve Bank Managers Not Found.");
+                }
                 List<ReserveBankManagerDto> reserveBankManagerDtos = _mapper.Map<List<ReserveBankManagerDto>>(reserveBankManagers);
                 return Ok(reserveBankManagerDtos);
             }
@@ -42,32 +47,34 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetReserveBankManagerById/{accountId}")]
-        public async Task<IActionResult> GetReserveBankManagerById([FromRoute] string accountId)
+        [HttpGet("id/{id}")]
+        public async Task<ActionResult<ReserveBankManagerDto>> GetReserveBankManagerById([FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Id {accountId}");
-                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(accountId);
-                if (reserveBankManager is null)
+                _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Id {id}");
+                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(id);
+                if (reserveBankManager is null )
                 {
-                    return NotFound();
+                    return NotFound("Reserve Bank Manager Not Found");
                 }
-                ReserveBankManagerDto managerDto = _mapper.Map<ReserveBankManagerDto>(reserveBankManager);
-                return Ok(managerDto);
+                ReserveBankManagerDto reserveBankManagerDto = _mapper.Map<ReserveBankManagerDto>(reserveBankManager);
+                return Ok(reserveBankManagerDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Reserve Bank Manager with id {accountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Reserve Bank Manager with id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Reserve Bank Manager Details.");
             }
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetReserveBankManagerByName/{name}")]
-        public async Task<IActionResult> GetReserveBankManagerByName([FromRoute] string name)
+        [HttpGet("{name}")]
+        public async Task<ActionResult<ReserveBankManagerDto>> GetReserveBankManagerByName([FromRoute] string name)
         {
             try
             {
@@ -75,7 +82,7 @@ namespace API.Controllers
                 ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByNameAsync(name);
                 if (reserveBankManager is null)
                 {
-                    return NotFound();
+                    return NotFound("Reserve Bank Manager Not Found.");
                 }
                 ReserveBankManagerDto reserveBankManagerDto = _mapper.Map<ReserveBankManagerDto>(reserveBankManager);
                 return Ok(reserveBankManagerDto);
@@ -87,17 +94,22 @@ namespace API.Controllers
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost("OpenReserveBankManagerAccount")]
-        public async Task<IActionResult> OpenReserveBankManagerAccount([FromBody] AddReserveBankManagerAccountViewModel addReserveBankManagerAccountViewModel)
+        [HttpPost]
+        public async Task<ActionResult<Message>> OpenReserveBankManagerAccount([FromBody] AddReserveBankManagerAccountViewModel addReserveBankManagerAccountViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Opening Reserve Bank Manager Account");
-                Message message = await _reserveBankManagerService.OpenReserveBankManagerAccountAsync(addReserveBankManagerAccountViewModel.ReserveBankManagerName,
-                addReserveBankManagerAccountViewModel.ReserveBankManagerPassword);
-                return Ok(message.ResultMessage);
+                Message message = await _reserveBankManagerService.OpenReserveBankManagerAccountAsync(addReserveBankManagerAccountViewModel.ReserveBankManagerName!,
+                addReserveBankManagerAccountViewModel.ReserveBankManagerPassword!);
+                return Created(message.ResultMessage, message);
             }
             catch (Exception)
             {
@@ -107,16 +119,31 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("UpdateReserveBankManagerAccount")]
-        public async Task<IActionResult> UpdateReserveBankManagerAccount([FromBody] UpdateReserveBankManagerAccountViewModel updateReserveBankManagerAccount)
+        [HttpPut]
+        public async Task<ActionResult<Message>> UpdateReserveBankManagerAccount([FromBody] UpdateReserveBankManagerAccountViewModel updateReserveBankManagerAccount)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+               
                 _logger.Log(LogLevel.Information, message: $"Updating Reserve Bank Manager Account with Id {updateReserveBankManagerAccount.ReserveBankManagerAccountId}");
-                Message message = await _reserveBankManagerService.UpdateReserveBankManagerAccountAsync(updateReserveBankManagerAccount.ReserveBankManagerAccountId,
-                    updateReserveBankManagerAccount.ReserveBankManagerName, updateReserveBankManagerAccount.ReserveBankManagerPassword);
-                return Ok(message.ResultMessage);
+                Message message = await _reserveBankManagerService.UpdateReserveBankManagerAccountAsync(updateReserveBankManagerAccount.ReserveBankManagerAccountId!,
+                    updateReserveBankManagerAccount.ReserveBankManagerName!, updateReserveBankManagerAccount.ReserveBankManagerPassword!);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Reserve Bank Manager Not Found");
+                }
+                
             }
             catch (Exception)
             {
@@ -126,19 +153,27 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("DeleteReserveBankManagerAccount/{accountId}")]
-        public async Task<IActionResult> DeleteReserveBankManagerAccount([FromRoute] string accountId)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Message>> DeleteReserveBankManagerAccount([FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting Reserve Bank Manager Account Account with Id {accountId}");
-                Message message = await _reserveBankManagerService.DeleteReserveBankManagerAccountAsync(accountId);
-                return Ok(message.ResultMessage);
+                _logger.Log(LogLevel.Information, message: $"Deleting Reserve Bank Manager Account Account with Id {id}");
+                Message message = await _reserveBankManagerService.DeleteReserveBankManagerAccountAsync(id);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Reserve Bank Manager Not Found");
+                }
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting Reserve Bank Manager Account Account with Id {accountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting Reserve Bank Manager Account Account with Id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Reserve Bank Manager Account.");
             }
         }

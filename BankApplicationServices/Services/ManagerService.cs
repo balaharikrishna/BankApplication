@@ -113,9 +113,8 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 Manager manager = await _managerRepository.GetManagerByName(managerName, branchId);
-
-                bool isManagerAlreadyAvailabe = manager.Name.Equals(managerName);
-                if (!isManagerAlreadyAvailabe)
+               
+                if (manager is null)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string UserFirstThreeCharecters = managerName.Substring(0, 3);
@@ -192,18 +191,25 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 Manager manager = await _managerRepository.GetManagerById(accountId, branchId);
-
-                byte[] salt = manager.Salt;
-                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
-                if (Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                byte[] salt = null;
+                byte[] hashedPassword = null;
+                bool canContinue = true;
+                if (managerPassword is not null && manager is not null)
                 {
-                    message.Result = false;
-                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
-                }
-                else
-                {
+                    salt = manager!.Salt;
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
+                    if (Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        canContinue = false;
+                    }
                     salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(managerPassword, salt);
+                    hashedPassword = _encryptionService.HashPassword(managerPassword, salt);
+                }
+
+                if (canContinue && manager is not null)
+                {
                     Manager managerObject = new()
                     {
                         AccountId = accountId,
@@ -230,7 +236,6 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "Manager Validation Failed.";
             }
-
             return message;
         }
 
@@ -238,7 +243,7 @@ namespace BankApplicationServices.Services
         {
             Message message;
             message = await IsAccountExistAsync(branchId, accountId);
-            if (message.Result)
+            if (message.Result )
             {
                 bool isDeleted = await _managerRepository.DeleteManagerAccount(accountId, branchId);
                 if (isDeleted)

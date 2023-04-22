@@ -32,7 +32,14 @@ namespace API.Controllers
                 _logger.Log(LogLevel.Information, message: "Fetching the Customers");
                 IEnumerable<Customer> customers = await _customerService.GetAllCustomersAsync(branchId);
                 List<CustomerDto> customerDtos = _mapper.Map<List<CustomerDto>>(customers);
-                return Ok(customerDtos);
+                if(customerDtos is not null)
+                {
+                    return Ok(customerDtos);
+                }
+                else
+                {
+                    return Ok("No Customers Available");
+                }
             }
             catch (Exception)
             {

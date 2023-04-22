@@ -15,7 +15,7 @@ namespace BankApplicationRepository.Repository
         public async Task<TransactionCharges?> GetTransactionCharges(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT ImpsSameBank,ImpsOtherBank,RtgsSameBank,RtgsOtherBank,IsActive FROM TransactionCharges WHERE  BranchId = @branchId AND IsActive = 1";
+            command.CommandText = "SELECT ImpsSameBank,ImpsOtherBank,RtgsSameBank,RtgsOtherBank FROM TransactionCharges WHERE  BranchId = @branchId AND IsActive = 1";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -27,7 +27,6 @@ namespace BankApplicationRepository.Repository
                     ImpsOtherBank = Convert.ToUInt16(reader[1]),
                     RtgsSameBank = Convert.ToUInt16(reader[2]),
                     RtgsOtherBank = Convert.ToUInt16(reader[3]),
-                    IsActive = reader.GetBoolean(4)
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

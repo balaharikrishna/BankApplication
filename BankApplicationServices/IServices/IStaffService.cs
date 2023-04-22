@@ -42,7 +42,7 @@ namespace BankApplicationServices.IServices
         /// <param name="staffPassword">The StaffPassword of the staff account to open.</param>
         /// <param name="staffRole">The StaffRole of the staff account to open.</param>
         /// <returns>A message indicating status of Staff Account Opening.</returns>
-        Task<Message> OpenStaffAccountAsync(string branchId, string staffName, string staffPassword, StaffRole staffRole);
+        Task<Message> OpenStaffAccountAsync(string branchId, string staffName, string staffPassword, Roles staffRole);
 
         /// <summary>
         /// Updates an existing staff account with the given BankId, BranchId, StaffAccountId, StaffName, StaffPassword, and StaffRole.
@@ -53,7 +53,7 @@ namespace BankApplicationServices.IServices
         /// <param name="staffPassword">The StaffPassword of the staff account to update.</param>
         /// <param name="staffRole">The StaffRole of the staff account to update.</param>
         /// <returns>A message indicating status of staff Account Updation.</returns>
-        Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, StaffRole staffRole);
+        Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, Roles staffRole);
 
         /// <summary>
         /// Checks if a staff account with the given BankId, BranchId, and StaffAccountId exists or not.

@@ -32,7 +32,14 @@ namespace API.Controllers
                 _logger.Log(LogLevel.Information, message: "Fetching all HeadManagers");
                 IEnumerable<HeadManager> headManagers = await _headManagerService.GetAllHeadManagersAsync(bankId);
                 List<HeadManagerDto> headManagerDtos = _mapper.Map<List<HeadManagerDto>>(headManagers);
-                return Ok(headManagerDtos);
+                if(headManagerDtos is not null)
+                {
+                    return Ok(headManagerDtos);
+                }
+                else
+                {
+                    return Ok("No HeadManagers Available");
+                }
             }
             catch (Exception)
             {

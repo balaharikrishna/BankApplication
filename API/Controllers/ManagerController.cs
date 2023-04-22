@@ -32,7 +32,15 @@ namespace API.Controllers
                 _logger.Log(LogLevel.Information, message: "Fetching the Managers");
                 IEnumerable<Manager> Managers = await _managerService.GetAllManagersAsync(branchId);
                 List<ManagerDto> managerDtos = _mapper.Map<List<ManagerDto>>(Managers);
-                return Ok(managerDtos);
+                if(managerDtos.Any())
+                {
+                    return Ok(managerDtos);
+                }
+                else
+                {
+                    return Ok("No Managers Available");
+                }
+                
             }
             catch (Exception)
             {

@@ -2,7 +2,6 @@
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
-using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -27,9 +26,9 @@ namespace BankApplicationRepository.Repository
                 Transaction transaction = new()
                 {
                     TransactionId = reader[0].ToString(),
-                    CustomerBankId= reader[1].ToString(),
-                    CustomerBranchId= reader[2].ToString(),
-                    CustomerAccountId= reader[3].ToString(),    
+                    CustomerBankId = reader[1].ToString(),
+                    CustomerBranchId = reader[2].ToString(),
+                    CustomerAccountId = reader[3].ToString(),
                     FromCustomerBankId = reader[4].ToString(),
                     ToCustomerBankId = reader[5].ToString(),
                     FromCustomerBranchId = reader[6].ToString(),
@@ -124,7 +123,7 @@ namespace BankApplicationRepository.Repository
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
             await _connection.CloseAsync();
-            return rowsAffected>0;
+            return rowsAffected > 0;
         }
     }
 }

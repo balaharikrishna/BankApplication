@@ -1,4 +1,8 @@
-﻿namespace API.Models
+﻿using BankApplicationModels.Enums;
+
+namespace API.Models
 {
-    public class ManagerDto : HeadManagerDto { }
+    public class ManagerDto : HeadManagerDto
+    {
+    }
 }

@@ -184,6 +184,7 @@ namespace BankApplicationServices.Services
 
         public async Task<Message> UpdateHeadManagerAccountAsync(string bankId, string headManagerAccountId, string headManagerName, string headManagerPassword)
         {
+
             Message message;
             message = await IsHeadManagerExistAsync(bankId, headManagerAccountId);
             if (message.Result)
@@ -192,7 +193,7 @@ namespace BankApplicationServices.Services
                 byte[] salt = null;
                 byte[] hashedPassword = null;
                 bool canContinue = true;
-                if (headManagerPassword is not null)
+                if (headManagerPassword is not null && headManager is not null)
                 {
                     salt = headManager!.Salt;
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
@@ -206,7 +207,7 @@ namespace BankApplicationServices.Services
                     hashedPassword = _encryptionService.HashPassword(headManagerPassword, salt);
                 }
 
-                if (canContinue)
+                if (canContinue && headManager is not null)
                 {
                     HeadManager headManagerObject = new()
                     {

@@ -1,6 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
+using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -104,7 +105,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Message> OpenStaffAccountAsync(string branchId, string staffName, string staffPassword, StaffRole staffRole)
+        public async Task<Message> OpenStaffAccountAsync(string branchId, string staffName, string staffPassword, Roles staffRole)
         {
             Message message;
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
@@ -112,8 +113,7 @@ namespace BankApplicationServices.Services
             {
                 Staff staff = await _staffRepository.GetStaffByName(staffName, branchId);
 
-                bool isStaffAlreadyAvailabe = staff.Name.Equals(staffName);
-                if (!isStaffAlreadyAvailabe)
+                if (staff is null)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
                     string UserFirstThreeCharecters = staffName.Substring(0, 3);
@@ -184,25 +184,32 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, StaffRole staffRole)
+        public async Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, Roles staffRole)
         {
             Message message;
             message = await IsAccountExistAsync(branchId, staffAccountId);
             if (message.Result)
             {
                 Staff staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
-
-                byte[] salt = staff.Salt;
-                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffPassword, salt);
-                if (Convert.ToBase64String(staff.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                byte[] salt = null;
+                byte[] hashedPassword = null;
+                bool canContinue = true;
+                if (staff is not null && staffPassword is not null)
                 {
-                    message.Result = false;
-                    message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
-                }
-                else
-                {
+                    salt = staff!.Salt;
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffPassword, salt);
+                    if (Convert.ToBase64String(staff.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "New password Matches with the Old Password.,Provide a New Password";
+                        canContinue = false;
+                    }
                     salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
+                    hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
+                }
+
+                if (canContinue && staff is not null)
+                {
                     Staff staffObject = new()
                     {
                         AccountId = staffAccountId,
@@ -229,7 +236,6 @@ namespace BankApplicationServices.Services
                 message.Result = false;
                 message.ResultMessage = "Staff Validation Failed.";
             }
-
             return message;
         }
 

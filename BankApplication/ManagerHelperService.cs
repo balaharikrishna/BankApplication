@@ -43,17 +43,17 @@ namespace BankApplication
                         string staffName = _commonHelperService.GetName(Miscellaneous.staff, _validateInputs);
                         string staffPassword = _commonHelperService.GetPassword(Miscellaneous.staff, _validateInputs);
                         Console.WriteLine("Choose Staff Roles from Below:");
-                        foreach (StaffRole option in Enum.GetValues(typeof(StaffRole)))
+                        foreach (Roles option in Enum.GetValues(typeof(Roles)))
                         {
                             Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                         }
 
-                        StaffRole staffRole = 0;
+                        Roles staffRole = 0;
                         while (true)
                         {
                             Console.WriteLine("Enter Staff Role:");
 
-                            bool isValid = StaffRole.TryParse(Console.ReadLine(), out staffRole);
+                            bool isValid = Roles.TryParse(Console.ReadLine(), out staffRole);
                             if (!isValid && staffRole == 0)
                             {
                                 Console.WriteLine("Please Enter as per the Above Staff Roles");
@@ -444,7 +444,7 @@ namespace BankApplication
                                 while (true)
                                 {
                                     Console.WriteLine("Choose From Below Menu Options To Update");
-                                    foreach (StaffRole option in Enum.GetValues(typeof(StaffRole)))
+                                    foreach (Roles option in Enum.GetValues(typeof(Roles)))
                                     {
                                         Console.WriteLine("Enter {0} For {1}", (int)option, option.ToString());
                                     }
@@ -460,7 +460,7 @@ namespace BankApplication
                                     }
                                 }
 
-                                message = _staffService.UpdateStaffAccountAsync(managerBranchId, staffAccountId, staffName, staffPassword, (StaffRole)staffRole).Result;
+                                message = _staffService.UpdateStaffAccountAsync(managerBranchId, staffAccountId, staffName, staffPassword, (Roles)staffRole).Result;
 
                                 if (message.Result)
                                 {

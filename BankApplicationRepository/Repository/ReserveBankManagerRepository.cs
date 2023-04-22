@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
 using System.Text;
@@ -15,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagers()
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM ReserveBankManagers WHERE IsActive = 1";
+            command.CommandText = "SELECT AccountId,Name,Role FROM ReserveBankManagers WHERE IsActive = 1";
             List<ReserveBankManager> reserveBankManagers = new();
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -23,11 +24,9 @@ namespace BankApplicationRepository.Repository
             {
                 ReserveBankManager reserveBankManager = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 reserveBankManagers.Add(reserveBankManager);
             }
@@ -38,13 +37,14 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> AddReserveBankManager(ReserveBankManager reserveBankManager)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO ReserveBankManagers (AccountId,Name,Salt,HashedPassword,IsActive)" +
-                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive)";
+            command.CommandText = "INSERT INTO ReserveBankManagers (AccountId,Name,Salt,HashedPassword,IsActive,Role)" +
+                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@role)";
             command.Parameters.AddWithValue("@accountId", reserveBankManager.AccountId);
             command.Parameters.AddWithValue("@name", reserveBankManager.Name);
             command.Parameters.AddWithValue("@salt", reserveBankManager.Salt);
             command.Parameters.AddWithValue("@hasedPassword", reserveBankManager.HashedPassword);
             command.Parameters.AddWithValue("@isActive", reserveBankManager.IsActive);
+            command.Parameters.AddWithValue("@role", reserveBankManager.Role);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
             await _connection.CloseAsync();
@@ -109,7 +109,7 @@ namespace BankApplicationRepository.Repository
         public async Task<ReserveBankManager?> GetReserveBankManagerById(string reserveBankManagerAccountId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM ReserveBankManagers WHERE AccountId=@reserveBankManagerAccountId AND IsActive = 1";
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,Role FROM ReserveBankManagers WHERE AccountId=@reserveBankManagerAccountId AND IsActive = 1";
             command.Parameters.AddWithValue("@reserveBankManagerAccountId", reserveBankManagerAccountId);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -118,11 +118,11 @@ namespace BankApplicationRepository.Repository
             {
                 ReserveBankManager reserveBankManager = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Salt = (byte[])reader[2],
+                    HashedPassword = (byte[])reader[3],
+                    Role = (Roles)Convert.ToUInt16(reader[4]),
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -137,7 +137,7 @@ namespace BankApplicationRepository.Repository
         public async Task<ReserveBankManager?> GetReserveBankManagerByName(string reserveBankManagerName)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM ReserveBankManagers WHERE Name=@reserveBankManagerName AND IsActive = 1";
+            command.CommandText = "SELECT AccountId,Name,Role FROM ReserveBankManagers WHERE Name=@reserveBankManagerName AND IsActive = 1";
             command.Parameters.AddWithValue("@reserveBankManagerName", reserveBankManagerName);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -146,11 +146,9 @@ namespace BankApplicationRepository.Repository
             {
                 ReserveBankManager reserveBankManager = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Role= (Roles)Convert.ToUInt16(reader[2])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

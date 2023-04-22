@@ -244,7 +244,7 @@ namespace BankApplicationServices.Services
                 byte[] salt = null;
                 byte[] hashedPassword = null;
                 bool canContinue = true;
-                if (customerPassword is not null)
+                if (customerPassword is not null && customer is not null)
                 {
                     salt = customer!.Salt;
                     byte[]  hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
@@ -259,7 +259,7 @@ namespace BankApplicationServices.Services
                     hashedPassword = _encryptionService.HashPassword(customerPassword, salt);
                 }
 
-                if (canContinue)
+                if (canContinue && customer is not null)
                 {
                     Customer customerObject = new()
                     {

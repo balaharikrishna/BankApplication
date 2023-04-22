@@ -15,7 +15,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Branch>> GetAllBranches(string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BranchId,BranchName,BranchAddress,BranchPhoneNumber,IsActive FROM Branches WHERE IsActive = 1 and BankId=@bankId";
+            command.CommandText = "SELECT BranchId,BranchName,BranchAddress,BranchPhoneNumber FROM Branches WHERE IsActive = 1 and BankId=@bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
             List<Branch> branches = new();
             await _connection.OpenAsync();
@@ -27,8 +27,7 @@ namespace BankApplicationRepository.Repository
                     BranchId = reader[0].ToString(),
                     BranchName = reader[1].ToString(),
                     BranchAddress = reader[2].ToString(),
-                    BranchPhoneNumber = reader[3].ToString(),
-                    IsActive = reader.GetBoolean(4)
+                    BranchPhoneNumber = reader[3].ToString()
                 };
                 branches.Add(branch);
             }
@@ -41,7 +40,7 @@ namespace BankApplicationRepository.Repository
         {
             await _connection.OpenAsync();
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BranchId,BranchName,BranchAddress,BranchPhoneNumber,IsActive FROM Branches WHERE BranchId = @branchId AND IsActive = 1";
+            command.CommandText = "SELECT BranchId,BranchName,BranchAddress,BranchPhoneNumber FROM Branches WHERE BranchId = @branchId AND IsActive = 1";
             command.Parameters.AddWithValue("@branchId", branchId);
             SqlDataReader reader = await command.ExecuteReaderAsync();
 
@@ -52,8 +51,7 @@ namespace BankApplicationRepository.Repository
                     BranchId = reader[0].ToString(),
                     BranchName = reader[1].ToString(),
                     BranchAddress = reader[2].ToString(),
-                    BranchPhoneNumber = reader[3].ToString(),
-                    IsActive = reader.GetBoolean(4)
+                    BranchPhoneNumber = reader[3].ToString()
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -69,7 +67,7 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> IsBranchExist(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BranchId FROM Branches WHERE BranchId = @branchId";
+            command.CommandText = "SELECT BranchId FROM Branches WHERE BranchId = @branchId AND IsActive = 1";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -133,7 +131,7 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> DeleteBranch(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "UPDATE Branches SET IsActive = 0 WHERE BranchId=@branchId";
+            command.CommandText = "UPDATE Branches SET IsActive = 0 WHERE BranchId=@branchId AND IsActive = 1";
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -144,7 +142,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Branch?> GetBranchByName(string branchName)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT BranchId,BranchName,BranchAddress,BranchPhoneNumber,IsActive FROM Branches WHERE BranchName = @branchName AND IsActive = 1";
+            command.CommandText = "SELECT BranchId,BranchName,BranchAddress,BranchPhoneNumber FROM Branches WHERE BranchName = @branchName AND IsActive = 1";
             command.Parameters.AddWithValue("@branchName", branchName);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -156,8 +154,7 @@ namespace BankApplicationRepository.Repository
                     BranchId = reader[0].ToString(),
                     BranchName = reader[1].ToString(),
                     BranchAddress = reader[2].ToString(),
-                    BranchPhoneNumber = reader[3].ToString(),
-                    IsActive = reader.GetBoolean(4)
+                    BranchPhoneNumber = reader[3].ToString()
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -173,7 +170,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<TransactionCharges>> GetAllTransactionCharges(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT RtgsOtherBank,RtgsSameBank,ImpsOtherBank,ImpsSameBank,IsActive FROM TransactionCharges WHERE IsActive = 1 and BranchId = @branchId";
+            command.CommandText = "SELECT RtgsOtherBank,RtgsSameBank,ImpsOtherBank,ImpsSameBank FROM TransactionCharges WHERE IsActive = 1 and BranchId = @branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
             List<TransactionCharges> transactionChargesList = new();
             await _connection.OpenAsync();
@@ -185,8 +182,7 @@ namespace BankApplicationRepository.Repository
                     RtgsOtherBank = (ushort)reader[0],
                     RtgsSameBank  = (ushort)reader[1],
                     ImpsOtherBank = (ushort)reader[2],
-                    ImpsSameBank  = (ushort)reader[3],
-                    IsActive = reader.GetBoolean(4)
+                    ImpsSameBank  = (ushort)reader[3]
                 };
                 transactionChargesList.Add(transactionCharges);
             }

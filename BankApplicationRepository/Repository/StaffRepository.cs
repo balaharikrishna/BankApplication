@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
 using System.Text;
@@ -15,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Staff>> GetAllStaffs(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Staffs WHERE IsActive = 1 AND BranchId=@branchId";
+            command.CommandText = "SELECT AccountId,Name,Role FROM Staffs WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
             List<Staff> staffs = new();
             await _connection.OpenAsync();
@@ -24,11 +25,9 @@ namespace BankApplicationRepository.Repository
             {
                 Staff staff = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 staffs.Add(staff);
             }
@@ -39,14 +38,15 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> AddStaffAccount(Staff staff, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO Staffs (AccountId,Name,Salt,HashedPassword,IsActive,BranchId)" +
-                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@branchId)";
+            command.CommandText = "INSERT INTO Staffs (AccountId,Name,Salt,HashedPassword,IsActive,BranchId,Role)" +
+                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@branchId,@role)";
             command.Parameters.AddWithValue("@accountId", staff.AccountId);
             command.Parameters.AddWithValue("@name", staff.Name);
             command.Parameters.AddWithValue("@salt", staff.Salt);
             command.Parameters.AddWithValue("@hasedPassword", staff.HashedPassword);
             command.Parameters.AddWithValue("@isActive", staff.IsActive);
             command.Parameters.AddWithValue("@branchId", branchId);
+            command.Parameters.AddWithValue("@role", staff.Role);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
             await _connection.CloseAsync();
@@ -114,7 +114,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Staff?> GetStaffById(string staffAccountId, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Staffs WHERE AccountId=@staffAccountId and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,Role FROM Staffs WHERE AccountId=@staffAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@staffAccountId", staffAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -124,11 +124,11 @@ namespace BankApplicationRepository.Repository
             {
                 Staff staff = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Salt = (byte[])reader[2],
+                    HashedPassword = (byte[])reader[3],
+                    Role = (Roles)Convert.ToUInt16(reader[4])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -143,7 +143,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Staff?> GetStaffByName(string staffName, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,IsActive FROM Staffs WHERE AccountId=@staffName and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Role FROM Staffs WHERE AccountId=@staffName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@staffName", staffName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -153,11 +153,9 @@ namespace BankApplicationRepository.Repository
             {
                 Staff staff = new()
                 {
-                    AccountId = reader[1].ToString(),
-                    Name = reader[2].ToString(),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4],
-                    IsActive = reader.GetBoolean(5)
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

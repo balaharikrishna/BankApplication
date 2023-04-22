@@ -5,7 +5,6 @@ namespace BankApplicationModels
 {
     public class Staff : HeadManager
     {
-        [Required]
-        public StaffRole Role { get; set; }
+        public new Roles Role = Roles.Staff;
     }
 }

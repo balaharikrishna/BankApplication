@@ -25,13 +25,17 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}")]
-        public async Task<ActionResult<List<CurrencyDto>>> GetAllCurrencies([FromRoute] string bankId)
+        [HttpGet("bankId/{id}")]
+        public async Task<ActionResult<List<CurrencyDto>>> GetAllCurrencies([FromRoute] string id)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Currencies");
-                IEnumerable<Currency> currencies = await _currencyService.GetAllCurrenciesAsync(bankId);
+                IEnumerable<Currency> currencies = await _currencyService.GetAllCurrenciesAsync(id);
+                if (currencies is null || !currencies.Any())
+                {
+                    return NotFound("currencies Not Found.");
+                }
                 List<CurrencyDto> currencyDtos = _mapper.Map<List<CurrencyDto>>(currencies);
                 return Ok(currencyDtos);
             }
@@ -45,23 +49,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}/{currencyCode}")]
-        public async Task<ActionResult<CurrencyDto>> GetCurrencyByCode([FromRoute] string bankId,[FromRoute] string currencyCode)
+        [HttpGet("{bankId}/currencyCode/{code}")]
+        public async Task<ActionResult<CurrencyDto>> GetCurrencyByCode([FromRoute] string bankId,[FromRoute] string code)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Currerncy with Code {currencyCode}");
-                Currency currency = await _currencyService.GetCurrencyByCode(currencyCode, bankId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Currerncy with Code {code}");
+                Currency currency = await _currencyService.GetCurrencyByCode(code, bankId);
                 if (currency is null)
                 {
-                    return NotFound();
+                    return NotFound("currency Not Found.");
                 }
                 CurrencyDto currencyDto = _mapper.Map<CurrencyDto>(currency);
                 return Ok(currencyDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Currency with Code {currencyCode} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Currency with Code {code} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Currency by Code.");
             }
         }
@@ -75,9 +79,21 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Adding a new Currency");
                 Message message = await _currencyService.AddCurrencyAsync(currencyViewModel.BankId, currencyViewModel.CurrencyCode, currencyViewModel.ExchangeRate);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/currencyCode/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Adding a new Currency Failed");
+                    return BadRequest($"An error occurred while creating Currency.,Reason: {message.ResultMessage}");
+                }
             }
             catch (Exception)
             {
@@ -95,9 +111,20 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Updating Currency with Code {currencyViewModel.CurrencyCode}");
                 Message message = await _currencyService.UpdateCurrencyAsync(currencyViewModel.BankId, currencyViewModel.CurrencyCode, currencyViewModel.ExchangeRate);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("currency Not Found.");
+                }
             }
             catch (Exception)
             {
@@ -109,18 +136,25 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{bankId}/{currencyCode}")]
-        public async Task<ActionResult<Message>> DeleteCurrency([FromRoute] string bankId, [FromRoute] string currencyCode)
+        [HttpDelete("{bankId}/currencyCode/{code}")]
+        public async Task<ActionResult<Message>> DeleteCurrency([FromRoute] string bankId, [FromRoute] string code)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting Currency with Code {currencyCode}");
-                Message message = await _currencyService.DeleteCurrencyAsync(bankId,currencyCode);
-                return Ok(message.ResultMessage);
+                _logger.Log(LogLevel.Information, message: $"Deleting Currency with Code {code}");
+                Message message = await _currencyService.DeleteCurrencyAsync(bankId, code);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("currency Not Found.");
+                }
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting Currency with Code {currencyCode} Failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting Currency with Code {code} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Currency.");
             }
         }

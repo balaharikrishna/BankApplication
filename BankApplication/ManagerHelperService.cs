@@ -65,7 +65,7 @@ namespace BankApplication
                             }
                         }
 
-                        message = _staffService.OpenStaffAccountAsync(managerBranchId, staffName, staffPassword, staffRole).Result;
+                        message = _staffService.OpenStaffAccountAsync(managerBranchId, staffName, staffPassword).Result;
                         if (message.Result)
                         {
                             Console.WriteLine(message.ResultMessage);

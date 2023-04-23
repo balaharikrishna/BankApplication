@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -28,7 +27,7 @@ namespace BankApplicationServices.Services
         }
         public async Task<ReserveBankManager> GetReserveBankManagerByNameAsync(string reserveBankManagerName)
         {
-            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(reserveBankManagerName);
+            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
             return reserveBankManager;
         }
 
@@ -87,7 +86,7 @@ namespace BankApplicationServices.Services
             Message message = new();
             ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
 
-            
+
             if (reserveBankManager is null)
             {
                 string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -112,6 +111,7 @@ namespace BankApplicationServices.Services
                 {
                     message.Result = true;
                     message.ResultMessage = $"Account Created for {reserveBankManagerName} with Account Id:{reserveBankManagerAccountId}";
+                    message.Data = reserveBankManagerAccountId;
                 }
                 else
                 {

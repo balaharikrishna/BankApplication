@@ -4,6 +4,7 @@ using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Principal;
 
 namespace API.Controllers
 {
@@ -34,6 +35,10 @@ namespace API.Controllers
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the banks");
                 IEnumerable<Bank> banks = await _bankService.GetAllBanksAsync();
+                if (banks is null || !banks.Any())
+                {
+                    return NotFound("Banks Not Found.");
+                }
                 List<BankDto> bankDtos = _mapper.Map<List<BankDto>>(banks);
                 return Ok(bankDtos);
             }
@@ -47,23 +52,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}")]
-        public async Task<ActionResult<BankDto>> GetBankById([FromRoute] string bankId)
+        [HttpGet("bankId/{id}")]
+        public async Task<ActionResult<BankDto>> GetBankById([FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching bank with id {bankId}");
-                Bank bank = await _bankService.GetBankByIdAsync(bankId);
+                _logger.Log(LogLevel.Information, message: $"Fetching bank with id {id}");
+                Bank bank = await _bankService.GetBankByIdAsync(id);
                 if (bank is null)
                 {
-                    return NotFound();
+                    return NotFound("Bank not Found");
                 }
                 BankDto bankDto = _mapper.Map<BankDto>(bank);
                 return Ok(bankDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching bank with id {bankId} failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching bank with id {id} failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the bank.");
             }
         }
@@ -71,23 +76,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankName}")]
-        public async Task<ActionResult<BankDto>> GetBankByName([FromRoute] string bankName)
+        [HttpGet("bankName/{name}")]
+        public async Task<ActionResult<BankDto>> GetBankByName([FromRoute] string name)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching bank with name {bankName}");
-                Bank bank = await _bankService.GetBankByNameAsync(bankName);
+                _logger.Log(LogLevel.Information, message: $"Fetching bank with name {name}");
+                Bank bank = await _bankService.GetBankByNameAsync(name);
                 if (bank is null)
                 {
-                    return NotFound();
+                    return NotFound("Bank not Found");
                 }
                 BankDto bankDto = _mapper.Map<BankDto>(bank);
                 return Ok(bankDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching bank with name {bankName} failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching bank with name {name} failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the bank.");
             }
         }
@@ -100,9 +105,21 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Creating a new bank");
                 Message message = await _bankService.CreateBankAsync(addBankViewModel.BankName);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/bankId/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Creating a new bank failed");
+                    return BadRequest($"An error occurred while creating Bank.,Reason: {message.ResultMessage}");
+                }
             }
             catch (Exception)
             {
@@ -120,9 +137,20 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Updating bank with id {updateBankViewModel.BankId}");
                 Message message = await _bankService.UpdateBankAsync(updateBankViewModel.BankId, updateBankViewModel.BankName);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Bank Not Found.");
+                }
             }
             catch (Exception)
             {
@@ -134,18 +162,25 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{bankId}")]
-        public async Task<ActionResult<Message>> DeleteBank([FromRoute] string bankId)
+        [HttpDelete("bankId/{id}")]
+        public async Task<ActionResult<Message>> DeleteBank([FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting bank with id {bankId}");
-                Message message = await _bankService.DeleteBankAsync(bankId);
-                return Ok(message.ResultMessage);
+                _logger.Log(LogLevel.Information, message: $"Deleting bank with id {id}");
+                Message message = await _bankService.DeleteBankAsync(id);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Bank Not Found.");
+                }
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting bank with id {bankId} failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting bank with id {id} failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the bank.");
             }
         }

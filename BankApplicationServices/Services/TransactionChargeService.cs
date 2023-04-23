@@ -70,6 +70,7 @@ namespace BankApplicationServices.Services
                     {
                         message.Result = true;
                         message.ResultMessage = "Transaction Charges Added Successfully";
+                        message.Data = $"RtgsSameBank:{rtgsSameBank},RtgsOtherBank = {rtgsOtherBank},ImpsSameBank = {impsSameBank},ImpsOtherBank = {impsOtherBank}";
                     }
                     else
                     {

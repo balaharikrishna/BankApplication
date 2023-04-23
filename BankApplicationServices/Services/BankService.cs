@@ -71,6 +71,7 @@ namespace BankApplicationServices.Services
                 {
                     message.Result = true;
                     message.ResultMessage = $"Bank {bankName} is Created with {bankId}";
+                    message.Data = bankId;
                 }
                 else
                 {

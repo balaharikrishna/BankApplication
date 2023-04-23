@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
 using System.Text;
@@ -15,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<HeadManager?>> GetAllHeadManagers(string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name FROM HeadManagers WHERE IsActive = 1 and BankId=@bankId";
+            command.CommandText = "SELECT AccountId,Name,Role FROM HeadManagers WHERE IsActive = 1 and BankId=@bankId";
             command.Parameters.AddWithValue("@bankId", bankId);
             List<HeadManager> headManagers = new();
             await _connection.OpenAsync();
@@ -25,7 +26,8 @@ namespace BankApplicationRepository.Repository
                 HeadManager headManager = new()
                 {
                     AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString()
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 headManagers.Add(headManager);
             }
@@ -37,13 +39,14 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> AddHeadManagerAccount(HeadManager headManager, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO HeadManagers (AccountId,Name,Salt,HashedPassword,IsActive,BankId)" +
-                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@bankId)";
+            command.CommandText = "INSERT INTO HeadManagers (AccountId,Name,Salt,HashedPassword,IsActive,Role,BankId )" +
+                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@role,@bankId)";
             command.Parameters.AddWithValue("@accountId", headManager.AccountId);
             command.Parameters.AddWithValue("@name", headManager.Name);
             command.Parameters.AddWithValue("@salt", headManager.Salt);
             command.Parameters.AddWithValue("@hasedPassword", headManager.HashedPassword);
             command.Parameters.AddWithValue("@isActive", headManager.IsActive);
+            command.Parameters.AddWithValue("@role", headManager.Role);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -112,7 +115,7 @@ namespace BankApplicationRepository.Repository
         public async Task<HeadManager?> GetHeadManagerById(string headManagerAccountId, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,Role FROM HeadManagers WHERE AccountId=@headManagerAccountId and BankId=@bankId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@headManagerAccountId", headManagerAccountId);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
@@ -125,7 +128,8 @@ namespace BankApplicationRepository.Repository
                     AccountId = reader[0].ToString(),
                     Name = reader[1].ToString(),
                     Salt = (byte[])reader[2],
-                    HashedPassword = (byte[])reader[3]
+                    HashedPassword = (byte[])reader[3],
+                    Role = (Roles)Convert.ToUInt16(reader[4])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -140,7 +144,7 @@ namespace BankApplicationRepository.Repository
         public async Task<HeadManager?> GetHeadManagerByName(string headManagerName, string bankId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name FROM HeadManagers WHERE Name=@headManagerName and BankId=@bankId AND IsActive = 1";
+            command.CommandText = "SELECT AccountId,Name,Role FROM HeadManagers WHERE Name=@headManagerName and BankId=@bankId AND IsActive = 1";
             command.Parameters.AddWithValue("@headManagerName", headManagerName);
             command.Parameters.AddWithValue("@bankId", bankId);
             await _connection.OpenAsync();
@@ -151,7 +155,8 @@ namespace BankApplicationRepository.Repository
                 HeadManager headManager = new()
                 {
                     AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString()
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

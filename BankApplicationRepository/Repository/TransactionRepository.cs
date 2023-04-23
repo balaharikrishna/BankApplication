@@ -102,7 +102,7 @@ namespace BankApplicationRepository.Repository
         {
             SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Transactions (TransactionId,CustomerAccountId,CustomerBankId,CustomerBranchId,FromCustomerBankId,ToCustomerBankId,FromCustomerBranchId,ToCustomerBranchId," +
-                "ToCustomerAccountId,TransactionType,TransactionDate,Debit,Credit,Balance,FromCustomerAccountId)" +
+                "ToCustomerAccountId,TransactionType,TransactionDate,Debit,Credit,Balance,FromCustomerAccountId )" +
                 " VALUES (@transactionId,@customerAccountId,@customerBankId,@customerBranchId,@fromCustomerBankId,@toCustomerBankId,@fromCustomerBranchId,@toCustomerBranchId,@toCustomerAccountId," +
                 "@transactionType, @transactionDate,@debit,@credit,@balance,@fromCustomerAccountId)";
             command.Parameters.AddWithValue("@transactionId", transaction.TransactionId);

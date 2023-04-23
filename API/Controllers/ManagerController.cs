@@ -25,23 +25,19 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllManagers/{branchId}")]
-        public async Task<ActionResult<List<ManagerDto>>> GetAllManagers([FromRoute] string branchId)
+        [HttpGet("branchId/{id}")]
+        public async Task<ActionResult<List<ManagerDto>>> GetAllManagers([FromRoute] string id)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Managers");
-                IEnumerable<Manager> Managers = await _managerService.GetAllManagersAsync(branchId);
+                IEnumerable<Manager> Managers = await _managerService.GetAllManagersAsync(id);
+                if (Managers is null || !Managers.Any())
+                {
+                    return NotFound("Managers Not Found.");
+                }
                 List<ManagerDto> managerDtos = _mapper.Map<List<ManagerDto>>(Managers);
-                if(managerDtos.Any())
-                {
-                    return Ok(managerDtos);
-                }
-                else
-                {
-                    return Ok("No Managers Available");
-                }
-                
+                return Ok(managerDtos);
             }
             catch (Exception)
             {
@@ -53,23 +49,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetManagerById")]
-        public async Task<ActionResult<ManagerDto>> GetManagerById([FromQuery] string branchId, [FromQuery] string managerAccountId)
+        [HttpGet("{branchId}/accountId/{id}")]
+        public async Task<ActionResult<ManagerDto>> GetManagerById([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching manager Account with id {managerAccountId}");
-                Manager manager = await _managerService.GetManagerByIdAsync(branchId, managerAccountId);
+                _logger.Log(LogLevel.Information, message: $"Fetching manager Account with id {id}");
+                Manager manager = await _managerService.GetManagerByIdAsync(branchId, id);
                 if (manager is null)
                 {
-                    return NotFound();
+                    return NotFound("Manager Not Found");
                 }
                 ManagerDto managerDto = _mapper.Map<ManagerDto>(manager);
                 return Ok(managerDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching manager with id {managerAccountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching manager with id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the manager Details.");
             }
         }
@@ -77,23 +73,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetManagerByName")]
-        public async Task<ActionResult<ManagerDto>> GetManagerByName([FromQuery] string branchId, [FromQuery] string managerName)
+        [HttpGet("{branchId}/{name}")]
+        public async Task<ActionResult<ManagerDto>> GetManagerByName([FromRoute] string branchId, [FromRoute] string name)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Manager Account with Name {managerName}");
-                Manager manager = await _managerService.GetManagerByNameAsync(branchId, managerName);
+                _logger.Log(LogLevel.Information, message: $"Fetching Manager Account with Name {name}");
+                Manager manager = await _managerService.GetManagerByNameAsync(branchId, name);
                 if (manager is null)
                 {
-                    return NotFound();
+                    return NotFound("Manager Not Found");
                 }
                 ManagerDto managerDto = _mapper.Map<ManagerDto>(manager);
                 return Ok(managerDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching manager with Name {managerName} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching manager with Name {name} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the manager Details.");
             }
         }
@@ -101,15 +97,27 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost("OpenManagerAccount")]
+        [HttpPost]
         public async Task<ActionResult<Message>> OpenManagerAccount([FromBody] AddManagerViewModel managerViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Opening manager Account");
                 Message message = await _managerService.OpenManagerAccountAsync(managerViewModel.BranchId, managerViewModel.ManagerName,
                 managerViewModel.ManagerPassword);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/accountId/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Opening a new manager Account Failed");
+                    return BadRequest($"An error occurred while creating manager Account.,Reason: {message.ResultMessage}");
+                }
             }
             catch (Exception)
             {
@@ -122,15 +130,26 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("UpdateManagerAccount")]
+        [HttpPut]
         public async Task<ActionResult<Message>> UpdateManagerAccount([FromBody] UpdateManagerViewModel updatemanagerViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Updating manager with Id {updatemanagerViewModel.ManagerAccountId}");
                 Message message = await _managerService.UpdateManagerAccountAsync(updatemanagerViewModel.BranchId, updatemanagerViewModel.ManagerAccountId,
                     updatemanagerViewModel.ManagerName, updatemanagerViewModel.ManagerPassword);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Manager Not Found");
+                }
             }
             catch (Exception)
             {
@@ -142,18 +161,25 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("DeleteManagerAccount")]
-        public async Task<ActionResult<Message>> DeleteManagerAccount([FromQuery] string branchId, [FromQuery] string managerAccountId)
+        [HttpDelete("{branchId}/accountId/{id}")]
+        public async Task<ActionResult<Message>> DeleteManagerAccount([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting manager Account with Id {managerAccountId}");
-                Message message = await _managerService.DeleteManagerAccountAsync(branchId, managerAccountId);
-                return Ok(message.ResultMessage);
+                _logger.Log(LogLevel.Information, message: $"Deleting manager Account with Id {id}");
+                Message message = await _managerService.DeleteManagerAccountAsync(branchId, id);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Manager Not Found");
+                }
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting manager Account with Id {managerAccountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting manager Account with Id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the manager Account.");
             }
         }

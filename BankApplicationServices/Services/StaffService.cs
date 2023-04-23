@@ -3,6 +3,7 @@ using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
+using System.Data;
 
 namespace BankApplicationServices.Services
 {
@@ -105,7 +106,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Message> OpenStaffAccountAsync(string branchId, string staffName, string staffPassword, Roles staffRole)
+        public async Task<Message> OpenStaffAccountAsync(string branchId, string staffName, string staffPassword)
         {
             Message message;
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
@@ -128,7 +129,8 @@ namespace BankApplicationServices.Services
                         Salt = salt,
                         HashedPassword = hashedPassword,
                         AccountId = staffAccountId,
-                        IsActive = true
+                        IsActive = true,
+                        Role = Roles.Staff
                     };
 
                     bool isManagerAdded = await _staffRepository.AddStaffAccount(staffObject, branchId);
@@ -136,6 +138,7 @@ namespace BankApplicationServices.Services
                     {
                         message.Result = true;
                         message.ResultMessage = $"Account Created for {staffName} with Account Id:{staffAccountId}";
+                        message.Data = staffAccountId;
                     }
                     else
                     {

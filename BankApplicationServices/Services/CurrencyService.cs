@@ -66,6 +66,7 @@ namespace BankApplicationServices.Services
                 {
                     message.Result = true;
                     message.ResultMessage = $"Added Currency Code:{currencyCode} with Exchange Rate:{exchangeRate}";
+                    message.Data = currencyCode;
                 }
                 else
                 {

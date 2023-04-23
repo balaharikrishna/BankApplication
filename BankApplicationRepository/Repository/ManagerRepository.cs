@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using System.Data.SqlClient;
 using System.Text;
@@ -15,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Manager?>> GetAllManagers(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name FROM Managers WHERE IsActive = 1 AND BranchId=@branchId";
+            command.CommandText = "SELECT AccountId,Name,Role FROM Managers WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
             List<Manager> managers = new(); 
             await _connection.OpenAsync();
@@ -25,7 +26,8 @@ namespace BankApplicationRepository.Repository
                 Manager manager = new()
                 {
                     AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString()
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 managers.Add(manager);
             }
@@ -36,13 +38,14 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> AddManagerAccount(Manager manager, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO Managers (AccountId,Name,Salt,HashedPassword,IsActive,BranchId)" +
-                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@branchId)";
+            command.CommandText = "INSERT INTO Managers (AccountId,Name,Salt,HashedPassword,IsActive,Role,BranchId )" +
+                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@role,@branchId)";
             command.Parameters.AddWithValue("@accountId", manager.AccountId);
             command.Parameters.AddWithValue("@name", manager.Name);
             command.Parameters.AddWithValue("@salt", manager.Salt);
             command.Parameters.AddWithValue("@hasedPassword", manager.HashedPassword);
             command.Parameters.AddWithValue("@isActive", manager.IsActive);
+            command.Parameters.AddWithValue("@role", manager.Role);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -111,7 +114,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Manager?> GetManagerById(string managerAccountId, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,Role FROM Managers WHERE AccountId=@managerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerAccountId", managerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -125,6 +128,7 @@ namespace BankApplicationRepository.Repository
                     Name = reader[1].ToString(),
                     Salt = (byte[])reader[2],
                     HashedPassword = (byte[])reader[3],
+                    Role = (Roles)Convert.ToUInt16(reader[4])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -139,7 +143,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Manager?> GetManagerByName(string managerName, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name FROM Managers WHERE Name=@managerName and BranchId=@branchId AND IsActive = 1 ";
+            command.CommandText = "SELECT AccountId,Name,Role FROM Managers WHERE Name=@managerName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@managerName", managerName);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -150,7 +154,8 @@ namespace BankApplicationRepository.Repository
                 Manager manager = new()
                 {
                     AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString()
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

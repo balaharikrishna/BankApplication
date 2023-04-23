@@ -92,6 +92,7 @@ namespace BankApplicationServices.Services
                 {
                     message.Result = true;
                     message.ResultMessage = $"Branch {branchName} is Created with {branchId}";
+                    message.Data = branchId;
                 }
                 else
                 {

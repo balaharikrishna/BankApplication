@@ -37,7 +37,7 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> AddReserveBankManager(ReserveBankManager reserveBankManager)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO ReserveBankManagers (AccountId,Name,Salt,HashedPassword,IsActive,Role)" +
+            command.CommandText = "INSERT INTO ReserveBankManagers (AccountId,Name,Salt,HashedPassword,IsActive,Role )" +
                 " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@role)";
             command.Parameters.AddWithValue("@accountId", reserveBankManager.AccountId);
             command.Parameters.AddWithValue("@name", reserveBankManager.Name);

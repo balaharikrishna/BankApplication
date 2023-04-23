@@ -1,4 +1,5 @@
 ﻿using BankApplicationModels;
+using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
@@ -129,7 +130,8 @@ namespace BankApplicationServices.Services
                         Salt = salt,
                         HashedPassword = hashedPassword,
                         AccountId = managerAccountId,
-                        IsActive = true
+                        IsActive = true,
+                        Role = Roles.Manager
                     };
 
                     bool isManagerAdded = await _managerRepository.AddManagerAccount(managerObject, branchId);
@@ -137,6 +139,7 @@ namespace BankApplicationServices.Services
                     {
                         message.Result = true;
                         message.ResultMessage = $"Account Created for {managerName} with Account Id:{managerAccountId}";
+                        message.Data = managerAccountId;
                     }
                     else
                     {

@@ -25,22 +25,19 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
-        public async Task<ActionResult<List<CustomerDto>>> GetAllCustomers([FromRoute] string branchId)
+        [HttpGet("branchId/{id}")]
+        public async Task<ActionResult<List<CustomerDto>>> GetAllCustomers([FromRoute] string id)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Customers");
-                IEnumerable<Customer> customers = await _customerService.GetAllCustomersAsync(branchId);
+                IEnumerable<Customer> customers = await _customerService.GetAllCustomersAsync(id);
+                if (customers is null || !customers.Any())
+                {
+                    return NotFound("Customers Not Found.");
+                }
                 List<CustomerDto> customerDtos = _mapper.Map<List<CustomerDto>>(customers);
-                if(customerDtos is not null)
-                {
-                    return Ok(customerDtos);
-                }
-                else
-                {
-                    return Ok("No Customers Available");
-                }
+                return Ok(customerDtos);
             }
             catch (Exception)
             {
@@ -52,28 +49,27 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}/{accountId}")]
-        public async Task<ActionResult<CustomerDto>> GetCustomerById([FromRoute] string branchId, [FromRoute] string accountId)
+        [HttpGet("{branchId}/accountId/{id}")]
+        public async Task<ActionResult<CustomerDto>> GetCustomerById([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Customer Account with id {accountId}");
-                Customer customer = await _customerService.GetCustomerByIdAsync(branchId, accountId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Customer Account with id {id}");
+                Customer customer = await _customerService.GetCustomerByIdAsync(branchId, id);
                 if (customer is null)
                 {
-                    return NotFound();
+                    return NotFound("Customer Not Found");
                 }
                 CustomerDto customerDto = _mapper.Map<CustomerDto>(customer);
                 return Ok(customerDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Customer with id {accountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Customer with id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Customer Details.");
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -86,7 +82,7 @@ namespace API.Controllers
                 Customer customer = await _customerService.GetCustomerByNameAsync(branchId, name);
                 if (customer is null)
                 {
-                    return NotFound();
+                    return NotFound("Customer Not Found");
                 }
                 CustomerDto customerDto = _mapper.Map<CustomerDto>(customer);
                 return Ok(customerDto);
@@ -106,11 +102,23 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Creating Customer Account");
                 Message message = await _customerService.OpenCustomerAccountAsync(customerViewModel.BranchId, customerViewModel.CustomerName,
                 customerViewModel.CustomerPassword, customerViewModel.CustomerPhoneNumber, customerViewModel.CustomerEmailId, customerViewModel.CustomerAccountType,
                 customerViewModel.CustomerAddress, customerViewModel.CustomerDateOfBirth, customerViewModel.CustomerGender);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/accountId/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Creating a new Customer Account Failed");
+                    return BadRequest($"An error occurred while creating an Account.,Reason: {message.ResultMessage}");
+                }
             }
             catch (Exception)
             {
@@ -128,11 +136,22 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Updating Customer with Id {updateCustomerViewModel.CustomerAccountId}");
                 Message message = await _customerService.UpdateCustomerAccountAsync(updateCustomerViewModel.BranchId, updateCustomerViewModel.CustomerAccountId, updateCustomerViewModel.CustomerName,
                 updateCustomerViewModel.CustomerPassword, updateCustomerViewModel.CustomerPhoneNumber, updateCustomerViewModel.CustomerEmailId, updateCustomerViewModel.CustomerAccountType,
                 updateCustomerViewModel.CustomerAddress, updateCustomerViewModel.CustomerDateOfBirth, updateCustomerViewModel.CustomerGender);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Customer Not Found");
+                }
             }
             catch (Exception)
             {
@@ -144,18 +163,25 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{branchId}/{accountId}")]
-        public async Task<ActionResult<Message>> DeleteCustomerAccount([FromRoute] string branchId, [FromRoute] string accountId)
+        [HttpDelete("{branchId}/accountId/{id}")]
+        public async Task<ActionResult<Message>> DeleteCustomerAccount([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting Customer Account with Id {accountId}");
-                Message message = await _customerService.DeleteCustomerAccountAsync(branchId, accountId);
-                return Ok(message.ResultMessage);
+                _logger.Log(LogLevel.Information, message: $"Deleting Customer Account with Id {id}");
+                Message message = await _customerService.DeleteCustomerAccountAsync(branchId, id);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Customer Not Found");
+                }
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting Customer Account with Id {accountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting Customer Account with Id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Customer Account.");
             }
         }
@@ -169,10 +195,21 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Adding Amount In Account with Id {depositViewModel.AccountId}");
                 Message message = await _customerService.DepositAmountAsync(depositViewModel.BankId, depositViewModel.BranchId, depositViewModel.AccountId,
                     depositViewModel.DepositAmount, depositViewModel.CurrencyCode);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Customer Not Found");
+                }
             }
             catch (Exception)
             {
@@ -184,18 +221,22 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("balance/{branchId}/{accountId}")]
-        public async Task<ActionResult<Message>> GetAccountBalance([FromRoute] string branchId, [FromRoute] string accountId)
+        [HttpGet("balance/{branchId}/accountId/{id}")]
+        public async Task<ActionResult<Message>> GetAccountBalance([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Customer Balance with Id {accountId}");
-                Message message = await _customerService.CheckAccountBalanceAsync(branchId, accountId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Customer Balance with Id {id}");
+                Message message = await _customerService.CheckAccountBalanceAsync(branchId, id);
+                if (!message.Result)
+                {
+                    return NotFound(message.ResultMessage);
+                }
                 return Ok(message.ResultMessage);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Customer Balance with Id {accountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Customer Balance with Id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Customer Balance.");
             }
         }
@@ -205,14 +246,25 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("withdraw")]
-        public async Task<IActionResult> WithdrawAmount([FromBody] WithDrawViewModel withDrawViewModel)
+        public async Task<ActionResult<Message>> WithdrawAmount([FromBody] WithDrawViewModel withDrawViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Withdraw Customer Balance with Id {withDrawViewModel.AccountId}");
                 Message message = await _customerService.WithdrawAmountAsync(withDrawViewModel.BankId, withDrawViewModel.BranchId,
                     withDrawViewModel.AccountId, withDrawViewModel.withDrawAmount);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Customer Not Found");
+                }
             }
             catch (Exception)
             {
@@ -226,15 +278,26 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("transfer")] 
-        public async Task<IActionResult> TransferAmount([FromBody] TransferAmountViewModel transferAmountViewModel)
+        public async Task<ActionResult<Message>> TransferAmount([FromBody] TransferAmountViewModel transferAmountViewModel)
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Transfering Customer Balance with Account Id {transferAmountViewModel.AccountId}");
                 Message message = await _customerService.TransferAmountAsync(transferAmountViewModel.BankId, transferAmountViewModel.BranchId,
                     transferAmountViewModel.AccountId, transferAmountViewModel.ToBankId, transferAmountViewModel.ToBranchId, transferAmountViewModel.ToAccountId,
                     transferAmountViewModel.TransferAmount, transferAmountViewModel.TransferMethod);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Customer Not Found");
+                }
             }
             catch (Exception)
             {

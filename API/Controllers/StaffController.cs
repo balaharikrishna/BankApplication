@@ -25,13 +25,13 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
-        public async Task<ActionResult<List<Staff>>> GetAllStaffs([FromRoute] string branchId)
+        [HttpGet("branchId/{id}")]
+        public async Task<ActionResult<List<Staff>>> GetAllStaffs([FromRoute] string id)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Staffs");
-                IEnumerable<Staff> staffs = await _StaffService.GetAllStaffAsync(branchId);
+                IEnumerable<Staff> staffs = await _StaffService.GetAllStaffAsync(id);
                 if (staffs is null || !staffs.Any())
                 {
                     return NotFound("Reserve Bank Managers Not Found.");
@@ -49,13 +49,13 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}/accountId/{accountId}")]
-        public async Task<ActionResult<StaffDto>> GetStaffById([FromRoute] string branchId, [FromRoute] string accountId)
+        [HttpGet("{branchId}/accountId/{id}")]
+        public async Task<ActionResult<StaffDto>> GetStaffById([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with id {accountId}");
-                Staff Staff = await _StaffService.GetStaffByIdAsync(branchId, accountId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with id {id}");
+                Staff Staff = await _StaffService.GetStaffByIdAsync(branchId, id);
                 if (Staff is null)
                 {
                     return NotFound("Staff Not Found");
@@ -65,7 +65,7 @@ namespace API.Controllers
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Staff with id {accountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Staff with id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Staff Details.");
             }
         }
@@ -73,7 +73,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}/name/{name}")]
+        [HttpGet("{branchId}/{name}")]
         public async Task<ActionResult<StaffDto>> GetStaffByName([FromRoute] string branchId, [FromRoute] string name)
         {
             try
@@ -108,8 +108,16 @@ namespace API.Controllers
                 }
                 _logger.Log(LogLevel.Information, message: $"Opening Staff Account");
                 Message message = await _StaffService.OpenStaffAccountAsync(staffViewModel.BranchId, staffViewModel.StaffName,
-                staffViewModel.StaffPassword, staffViewModel.StaffRole);
-                return Ok(message.ResultMessage);
+                staffViewModel.StaffPassword);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/accountId/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Opening a new Staff Account Failed");
+                    return BadRequest($"An error occurred while creating Staff Account.,Reason: {message.ResultMessage}");
+                }
             }
             catch (Exception)
             {
@@ -154,13 +162,13 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete]
-        public async Task<ActionResult<Message>> DeleteStaffAccount([FromQuery] string branchId, [FromQuery] string StaffAccountId)
+        [HttpDelete("{branchId}/accountId/{id}")]
+        public async Task<ActionResult<Message>> DeleteStaffAccount([FromRoute] string branchId, [FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting Staff Account with Id {StaffAccountId}");
-                Message message = await _StaffService.DeleteStaffAccountAsync(branchId, StaffAccountId);
+                _logger.Log(LogLevel.Information, message: $"Deleting Staff Account with Id {id}");
+                Message message = await _StaffService.DeleteStaffAccountAsync(branchId, id);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);
@@ -172,7 +180,7 @@ namespace API.Controllers
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting Staff Account with Id {StaffAccountId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting Staff Account with Id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Staff Account.");
             }
         }

@@ -27,13 +27,17 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}")]
-        public async Task<ActionResult<List<BranchDto>>> GetAllBranches([FromRoute] string bankId)
+        [HttpGet("bankId/{id}")]
+        public async Task<ActionResult<List<BranchDto>>> GetAllBranches([FromRoute] string id)
         {
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Branches");
-                IEnumerable<Branch> branches = await _branchService.GetAllBranchesAsync(bankId);
+                IEnumerable<Branch> branches = await _branchService.GetAllBranchesAsync(id);
+                if (branches is null || !branches.Any())
+                {
+                    return NotFound("Branches Not Found.");
+                }
                 List<BranchDto> branchDtos = _mapper.Map<List<BranchDto>>(branches);
                 return Ok(branchDtos);
             }
@@ -47,23 +51,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}")]
-        public async Task<ActionResult<BranchDto>> GetBranchById([FromRoute] string branchId)
+        [HttpGet("branchId/{id}")]
+        public async Task<ActionResult<BranchDto>> GetBranchById([FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Branch with id {branchId}");
-                Branch branch = await _branchService.GetBranchByIdAsync(branchId);
+                _logger.Log(LogLevel.Information, message: $"Fetching Branch with id {id}");
+                Branch branch = await _branchService.GetBranchByIdAsync(id);
                 if (branch is null)
                 {
-                    return NotFound();
+                    return NotFound("Branch Not Found.");
                 }
                 BranchDto branchDto = _mapper.Map<BranchDto>(branch);
                 return Ok(branchDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Branch with id {branchId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Branch with id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching the Branch.");
             }
         }
@@ -71,23 +75,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchName}")]
-        public async Task<ActionResult<BranchDto>> GetBranchByName([FromRoute] string branchName)
+        [HttpGet("branchName/{name}")]
+        public async Task<ActionResult<BranchDto>> GetBranchByName([FromRoute] string name)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Fetching Branch with Name {branchName}");
-                Branch branch = await _branchService.GetBranchByNameAsync(branchName);
+                _logger.Log(LogLevel.Information, message: $"Fetching Branch with Name {name}");
+                Branch branch = await _branchService.GetBranchByNameAsync(name);
                 if (branch is null)
                 {
-                    return NotFound();
+                    return NotFound("Branch Not Found.");
                 }
                 BranchDto branchDto = _mapper.Map<BranchDto>(branch);
                 return Ok(branchDto);
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Fetching Branch with Name {branchName} Failed");
+                _logger.Log(LogLevel.Error, message: $"Fetching Branch with Name {name} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Fetching the Branch.");
             }
         }
@@ -100,9 +104,22 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Creating a new Branch");
                 Message message = await _branchService.CreateBranchAsync(addBranchViewModel.BankId, addBranchViewModel.BranchName, addBranchViewModel.BranchPhoneNumber, addBranchViewModel.BranchAddress);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/branchId/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Creating a new Branch Failed");
+                    return BadRequest($"An error occurred while creating Branch.,Reason: {message.ResultMessage}");
+                }
+               
             }
             catch (Exception)
             {
@@ -120,9 +137,20 @@ namespace API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _logger.Log(LogLevel.Information, message: $"Updating Branch with Id {updateBranchViewModel.BranchId}");
                 Message message = await _branchService.UpdateBranchAsync(updateBranchViewModel.BranchId, updateBranchViewModel.BranchName, updateBranchViewModel.BranchPhoneNumber, updateBranchViewModel.BranchAddress);
-                return Ok(message.ResultMessage);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Branch Not Found.");
+                }
             }
             catch (Exception)
             {
@@ -134,18 +162,25 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{branchId}")]
-        public async Task<ActionResult<Message>> DeleteBranch([FromRoute] string branchId)
+        [HttpDelete("branchId/{id}")]
+        public async Task<ActionResult<Message>> DeleteBranch([FromRoute] string id)
         {
             try
             {
-                _logger.Log(LogLevel.Information, message: $"Deleting Branch with Id {branchId}");
-                Message message = await _branchService.DeleteBranchAsync(branchId);
-                return Ok(message.ResultMessage);
+                _logger.Log(LogLevel.Information, message: $"Deleting Branch with Id {id}");
+                Message message = await _branchService.DeleteBranchAsync(id);
+                if (message.Result)
+                {
+                    return Ok(message.ResultMessage);
+                }
+                else
+                {
+                    return NotFound("Branch Not Found.");
+                }
             }
             catch (Exception)
             {
-                _logger.Log(LogLevel.Error, message: $"Deleting Branch with Id {branchId} Failed");
+                _logger.Log(LogLevel.Error, message: $"Deleting Branch with Id {id} Failed");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Branch.");
             }
         }

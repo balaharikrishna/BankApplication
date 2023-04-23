@@ -6,6 +6,5 @@
         
         public string? BankId { get; set; }
        
-        public bool IsActive { get; set; }
     }
 }

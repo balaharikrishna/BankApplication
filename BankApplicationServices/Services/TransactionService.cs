@@ -67,6 +67,7 @@ namespace BankApplicationServices.Services
             {
                 message.Result = true;
                 message.ResultMessage = "Transaction Added Successfully";
+                message.Data = transaction.TransactionId;
             }
             else
             {
@@ -88,9 +89,6 @@ namespace BankApplicationServices.Services
                 CustomerAccountId = fromCustomerAccountId,
                 CustomerBankId= fromBankId,
                 CustomerBranchId= fromBranchId,
-                //FromCustomerBankId = fromBankId,
-                //FromCustomerBranchId = fromBranchId,
-                //FromCustomerAccountId = fromCustomerAccountId,  
                 ToCustomerAccountId = toCustomerAccountId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
@@ -123,6 +121,7 @@ namespace BankApplicationServices.Services
             {
                 message.Result = true;
                 message.ResultMessage = "Transactions Added Succesfully";
+                message.Data = transactionId;
             }
             else
             {

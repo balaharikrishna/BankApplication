@@ -170,7 +170,8 @@ namespace BankApplicationServices.Services
                         Balance = OpeningBalance,
                         HashedPassword = hashedPassword,
                         AccountId = customerAccountId,
-                        IsActive = true
+                        IsActive = true,
+                        Role = Roles.Customer
                     };
 
                     bool isCustomerAdded = await _customerRepository.AddCustomerAccount(customerObject, branchId);
@@ -178,6 +179,7 @@ namespace BankApplicationServices.Services
                     {
                         message.Result = true;
                         message.ResultMessage = $"Account Created for {customerName} with Account Id:{customerAccountId}";
+                        message.Data = customerAccountId;
                     }
                     else
                     {

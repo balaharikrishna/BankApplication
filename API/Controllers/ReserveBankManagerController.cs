@@ -49,7 +49,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("id/{id}")]
+        [HttpGet("accountId/{id}")]
         public async Task<ActionResult<ReserveBankManagerDto>> GetReserveBankManagerById([FromRoute] string id)
         {
             try
@@ -73,7 +73,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{name}")]
+        [HttpGet("accountName/{name}")]
         public async Task<ActionResult<ReserveBankManagerDto>> GetReserveBankManagerByName([FromRoute] string name)
         {
             try
@@ -109,7 +109,15 @@ namespace API.Controllers
                 _logger.Log(LogLevel.Information, message: $"Opening Reserve Bank Manager Account");
                 Message message = await _reserveBankManagerService.OpenReserveBankManagerAccountAsync(addReserveBankManagerAccountViewModel.ReserveBankManagerName!,
                 addReserveBankManagerAccountViewModel.ReserveBankManagerPassword!);
-                return Created(message.ResultMessage, message);
+                if (message.Result)
+                {
+                    return Created($"{Request.Path}/accountId/{message.Data}", message);
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, message: $"Opening a new Reserve Bank Manager Account Failed");
+                    return BadRequest($"An error occurred while creating Reserve Bank Manager Account.,Reason: {message.ResultMessage}");
+                }
             }
             catch (Exception)
             {
@@ -143,7 +151,6 @@ namespace API.Controllers
                 {
                     return NotFound("Reserve Bank Manager Not Found");
                 }
-                
             }
             catch (Exception)
             {
@@ -155,7 +162,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("{id}")]
+        [HttpDelete("accountId/{id}")]
         public async Task<ActionResult<Message>> DeleteReserveBankManagerAccount([FromRoute] string id)
         {
             try

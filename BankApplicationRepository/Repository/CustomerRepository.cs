@@ -16,7 +16,7 @@ namespace BankApplicationRepository.Repository
         public async Task<IEnumerable<Customer?>> GetAllCustomers(string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance" +
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Role" +
                 " FROM Customers WHERE IsActive = 1 AND BranchId=@branchId";
             command.Parameters.AddWithValue("@branchId", branchId);
             List<Customer> customers = new();
@@ -35,7 +35,8 @@ namespace BankApplicationRepository.Repository
                     DateOfBirth = reader[6].ToString(),
                     Gender = (Gender)reader[7],
                     PassbookIssueDate = reader[8].ToString(),
-                    Balance = (decimal)reader[9]
+                    Balance = (decimal)reader[9],
+                    Role = (Roles)Convert.ToUInt16(reader[10])
                 };
                 customers.Add(customer);
             }
@@ -47,9 +48,9 @@ namespace BankApplicationRepository.Repository
         {
             SqlCommand command = _connection.CreateCommand();
             command.CommandText = "INSERT INTO Customers (AccountId,Name,Salt,HashedPassword,Balance,Gender," +
-                "AccountType,Address,DateOfBirth,EmailId,PhoneNumber,PassbookIssueDate,IsActive,BranchId)" +
+                "AccountType,Address,DateOfBirth,EmailId,PhoneNumber,PassbookIssueDate,IsActive,Role,BranchId)" +
                 " VALUES (@accountId, @name, @salt,@hasedPassword,@balance,@gender,@accountType,@address,@dateOfBirth," +
-                "@emailId,@phoneNumber,@passbookIssueDate,@isActive,@branchId)";
+                "@emailId,@phoneNumber,@passbookIssueDate,@isActive,@role,@branchId)";
             command.Parameters.AddWithValue("@accountId", customer.AccountId);
             command.Parameters.AddWithValue("@name", customer.Name);
             command.Parameters.AddWithValue("@salt", customer.Salt);
@@ -63,6 +64,7 @@ namespace BankApplicationRepository.Repository
             command.Parameters.AddWithValue("@phoneNumber", customer.PhoneNumber);
             command.Parameters.AddWithValue("@passbookIssueDate", customer.PassbookIssueDate);
             command.Parameters.AddWithValue("@isActive", customer.IsActive);
+            command.Parameters.AddWithValue("@role", customer.Role);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
             int rowsAffected = await command.ExecuteNonQueryAsync();
@@ -93,7 +95,7 @@ namespace BankApplicationRepository.Repository
                 }
             }
 
-            if (customer.Balance >= 0)
+            if (customer.Balance > 0)
             {
                 queryBuilder.Append("Balance = @balance, ");
                 command.Parameters.AddWithValue("@balance", customer.Balance);
@@ -183,7 +185,7 @@ namespace BankApplicationRepository.Repository
         {
             SqlCommand command = _connection.CreateCommand();
             command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Salt," +
-                "HashedPassword FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
+                "HashedPassword,Role FROM Customers WHERE AccountId=@customerAccountId and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerAccountId", customerAccountId);
             command.Parameters.AddWithValue("@branchId", branchId);
             await _connection.OpenAsync();
@@ -205,6 +207,7 @@ namespace BankApplicationRepository.Repository
                     Balance = (decimal)reader[9],
                     Salt = (byte[])reader[10],
                     HashedPassword = (byte[])reader[11],
+                    Role = (Roles)Convert.ToUInt16(reader[12])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();
@@ -219,7 +222,7 @@ namespace BankApplicationRepository.Repository
         public async Task<Customer?> GetCustomerByName(string customerName, string branchId)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance" +
+            command.CommandText = "SELECT AccountId,AccountType,Name,Address,EmailId,PhoneNumber,DateOfBirth,Gender,PassbookIssueDate,Balance,Role " +
                 "FROM Customers WHERE Name=@customerName and BranchId=@branchId AND IsActive = 1 ";
             command.Parameters.AddWithValue("@customerName", customerName);
             command.Parameters.AddWithValue("@branchId", branchId);
@@ -239,7 +242,8 @@ namespace BankApplicationRepository.Repository
                     DateOfBirth = reader[6].ToString(),
                     Gender = (Gender)reader[7],
                     PassbookIssueDate = reader[8].ToString(),
-                    Balance = (decimal)reader[9]
+                    Balance = (decimal)reader[9],
+                    Role = (Roles)Convert.ToUInt16(reader[10])
                 };
                 await reader.CloseAsync();
                 await _connection.CloseAsync();

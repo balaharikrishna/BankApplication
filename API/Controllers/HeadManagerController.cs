@@ -23,9 +23,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllHeadManagers/{bankId}")]
-        public async Task<IActionResult> GetAllHeadManagers([FromRoute] string bankId)
+        [HttpGet("{bankId}")]
+        public async Task<ActionResult<List<HeadManagerDto>>> GetAllHeadManagers([FromRoute] string bankId)
         {
             try
             {
@@ -38,7 +39,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    return Ok("No HeadManagers Available");
+                    return NotFound("No HeadManagers Available");
                 }
             }
             catch (Exception)
@@ -49,9 +50,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetHeadManagerById")]
-        public async Task<IActionResult> GetHeadManagerById([FromQuery] string bankId, [FromQuery] string headManagerAccountId)
+        [HttpGet("{bankId}/{headManagerAccountId}")]
+        public async Task<ActionResult<HeadManagerDto>> GetHeadManagerById([FromRoute] string bankId, [FromRoute] string headManagerAccountId)
         {
             try
             {
@@ -72,9 +74,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetHeadManagerByName")]
-        public async Task<IActionResult> GetHeadManagerByName([FromQuery] string bankId, [FromQuery] string headManagerName)
+        public async Task<ActionResult<HeadManagerDto>> GetHeadManagerByName([FromQuery] string bankId, [FromQuery] string headManagerName)
         {
             try
             {
@@ -94,10 +97,11 @@ namespace API.Controllers
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost("OpenHeadManagerAccount")]
-        public async Task<IActionResult> OpenHeadManagerAccount([FromBody] AddHeadManagerViewModel HeadManagerViewModel)
+        public async Task<ActionResult<Message>> OpenHeadManagerAccount([FromBody] AddHeadManagerViewModel HeadManagerViewModel)
         {
             try
             {
@@ -113,9 +117,11 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("UpdateHeadManagerAccount")]
-        public async Task<IActionResult> UpdateHeadManagerAccount([FromBody] UpdateHeadManagerViewModel updateHeadManagerViewModel)
+        public async Task<ActionResult<Message>> UpdateHeadManagerAccount([FromBody] UpdateHeadManagerViewModel updateHeadManagerViewModel)
         {
             try
             {
@@ -132,9 +138,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpDelete("DeleteHeadManagerAccount")]
-        public async Task<IActionResult> DeleteHeadManagerAccount([FromQuery] string branchId, [FromQuery] string HeadManagerAccountId)
+        public async Task<ActionResult<Message>> DeleteHeadManagerAccount([FromQuery] string branchId, [FromQuery] string HeadManagerAccountId)
         {
             try
             {

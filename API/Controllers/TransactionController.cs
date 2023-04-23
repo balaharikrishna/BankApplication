@@ -23,9 +23,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetAllTransactions/{customerAccountId}")]
-        public async Task<ActionResult<List<Transaction>>> GetAllTransactions([FromRoute] string customerAccountId)
+        public async Task<ActionResult<List<TransactionDto>>> GetAllTransactions([FromRoute] string customerAccountId)
         {
             try
             {
@@ -42,9 +43,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetTransactionById")]
-        public async Task<IActionResult> GetTransactionById([FromQuery] string customerAccountId, [FromQuery] string transactionId)
+        public async Task<ActionResult<TransactionDto>> GetTransactionById([FromQuery] string customerAccountId, [FromQuery] string transactionId)
         {
             try
             {
@@ -60,10 +62,11 @@ namespace API.Controllers
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost("AddCustomerTransaction")]
-        public async Task<IActionResult> AddCustomerTransaction([FromBody] AddCustomerTransactionViewModel addCustomerTransactionViewModel)
+        public async Task<ActionResult<Message>> AddCustomerTransaction([FromBody] AddCustomerTransactionViewModel addCustomerTransactionViewModel)
         {
             try
             {
@@ -80,10 +83,11 @@ namespace API.Controllers
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPost("AddFromAndToCustomerTransaction")]
-        public async Task<IActionResult> AddFromAndToCustomerTransaction([FromBody] AddFromAndToCustomerTransactionViewModel addFromAndToCustomerTransactionViewModel)
+        public async Task<ActionResult<Message>> AddFromAndToCustomerTransaction([FromBody] AddFromAndToCustomerTransactionViewModel addFromAndToCustomerTransactionViewModel)
         {
             try
             {
@@ -104,9 +108,11 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpPut("RevertTransaction")]
-        public async Task<IActionResult> RevertTransaction([FromBody] RevertTransactionViewModel revertTransactionViewModel)
+        public async Task<ActionResult<Message>> RevertTransaction([FromBody] RevertTransactionViewModel revertTransactionViewModel)
         {
             try
             {

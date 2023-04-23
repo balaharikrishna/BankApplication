@@ -23,11 +23,12 @@ namespace API.Controllers
             _bankService = bankService;
         }
 
-        
+
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllBanks")]
-        public async Task<IActionResult> GetAllBanks()
+        [HttpGet]
+        public async Task<ActionResult<List<BankDto>>> GetAllBanks()
         {
             try
             {
@@ -44,9 +45,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetBankById/{bankId}")]
-        public async Task<IActionResult> GetBankById([FromRoute] string bankId)
+        [HttpGet("{bankId}")]
+        public async Task<ActionResult<BankDto>> GetBankById([FromRoute] string bankId)
         {
             try
             {
@@ -67,9 +69,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetBankByName/{bankName}")]
-        public async Task<IActionResult> GetBankByName([FromRoute] string bankName)
+        [HttpGet("{bankName}")]
+        public async Task<ActionResult<BankDto>> GetBankByName([FromRoute] string bankName)
         {
             try
             {
@@ -89,10 +92,11 @@ namespace API.Controllers
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost("CreateBank")]
-        public async Task<IActionResult> CreateBank([FromBody] AddBankViewModel addBankViewModel)
+        [HttpPost]
+        public async Task<ActionResult<Message>> CreateBank([FromBody] AddBankViewModel addBankViewModel)
         {
             try
             {
@@ -108,9 +112,11 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("UpdateBank")]
-        public async Task<IActionResult> UpdateBank([FromBody] UpdateBankViewModel updateBankViewModel)
+        [HttpPut]
+        public async Task<ActionResult<Message>> UpdateBank([FromBody] UpdateBankViewModel updateBankViewModel)
         {
             try
             {
@@ -126,9 +132,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("DeleteBank/{bankId}")]
-        public async Task<IActionResult> DeleteBank([FromRoute] string bankId)
+        [HttpDelete("{bankId}")]
+        public async Task<ActionResult<Message>> DeleteBank([FromRoute] string bankId)
         {
             try
             {

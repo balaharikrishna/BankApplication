@@ -23,9 +23,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllCurrencies/{bankId}")]
-        public async Task<IActionResult> GetAllCurrencies([FromRoute] string bankId)
+        [HttpGet("{bankId}")]
+        public async Task<ActionResult<List<CurrencyDto>>> GetAllCurrencies([FromRoute] string bankId)
         {
             try
             {
@@ -42,9 +43,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetCurrencyByCode")]
-        public async Task<IActionResult> GetCurrencyByCode([FromQuery] string bankId,[FromQuery] string currencyCode)
+        [HttpGet("{bankId}/{currencyCode}")]
+        public async Task<ActionResult<CurrencyDto>> GetCurrencyByCode([FromRoute] string bankId,[FromRoute] string currencyCode)
         {
             try
             {
@@ -65,10 +67,11 @@ namespace API.Controllers
         }
 
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost("AddCurrency")]
-        public async Task<IActionResult> AddCurrency([FromBody] CurrencyViewModel currencyViewModel)
+        [HttpPost]
+        public async Task<ActionResult<Message>> AddCurrency([FromBody] CurrencyViewModel currencyViewModel)
         {
             try
             {
@@ -84,9 +87,11 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("UpdateCurrency")]
-        public async Task<IActionResult> UpdateCurrency([FromBody] CurrencyViewModel currencyViewModel)
+        [HttpPut]
+        public async Task<ActionResult<Message>> UpdateCurrency([FromBody] CurrencyViewModel currencyViewModel)
         {
             try
             {
@@ -102,9 +107,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("DeleteCurrency")]
-        public async Task<IActionResult> DeleteCurrency([FromQuery] string bankId, [FromQuery] string currencyCode)
+        [HttpDelete("{bankId}/{currencyCode}")]
+        public async Task<ActionResult<Message>> DeleteCurrency([FromRoute] string bankId, [FromRoute] string currencyCode)
         {
             try
             {

@@ -25,9 +25,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetAllBranches/{bankId}")]
-        public async Task<IActionResult> GetAllBranches([FromRoute] string bankId)
+        [HttpGet("{bankId}")]
+        public async Task<ActionResult<List<BranchDto>>> GetAllBranches([FromRoute] string bankId)
         {
             try
             {
@@ -44,9 +45,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetBranchById/{branchId}")]
-        public async Task<IActionResult> GetBranchById([FromRoute] string branchId)
+        [HttpGet("{branchId}")]
+        public async Task<ActionResult<BranchDto>> GetBranchById([FromRoute] string branchId)
         {
             try
             {
@@ -67,9 +69,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("GetBranchByName/{branchName}")]
-        public async Task<IActionResult> GetBranchByName([FromRoute] string branchName)
+        [HttpGet("{branchName}")]
+        public async Task<ActionResult<BranchDto>> GetBranchByName([FromRoute] string branchName)
         {
             try
             {
@@ -89,10 +92,11 @@ namespace API.Controllers
             }
         }
 
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPost("CreateBranch")]
-        public async Task<IActionResult> CreateBranch([FromBody] AddBranchViewModel addBranchViewModel)
+        [HttpPost]
+        public async Task<ActionResult<Message>> CreateBranch([FromBody] AddBranchViewModel addBranchViewModel)
         {
             try
             {
@@ -108,9 +112,11 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("UpdateBranch")]
-        public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchViewModel updateBranchViewModel)
+        [HttpPut]
+        public async Task<ActionResult<Message>> UpdateBranch([FromBody] UpdateBranchViewModel updateBranchViewModel)
         {
             try
             {
@@ -126,9 +132,10 @@ namespace API.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpDelete("DeleteBranch/{branchId}")]
-        public async Task<IActionResult> DeleteBranch([FromRoute] string branchId)
+        [HttpDelete("{branchId}")]
+        public async Task<ActionResult<Message>> DeleteBranch([FromRoute] string branchId)
         {
             try
             {

@@ -1,5 +1,4 @@
 ﻿using API.Models;
-using API.ViewModels.Bank;
 using API.ViewModels.Branch;
 using AutoMapper;
 using BankApplicationModels;

@@ -1,8 +1,6 @@
-﻿using API.ViewModels.Branch;
-
-namespace API.ViewModels.Bank
+﻿namespace API.ViewModels.Branch
 {
-    public class UpdateBranchViewModel 
+    public class UpdateBranchViewModel
     {
         public string? BranchName { get; set; }
         public string? BranchId { get; set; }

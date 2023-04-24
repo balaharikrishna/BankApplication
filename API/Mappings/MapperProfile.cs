@@ -18,6 +18,7 @@ namespace API.Mappings
             CreateMap<Transaction, TransactionDto>();
             CreateMap<TransactionCharges,TransactionChargesDto>();
             CreateMap<ReserveBankManager, ReserveBankManagerDto>();
+            CreateMap<AuthenticateUser, AuthenticateUserDto>();
         }
     }
 }

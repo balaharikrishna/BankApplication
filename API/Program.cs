@@ -37,6 +37,8 @@ builder.Services.AddScoped<IReserveBankManagerRepository, ReserveBankManagerRepo
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<ITransactionChargeRepository, TransactionChargeRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IAuthenticationService,AuthenticationService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 //static void Main(string[] args)
 //{
 //    CreateHostBuilder(args).Build().Run();

@@ -12,38 +12,37 @@ namespace BankApplicationRepository.Repository
         {
             _connection = connection;
         }
-        public async Task<IEnumerable<AuthenticateUser>> GetAllUsersAuthenticationDetails()
+        public async Task<AuthenticateUser> GetUserAuthenticationDetails(string accountId,string name)
         {
             SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT Name,Role,Salt,HashedPassword, FROM ReserveBankManagers where IsActive = 1 UNION ALL " +
-                                  "SELECT Name, Role, Salt, HashedPassword FROM HeadManagers where IsActive = 1 UNION ALL " +
-                                  "SELECT Name, Role, Salt, HashedPassword FROM Managers where IsActive = 1 UNION ALL " +
-                                  "SELECT Name, Role, Salt, HashedPassword FROM Staffs where IsActive = 1 UNION ALL " +
-                                  "SELECT Name, Role, Salt, HashedPassword FROM Customers where IsActive = 1 " +
-                                  "ORDER BY Name,Role,Salt,HashedPassword where ";
-
-            List<AuthenticateUser> users = new();
+            command.CommandText = "SELECT AccountId, Name, Role, Salt, HashedPassword FROM(SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
+            "FROM ReserveBankManagers UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
+            "FROM HeadManagers UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
+            "FROM Managers UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
+            "FROM Staffs UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
+            "FROM Customers) AS AllData WHERE IsActive = 1 AND AccountId = @accountId AND Name = @name ";
+            command.Parameters.AddWithValue("@accountId", accountId);
+            command.Parameters.AddWithValue("@name", name);
             await _connection.OpenAsync();
             SqlDataReader reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
+
+            if (await reader.ReadAsync())
             {
                 AuthenticateUser user = new()
                 {
-                    Name = reader[0].ToString(),
-                    Role = (Roles)Convert.ToUInt16(reader[1]),
-                    Salt = (byte[])reader[2],
-                    HashedPassword = (byte[])reader[3]
+                    AccountId = reader[0].ToString(),
+                    Name = reader[1].ToString(),
+                    Role = (Roles)Convert.ToUInt16(reader[2]),
+                    Salt = (byte[])reader[3],
+                    HashedPassword = (byte[])reader[4]
                 };
-                users.Add(user);
-            }
-            await reader.CloseAsync();
-            await _connection.CloseAsync();
-            if (users.Count > 0)
-            {
-                return users;
+                await reader.CloseAsync();
+                await _connection.CloseAsync();
+                return user;
             }
             else
             {
+                await _connection.CloseAsync();
                 return null;
             }
         }

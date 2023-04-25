@@ -1,13 +1,8 @@
 ﻿using BankApplicationModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BankApplicationServices.IServices
 {
-    public interface IAuthenticationService
+    public interface ITokenIssueService
     {
         /// <summary>
         /// authenticates the given userName and password.
@@ -15,6 +10,6 @@ namespace BankApplicationServices.IServices
         /// <param name="userName">user Name of User.</param>
         /// <param name="password">password of User.</param>
         /// <returns>A Message object containing information about the success or failure of the operation.</returns>
-        Task<Message> AuthenticateUser(string userName, string password);
+        Task<Message> IssueToken(string accountId, string userName, string password);
     }
 }

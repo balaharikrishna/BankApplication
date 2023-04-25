@@ -5,8 +5,8 @@ namespace API.Models
 {
     public class AuthenticateUserDto
     {
-        public string Name { get; set; }
         public string AccountId { get; set; }
+        public string Name { get; set; }
         public Roles Role { get; set; }
     }
 }

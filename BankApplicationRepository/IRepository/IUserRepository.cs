@@ -4,6 +4,6 @@ namespace BankApplicationRepository.IRepository
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<AuthenticateUser>> GetAllUsersAuthenticationDetails();
+        Task<AuthenticateUser> GetUserAuthenticationDetails(string accountId, string name);
     }
 }

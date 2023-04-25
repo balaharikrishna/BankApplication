@@ -3,10 +3,12 @@ using API.ViewModels.ReserveBankManager;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ReserveBankManagerController : ControllerBase

@@ -1,10 +1,13 @@
 using API.Mappings;
+using API.MiddleWares;
 using BankApplicationRepository.IRepository;
 using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 using BankApplicationServices.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Data.SqlClient;
-
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAutoMapper(typeof(MapperProfile));
@@ -37,28 +40,8 @@ builder.Services.AddScoped<IReserveBankManagerRepository, ReserveBankManagerRepo
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<ITransactionChargeRepository, TransactionChargeRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<IAuthenticationService,AuthenticationService>();
+builder.Services.AddScoped<ITokenIssueService,TokenIssueService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-//static void Main(string[] args)
-//{
-//    CreateHostBuilder(args).Build().Run();
-//}
-
-// static IHostBuilder CreateHostBuilder(string[] args) =>
-//    Host.CreateDefaultBuilder(args)
-//        .ConfigureServices((hostContext, services) =>
-//        {
-//            // Register IDbConnection service
-//            services.AddScoped<IDbConnection>(sp =>
-//            {
-//                var connectionString = hostContext.Configuration.GetConnectionString("MyDbConnection");
-//                return new SqlConnection(connectionString);
-//            });
-
-//            // Add other services here
-//        });
-//builder.Services.AddAutoMapper(typeof(MapperProfile));
-// Add services to the container.
 
 builder.Services.AddControllers();
 
@@ -76,7 +59,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.MapControllers();
 

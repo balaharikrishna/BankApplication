@@ -3,10 +3,12 @@ using API.ViewModels.Customer;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize(Roles = "Customer")]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -73,7 +75,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}/{name}")]
+        [HttpGet("{branchId}/name/{name}")]
         public async Task<ActionResult<CustomerDto>> GetCustomerByName([FromRoute] string branchId, [FromRoute] string name)
         {
             try

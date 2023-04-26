@@ -1,15 +1,13 @@
 using API.Mappings;
-using API.MiddleWares;
 using BankApplicationRepository.IRepository;
 using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 using BankApplicationServices.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Data.SqlClient;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication();
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 //builder.Services.AddScoped<IDbConnection>(sp =>     
 //{
@@ -40,7 +38,7 @@ builder.Services.AddScoped<IReserveBankManagerRepository, ReserveBankManagerRepo
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<ITransactionChargeRepository, TransactionChargeRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
-builder.Services.AddScoped<ITokenIssueService,TokenIssueService>();
+builder.Services.AddScoped<ITokenIssueService, TokenIssueService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddControllers();
@@ -59,7 +57,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<AuthenticationMiddleware>();
+//app.UseMiddleware<AuthenticationMiddleware>();
+//app.UseMiddleware<AuthorizationMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

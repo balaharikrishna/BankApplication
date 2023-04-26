@@ -73,7 +73,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{branchId}/{name}")]
+        [HttpGet("{branchId}/name/{name}")]
         public async Task<ActionResult<ManagerDto>> GetManagerByName([FromRoute] string branchId, [FromRoute] string name)
         {
             try

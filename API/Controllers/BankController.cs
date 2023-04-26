@@ -4,7 +4,6 @@ using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Principal;
 
 namespace API.Controllers
 {

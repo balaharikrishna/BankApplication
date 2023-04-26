@@ -73,7 +73,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("{bankId}/{name}")]
+        [HttpGet("{bankId}/name/{name}")]
         public async Task<ActionResult<HeadManagerDto>> GetHeadManagerByName([FromRoute] string bankId, [FromRoute] string name)
         {
             try

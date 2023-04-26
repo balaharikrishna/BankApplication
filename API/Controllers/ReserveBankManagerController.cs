@@ -3,12 +3,11 @@ using API.ViewModels.ReserveBankManager;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class ReserveBankManagerController : ControllerBase
@@ -58,7 +57,7 @@ namespace API.Controllers
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Id {id}");
                 ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(id);
-                if (reserveBankManager is null )
+                if (reserveBankManager is null)
                 {
                     return NotFound("Reserve Bank Manager Not Found");
                 }
@@ -75,7 +74,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpGet("accountName/{name}")]
+        [HttpGet("accountName/name/{name}")]
         public async Task<ActionResult<ReserveBankManagerDto>> GetReserveBankManagerByName([FromRoute] string name)
         {
             try
@@ -141,7 +140,7 @@ namespace API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-               
+
                 _logger.Log(LogLevel.Information, message: $"Updating Reserve Bank Manager Account with Id {updateReserveBankManagerAccount.ReserveBankManagerAccountId}");
                 Message message = await _reserveBankManagerService.UpdateReserveBankManagerAccountAsync(updateReserveBankManagerAccount.ReserveBankManagerAccountId!,
                     updateReserveBankManagerAccount.ReserveBankManagerName!, updateReserveBankManagerAccount.ReserveBankManagerPassword!);

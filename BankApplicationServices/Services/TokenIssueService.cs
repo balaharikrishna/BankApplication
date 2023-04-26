@@ -64,7 +64,7 @@ namespace BankApplicationServices.Services
                   new Claim("Name", name),
                   new Claim("Role", role.ToString()),
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
+                Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)
             };
 

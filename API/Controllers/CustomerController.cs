@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Roles = "Customer")]
+   // [Authorize(Policy = "CustomerOnly")]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -24,6 +24,7 @@ namespace API.Controllers
             _customerService = customerService;
         }
 
+        [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -48,6 +49,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -72,6 +74,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -96,6 +99,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "ManagerStaffOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -129,6 +133,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "ManagerStaffOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -162,6 +167,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "ManagerStaffOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -187,6 +193,7 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Deleting the Customer Account.");
             }
         }
+
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -220,6 +227,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -243,6 +251,7 @@ namespace API.Controllers
             }
         }
 
+       
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -252,6 +261,7 @@ namespace API.Controllers
         {
             try
             {
+               
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
@@ -274,6 +284,7 @@ namespace API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while Withdraw the Customer Balance.");
             }
         }
+
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

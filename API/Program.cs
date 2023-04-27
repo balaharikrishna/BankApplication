@@ -3,18 +3,63 @@ using BankApplicationRepository.IRepository;
 using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 using BankApplicationServices.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using System.Data.SqlClient;
+using Microsoft.AspNetCore.Authorization;
+using System.Text;
+using API.AuthorizationPolicies.CustomerOnly;
+using API.AuthorizationPolicies.StaffOnly;
+using API.AuthorizationPolicies.ManagerOnly;
+using API.AuthorizationPolicies.HeadManagerOnly;
+using API.AuthorizationPolicies.ReserveBankManagerOnly;
+using API.AuthorizationPolicies.BranchMembersOnly;
+using API.AuthorizationPolicies.MinimumHeadManager;
+using API.AuthorizationPolicies.ManagerStaffOnly;
+using API.AuthorizationPolicies.ManagerHeadManagerOnly;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication();
-builder.Services.AddAutoMapper(typeof(MapperProfile));
-//builder.Services.AddScoped<IDbConnection>(sp =>     
-//{
-//    var connectionString = builder.Configuration.GetConnectionString("MyDbConnection");
-//    return new SqlConnection(connectionString);
+builder.Services.AddHttpContextAccessor();
 
-//});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]!))
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CustomerOnly", policy => policy.Requirements.Add(new CustomerOnlyRequirement()));
+    options.AddPolicy("StaffOnly", policy => policy.Requirements.Add(new StaffOnlyRequirement()));
+    options.AddPolicy("ManagerOnly", policy => policy.Requirements.Add(new ManagerOnlyRequirement()));
+    options.AddPolicy("HeadManagerOnly", policy => policy.Requirements.Add(new HeadManagerOnlyRequirement()));
+    options.AddPolicy("ReserveBankManagerOnly", policy => policy.Requirements.Add(new ReserveBankManagerOnlyRequirement()));
+    options.AddPolicy("BranchMembersOnly", policy => policy.Requirements.Add(new BranchMembersOnlyRequirement()));
+    options.AddPolicy("MinimumHeadManager", policy => policy.Requirements.Add(new MinimumHeadManagerRequirement()));
+    options.AddPolicy("ManagerStaffOnly", policy => policy.Requirements.Add(new ManagerStaffOnlyRequirement()));
+    options.AddPolicy("ManagerHeadManagerOnly", policy => policy.Requirements.Add(new ManagerHeadManagerOnlyRequirement()));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, CustomerOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, StaffOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, ManagerOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, HeadManagerOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, ReserveBankManagerOnlyHeadler>();
+builder.Services.AddSingleton<IAuthorizationHandler, BranchMembersOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, HeadManagerOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, ManagerStaffOnlyHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, ManagerHeadManagerOnlyHandler>();
+
+builder.Services.AddAutoMapper(typeof(MapperProfile));
+
 builder.Services.AddScoped<SqlConnection>(sp => new SqlConnection(builder.Configuration.GetConnectionString("MyDbConnection")));
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IBankService, BankService>();

@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -28,7 +27,7 @@ namespace BankApplicationServices.Services
 
         public async Task<IEnumerable<Customer?>> GetAllCustomersAsync(string branchId)
         {
-            return await  _customerRepository.GetAllCustomers(branchId);
+            return await _customerRepository.GetAllCustomers(branchId);
         }
 
         public async Task<Customer> GetCustomerByIdAsync(string branchId, string customerAccountId)
@@ -249,7 +248,7 @@ namespace BankApplicationServices.Services
                 if (customerPassword is not null && customer is not null)
                 {
                     salt = customer!.Salt;
-                    byte[]  hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
                     if (Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {
                         message.Result = false;
@@ -540,8 +539,8 @@ namespace BankApplicationServices.Services
                         bool isToCustomerUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
                         decimal toCustomerBalance = toCustomerObject.Balance;
 
-                        message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance,TransactionType.Transfer);
-                        if(message.Result && isfromCustomerUpdated && isToCustomerUpdated)
+                        message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, TransactionType.Transfer);
+                        if (message.Result && isfromCustomerUpdated && isToCustomerUpdated)
                         {
                             message.Result = true;
                             message.ResultMessage = $"Transfer of {transferAmount} Rupees Sucessfull.,Deducted Amout :{transferAmount + transferAmountInterest}, Avl.Bal: {fromCustomerBalanace}";

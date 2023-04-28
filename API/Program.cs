@@ -17,6 +17,10 @@ using API.AuthorizationPolicies.BranchMembersOnly;
 using API.AuthorizationPolicies.MinimumHeadManager;
 using API.AuthorizationPolicies.ManagerStaffOnly;
 using API.AuthorizationPolicies.ManagerHeadManagerOnly;
+using BankApplicationRepository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +63,10 @@ builder.Services.AddSingleton<IAuthorizationHandler, ManagerStaffOnlyHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, ManagerHeadManagerOnlyHandler>();
 
 builder.Services.AddAutoMapper(typeof(MapperProfile));
+
+builder.Services.AddDbContext<BankDBContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
+    //    options.UseSqlServer(connection, b => b.MigrationsAssembly("API"));
 
 builder.Services.AddScoped<SqlConnection>(sp => new SqlConnection(builder.Configuration.GetConnectionString("MyDbConnection")));
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();

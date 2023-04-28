@@ -1,5 +1,4 @@
 ﻿using BankApplicationModels.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace BankApplicationModels
 {

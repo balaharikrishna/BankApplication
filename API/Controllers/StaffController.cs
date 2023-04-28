@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Policy = "ManagerOnly")]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
@@ -99,7 +99,7 @@ namespace API.Controllers
             }
         }
 
-       
+        [Authorize(Policy = "ManagerOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -132,6 +132,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "ManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -165,6 +166,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "ManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

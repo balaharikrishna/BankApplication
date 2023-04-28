@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-   // [Authorize(Policy = "CustomerOnly")]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -194,7 +194,7 @@ namespace API.Controllers
             }
         }
 
-
+        [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -251,7 +251,7 @@ namespace API.Controllers
             }
         }
 
-       
+        [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -285,7 +285,7 @@ namespace API.Controllers
             }
         }
 
-
+        [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

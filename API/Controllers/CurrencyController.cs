@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Policy = "HeadManagerOnly")]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class CurrencyController : ControllerBase
@@ -74,7 +74,7 @@ namespace API.Controllers
             }
         }
 
-
+        [Authorize(Policy = "HeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -106,6 +106,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "HeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -137,6 +138,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "HeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

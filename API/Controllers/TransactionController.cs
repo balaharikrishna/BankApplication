@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Policy = "CustomerOnly")]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class TransactionController : ControllerBase
@@ -74,7 +74,7 @@ namespace API.Controllers
             }
         }
 
-
+        [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -108,6 +108,7 @@ namespace API.Controllers
             }
         }
 
+        [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

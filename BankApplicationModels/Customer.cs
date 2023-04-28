@@ -1,10 +1,12 @@
 ﻿using BankApplicationModels.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApplicationModels
 {
     public class Customer : HeadManager
     {
+        
         [Required]
         public decimal Balance { get; set; }
 
@@ -33,10 +35,6 @@ namespace BankApplicationModels
         public string PassbookIssueDate { get; set; }
 
         public new Roles Role = Roles.Customer;
-        //public List<Transactions> Transactions { get; set; }
-        //public override string ToString()
-        //{
-        //    return $"\nAccountID: {AccountId}  Name:{Name}  Avl.Bal:{Balance}  PhoneNumber:{PhoneNumber}\nEmailId:{EmailId}  AccountType:{AccountType}  Address:{Address}  DateOfBirth:{DateOfBirth}\nGender:{Gender}  PassbookIssueDate:{PassbookIssueDate}\n";
-        //}
+       
     }
 }

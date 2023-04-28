@@ -1,10 +1,14 @@
 ﻿using BankApplicationModels.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApplicationModels
 {
     public class Transaction
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
         [Required]
         public string CustomerAccountId { get; set; }
         [Required]
@@ -30,12 +34,9 @@ namespace BankApplicationModels
         [Required]
         public decimal Balance { get; set; }
 
-        //public override string ToString()
-        //{
-        //    return $"{TransactionId}: {TransactionType} " +
-        // $"From BankId:{FromCustomerBankId}-BranchId:{FromCustomerBranchId}-AccountId:{FromCustomerAccountId} " +
-        // $"To BankId:{ToCustomerBankId}-BranchId:{ToCustomerBranchId}-AccountId:{ToCustomerAccountId} " +
-        // $"on {TransactionDate}: Debited Amount:{Debit}, Credited Amount:{Credit}, Balance:{Balance}";
-        //}
+        [ForeignKey("Customer")]
+        public string AccountId { get; set; }
+
+        public virtual Customer Customer { get; set; }
     }
 }

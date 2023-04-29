@@ -65,8 +65,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, ManagerHeadManagerOnlyHandl
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 builder.Services.AddDbContext<BankDBContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection")));
-    //    options.UseSqlServer(connection, b => b.MigrationsAssembly("API"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MyDbConnection"),
+        b => b.MigrationsAssembly("API")));
 
 builder.Services.AddScoped<SqlConnection>(sp => new SqlConnection(builder.Configuration.GetConnectionString("MyDbConnection")));
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>();

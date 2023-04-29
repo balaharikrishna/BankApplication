@@ -1,5 +1,7 @@
 ﻿using BankApplicationModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.ComponentModel;
 
 namespace BankApplicationRepository
 {
@@ -20,6 +22,35 @@ namespace BankApplicationRepository
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
-       
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+           // base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Currency>()
+                .Property(c => c.ExchangeRate)
+                .HasPrecision(3, 2);
+
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.Balance)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<Transaction>()
+            .Property(t => t.Balance)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.Credit)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<Transaction>()
+            .Property(t => t.Debit)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<TransactionCharges>().HasNoKey();
+            //modelBuilder.Entity<Customer>().ToTable("Customers");
+            //modelBuilder.Entity<Staff>().ToTable("Staffs");
+            //modelBuilder.Entity<Manager>().ToTable("Managers");
+            //modelBuilder.Entity<ReserveBankManager>().ToTable("ReserveBankManagers");
+        }
     }
 }

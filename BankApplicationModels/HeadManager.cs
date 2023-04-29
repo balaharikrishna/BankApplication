@@ -4,32 +4,41 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApplicationModels
 {
+    [Table("HeadManagers")]
     public class HeadManager 
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-
         [Required]
         [RegularExpression("^[a-zA-Z]+$")]
+        [StringLength(30)]
+        [Column(TypeName = "varchar")]
         public string Name { get; set; }
 
         [Required]
-        [RegularExpression("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$")]
+        [Column(TypeName = "VARBINARY(MAX)")]
         public byte[] Salt { get; set; }
 
         [Required]
+        [Column(TypeName = "VARBINARY(MAX)")]
         public byte[] HashedPassword { get; set; }
 
         [Key]
         [Required]
+        [StringLength(17)]
+        [Column(TypeName = "varchar")]
         public string AccountId { get; set; }
 
         [Required]
         [RegularExpression("^[01]+$")]
         public bool IsActive { get; set; }
 
+        [Required]
+        [Range(1, 5)]
+        [Column(TypeName = "Smallint")]
         public Roles Role = Roles.HeadManager;
 
+        [Required]
+        [StringLength(17)]
+        [Column(TypeName = "varchar")]
         [ForeignKey("Branch")]
         public string BranchId { get; set; }
         public virtual Branch Branch { get; set; }

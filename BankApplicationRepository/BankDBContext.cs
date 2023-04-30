@@ -1,7 +1,5 @@
 ﻿using BankApplicationModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.ComponentModel;
 
 namespace BankApplicationRepository
 {
@@ -24,7 +22,7 @@ namespace BankApplicationRepository
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-           // base.OnModelCreating(modelBuilder);
+            // base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Currency>()
                 .Property(c => c.ExchangeRate)

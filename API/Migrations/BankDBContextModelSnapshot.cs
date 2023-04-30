@@ -101,7 +101,116 @@ namespace API.Migrations
                     b.ToTable("Currencies");
                 });
 
+            modelBuilder.Entity("BankApplicationModels.Customer", b =>
+                {
+                    b.Property<string>("AccountId")
+                        .HasMaxLength(17)
+                        .HasColumnType("varchar");
+
+                    b.Property<short>("AccountType")
+                        .HasColumnType("Smallint");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar");
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(19, 4)
+                        .HasColumnType("decimal(19,4)");
+
+                    b.Property<string>("BranchId")
+                        .IsRequired()
+                        .HasMaxLength(17)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("DateOfBirth")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("EmailId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar");
+
+                    b.Property<short>("Gender")
+                        .HasColumnType("Smallint");
+
+                    b.Property<byte[]>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("PassbookIssueDate")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar");
+
+                    b.Property<short>("Role")
+                        .HasColumnType("Smallint");
+
+                    b.Property<byte[]>("Salt")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.HasKey("AccountId");
+
+                    b.HasIndex("BranchId");
+
+                    b.ToTable("Customers");
+                });
+
             modelBuilder.Entity("BankApplicationModels.HeadManager", b =>
+                {
+                    b.Property<string>("AccountId")
+                        .HasMaxLength(17)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("BankId")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("varchar");
+
+                    b.Property<byte[]>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar");
+
+                    b.Property<short>("Role")
+                        .HasColumnType("Smallint");
+
+                    b.Property<byte[]>("Salt")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.HasKey("AccountId");
+
+                    b.HasIndex("BankId");
+
+                    b.ToTable("HeadManagers");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Manager", b =>
                 {
                     b.Property<string>("AccountId")
                         .HasMaxLength(17)
@@ -124,6 +233,9 @@ namespace API.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("varchar");
 
+                    b.Property<short>("Role")
+                        .HasColumnType("Smallint");
+
                     b.Property<byte[]>("Salt")
                         .IsRequired()
                         .HasColumnType("VARBINARY(MAX)");
@@ -132,9 +244,74 @@ namespace API.Migrations
 
                     b.HasIndex("BranchId");
 
-                    b.ToTable("HeadManagers");
+                    b.ToTable("Managers");
+                });
 
-                    b.UseTptMappingStrategy();
+            modelBuilder.Entity("BankApplicationModels.ReserveBankManager", b =>
+                {
+                    b.Property<string>("AccountId")
+                        .HasMaxLength(17)
+                        .HasColumnType("varchar");
+
+                    b.Property<byte[]>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar");
+
+                    b.Property<short>("Role")
+                        .HasColumnType("Smallint");
+
+                    b.Property<byte[]>("Salt")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.HasKey("AccountId");
+
+                    b.ToTable("ReserveBankManagers");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Staff", b =>
+                {
+                    b.Property<string>("AccountId")
+                        .HasMaxLength(17)
+                        .HasColumnType("varchar");
+
+                    b.Property<string>("BranchId")
+                        .IsRequired()
+                        .HasMaxLength(17)
+                        .HasColumnType("varchar");
+
+                    b.Property<byte[]>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar");
+
+                    b.Property<short>("Role")
+                        .HasColumnType("Smallint");
+
+                    b.Property<byte[]>("Salt")
+                        .IsRequired()
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.HasKey("AccountId");
+
+                    b.HasIndex("BranchId");
+
+                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("BankApplicationModels.Transaction", b =>
@@ -241,69 +418,6 @@ namespace API.Migrations
                     b.ToTable("TransactionCharges");
                 });
 
-            modelBuilder.Entity("BankApplicationModels.Customer", b =>
-                {
-                    b.HasBaseType("BankApplicationModels.HeadManager");
-
-                    b.Property<short>("AccountType")
-                        .HasColumnType("Smallint");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar");
-
-                    b.Property<decimal>("Balance")
-                        .HasPrecision(19, 4)
-                        .HasColumnType("decimal(19,4)");
-
-                    b.Property<string>("DateOfBirth")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar");
-
-                    b.Property<string>("EmailId")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar");
-
-                    b.Property<short>("Gender")
-                        .HasColumnType("Smallint");
-
-                    b.Property<string>("PassbookIssueDate")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar");
-
-                    b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("BankApplicationModels.Manager", b =>
-                {
-                    b.HasBaseType("BankApplicationModels.HeadManager");
-
-                    b.ToTable("Managers");
-                });
-
-            modelBuilder.Entity("BankApplicationModels.ReserveBankManager", b =>
-                {
-                    b.HasBaseType("BankApplicationModels.HeadManager");
-
-                    b.ToTable("ReserveBankManagers");
-                });
-
-            modelBuilder.Entity("BankApplicationModels.Staff", b =>
-                {
-                    b.HasBaseType("BankApplicationModels.HeadManager");
-
-                    b.ToTable("Staffs");
-                });
-
             modelBuilder.Entity("BankApplicationModels.Branch", b =>
                 {
                     b.HasOne("BankApplicationModels.Bank", "Bank")
@@ -326,7 +440,40 @@ namespace API.Migrations
                     b.Navigation("Bank");
                 });
 
+            modelBuilder.Entity("BankApplicationModels.Customer", b =>
+                {
+                    b.HasOne("BankApplicationModels.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("BankApplicationModels.HeadManager", b =>
+                {
+                    b.HasOne("BankApplicationModels.Bank", "Bank")
+                        .WithMany()
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bank");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Manager", b =>
+                {
+                    b.HasOne("BankApplicationModels.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Staff", b =>
                 {
                     b.HasOne("BankApplicationModels.Branch", "Branch")
                         .WithMany()
@@ -357,42 +504,6 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("BankApplicationModels.Customer", b =>
-                {
-                    b.HasOne("BankApplicationModels.HeadManager", null)
-                        .WithOne()
-                        .HasForeignKey("BankApplicationModels.Customer", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BankApplicationModels.Manager", b =>
-                {
-                    b.HasOne("BankApplicationModels.HeadManager", null)
-                        .WithOne()
-                        .HasForeignKey("BankApplicationModels.Manager", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BankApplicationModels.ReserveBankManager", b =>
-                {
-                    b.HasOne("BankApplicationModels.HeadManager", null)
-                        .WithOne()
-                        .HasForeignKey("BankApplicationModels.ReserveBankManager", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BankApplicationModels.Staff", b =>
-                {
-                    b.HasOne("BankApplicationModels.HeadManager", null)
-                        .WithOne()
-                        .HasForeignKey("BankApplicationModels.Staff", "AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

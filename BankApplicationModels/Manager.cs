@@ -5,11 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BankApplicationModels
 {
     [Table("Managers")]
-    public class Manager : HeadManager
+    public class Manager : User
     {
         [Required]
-        [Range(1, 5)]
-        [Column(TypeName = "Smallint")]
-        public new Roles Role = Roles.Manager;
+        [StringLength(17)]
+        [Column(TypeName = "varchar")]
+        [ForeignKey("Branch")]
+        public string BranchId { get; set; }
+        public virtual Branch Branch { get; set; }
     }
 }

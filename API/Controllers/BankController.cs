@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Policy = "ReserveBankManagerOnly")]
+  //  [Authorize(Policy = "ReserveBankManagerOnly")]
     [ApiController]
     [Route("api/[controller]")]
     public class BankController : ControllerBase

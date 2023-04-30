@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BankApplicationModels
 {
     [Table("Customers")]
-    public class Customer : HeadManager
+    public class Customer : User
     {
 
         [Required]
@@ -50,8 +50,10 @@ namespace BankApplicationModels
         public string PassbookIssueDate { get; set; }
 
         [Required]
-        [Range(1, 5)]
-        [Column(TypeName = "Smallint")]
-        public new Roles Role = Roles.Customer;
+        [StringLength(17)]
+        [Column(TypeName = "varchar")]
+        [ForeignKey("Branch")]
+        public string BranchId { get; set; }
+        public virtual Branch Branch { get; set; }
     }
 }

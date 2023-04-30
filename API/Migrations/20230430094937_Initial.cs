@@ -24,6 +24,22 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ReserveBankManagers",
+                columns: table => new
+                {
+                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Role = table.Column<short>(type: "Smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReserveBankManagers", x => x.AccountId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Branches",
                 columns: table => new
                 {
@@ -70,17 +86,95 @@ namespace API.Migrations
                 columns: table => new
                 {
                     AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BankId = table.Column<string>(type: "varchar(12)", maxLength: 12, nullable: false),
                     Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false)
+                    Role = table.Column<short>(type: "Smallint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HeadManagers", x => x.AccountId);
                     table.ForeignKey(
-                        name: "FK_HeadManagers_Branches_BranchId",
+                        name: "FK_HeadManagers_Banks_BankId",
+                        column: x => x.BankId,
+                        principalTable: "Banks",
+                        principalColumn: "BankId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    Balance = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    EmailId = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    AccountType = table.Column<short>(type: "Smallint", nullable: false),
+                    Address = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    DateOfBirth = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    Gender = table.Column<short>(type: "Smallint", nullable: false),
+                    PassbookIssueDate = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Role = table.Column<short>(type: "Smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.AccountId);
+                    table.ForeignKey(
+                        name: "FK_Customers_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Managers",
+                columns: table => new
+                {
+                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Role = table.Column<short>(type: "Smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Managers", x => x.AccountId);
+                    table.ForeignKey(
+                        name: "FK_Managers_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Staffs",
+                columns: table => new
+                {
+                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Role = table.Column<short>(type: "Smallint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Staffs", x => x.AccountId);
+                    table.ForeignKey(
+                        name: "FK_Staffs_Branches_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "BranchId",
@@ -105,82 +199,6 @@ namespace API.Migrations
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "BranchId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Customers",
-                columns: table => new
-                {
-                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
-                    Balance = table.Column<decimal>(type: "decimal(19,4)", precision: 19, scale: 4, nullable: false),
-                    PhoneNumber = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
-                    EmailId = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    AccountType = table.Column<short>(type: "Smallint", nullable: false),
-                    Address = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    DateOfBirth = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
-                    Gender = table.Column<short>(type: "Smallint", nullable: false),
-                    PassbookIssueDate = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Customers", x => x.AccountId);
-                    table.ForeignKey(
-                        name: "FK_Customers_HeadManagers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "HeadManagers",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Managers",
-                columns: table => new
-                {
-                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Managers", x => x.AccountId);
-                    table.ForeignKey(
-                        name: "FK_Managers_HeadManagers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "HeadManagers",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ReserveBankManagers",
-                columns: table => new
-                {
-                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ReserveBankManagers", x => x.AccountId);
-                    table.ForeignKey(
-                        name: "FK_ReserveBankManagers_HeadManagers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "HeadManagers",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Staffs",
-                columns: table => new
-                {
-                    AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Staffs", x => x.AccountId);
-                    table.ForeignKey(
-                        name: "FK_Staffs_HeadManagers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "HeadManagers",
-                        principalColumn: "AccountId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -227,8 +245,23 @@ namespace API.Migrations
                 column: "BankId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_HeadManagers_BranchId",
+                name: "IX_Customers_BranchId",
+                table: "Customers",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HeadManagers_BankId",
                 table: "HeadManagers",
+                column: "BankId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Managers_BranchId",
+                table: "Managers",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Staffs_BranchId",
+                table: "Staffs",
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
@@ -249,6 +282,9 @@ namespace API.Migrations
                 name: "Currencies");
 
             migrationBuilder.DropTable(
+                name: "HeadManagers");
+
+            migrationBuilder.DropTable(
                 name: "Managers");
 
             migrationBuilder.DropTable(
@@ -265,9 +301,6 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Customers");
-
-            migrationBuilder.DropTable(
-                name: "HeadManagers");
 
             migrationBuilder.DropTable(
                 name: "Branches");

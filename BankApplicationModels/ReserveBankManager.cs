@@ -1,20 +1,10 @@
-﻿using BankApplicationModels.Enums;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApplicationModels
 {
     [Table("ReserveBankManagers")]
-    public class ReserveBankManager : HeadManager
+    public class ReserveBankManager : User
     {
-        [Required]
-        [Range(1, 5)]
-        [Column(TypeName = "Smallint")]
-        public new Roles Role = Roles.ReserveBankManager;
+
     }
 }

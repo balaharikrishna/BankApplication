@@ -50,9 +50,9 @@ namespace BankApplicationRepository.Repository
             return rowsAffected > 0;
         }
 
-
         public async Task<bool> DeleteBank(string id)
         {
+
             Bank bank = await GetBankById(id);
             bank.IsActive = false;
             _context.Banks.Update(bank);

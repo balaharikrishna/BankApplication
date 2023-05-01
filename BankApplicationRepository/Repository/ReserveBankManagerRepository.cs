@@ -1,164 +1,70 @@
 ﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using System.Data.SqlClient;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankApplicationRepository.Repository
 {
     public class ReserveBankManagerRepository : IReserveBankManagerRepository
     {
-        private readonly SqlConnection _connection;
-        public ReserveBankManagerRepository(SqlConnection connection)
+        private readonly BankDBContext _context;
+        public ReserveBankManagerRepository(BankDBContext context)
         {
-            _connection = connection;
+            _context = context;
         }
         public async Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagers()
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Role FROM ReserveBankManagers WHERE IsActive = 1";
-            List<ReserveBankManager> reserveBankManagers = new();
-            await _connection.OpenAsync();
-            SqlDataReader reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                ReserveBankManager reserveBankManager = new()
-                {
-                    AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString(),
-                    Role = (Roles)Convert.ToUInt16(reader[2])
-                };
-                reserveBankManagers.Add(reserveBankManager);
-            }
-            await reader.CloseAsync();
-            await _connection.CloseAsync();
-            return reserveBankManagers;
+            return await _context.ReserveBankManagers.Where(c => c.IsActive.Equals(true)).ToListAsync();
         }
         public async Task<bool> AddReserveBankManager(ReserveBankManager reserveBankManager)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "INSERT INTO ReserveBankManagers (AccountId,Name,Salt,HashedPassword,IsActive,Role )" +
-                " VALUES (@accountId, @name, @salt,@hasedPassword,@isActive,@role)";
-            command.Parameters.AddWithValue("@accountId", reserveBankManager.AccountId);
-            command.Parameters.AddWithValue("@name", reserveBankManager.Name);
-            command.Parameters.AddWithValue("@salt", reserveBankManager.Salt);
-            command.Parameters.AddWithValue("@hasedPassword", reserveBankManager.HashedPassword);
-            command.Parameters.AddWithValue("@isActive", reserveBankManager.IsActive);
-            command.Parameters.AddWithValue("@role", reserveBankManager.Role);
-            await _connection.OpenAsync();
-            int rowsAffected = await command.ExecuteNonQueryAsync();
-            await _connection.CloseAsync();
+            await _context.ReserveBankManagers.AddAsync(reserveBankManager);
+            int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
-       
+
         public async Task<bool> UpdateReserveBankManager(ReserveBankManager reserveBankManager)
         {
-            SqlCommand command = _connection.CreateCommand();
-            StringBuilder queryBuilder = new("UPDATE ReserveBankManagers SET ");
-
+            ReserveBankManager reserveBankManagerObj = await GetReserveBankManagerById(reserveBankManager.AccountId);
             if (reserveBankManager.Name is not null)
             {
-                queryBuilder.Append("Name = @name, ");
-                command.Parameters.AddWithValue("@name", reserveBankManager.Name);
+                reserveBankManagerObj.Name = reserveBankManager.Name;
             }
 
             if (reserveBankManager.Salt is not null)
             {
-                queryBuilder.Append("Salt = @salt, ");
-                command.Parameters.AddWithValue("@salt", reserveBankManager.Salt);
+                reserveBankManagerObj.Salt = reserveBankManager.Salt;
 
-                if (reserveBankManager.HashedPassword != null)
+                if (reserveBankManager.HashedPassword is not null)
                 {
-                    queryBuilder.Append("HashedPassword = @hashedPassword, ");
-                    command.Parameters.AddWithValue("@hashedPassword", reserveBankManager.HashedPassword);
+                    reserveBankManagerObj.HashedPassword = reserveBankManager.HashedPassword;
                 }
             }
-
-            queryBuilder.Remove(queryBuilder.Length - 2, 2);
-            queryBuilder.Append(" WHERE AccountId = @accountId AND IsActive = 1");
-            command.Parameters.AddWithValue("@accountId", reserveBankManager.AccountId);
-            command.CommandText = queryBuilder.ToString();
-            await _connection.OpenAsync();
-            int rowsAffected = await command.ExecuteNonQueryAsync();
-            await _connection.CloseAsync();
+            _context.ReserveBankManagers.Update(reserveBankManagerObj);
+            int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteReserveBankManager(string reserveBankManagerAccountId)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "UPDATE ReserveBankManagers SET IsActive = 0 WHERE AccountId=@reserveBankManagerAccountId AND IsActive = 1 ";
-            command.Parameters.AddWithValue("@reserveBankManagerAccountId", reserveBankManagerAccountId);
-            await _connection.OpenAsync();
-            int rowsAffected = await command.ExecuteNonQueryAsync();
-            await _connection.CloseAsync();
+            ReserveBankManager reserveBankManager = await GetReserveBankManagerById(reserveBankManagerAccountId);
+            reserveBankManager.IsActive = false;
+            _context.ReserveBankManagers.Update(reserveBankManager);
+            int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
         public async Task<bool> IsReserveBankManagerExist(string reserveBankManagerAccountId)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId FROM ReserveBankManagers WHERE AccountId=@reserveBankManagerAccountId  AND IsActive = 1 ";
-            command.Parameters.AddWithValue("@reserveBankManagerAccountId", reserveBankManagerAccountId);
-            await _connection.OpenAsync();
-            SqlDataReader reader = await command.ExecuteReaderAsync();
-            bool isReserveBankManagerExist = reader.HasRows;
-            await reader.CloseAsync();
-            await _connection.CloseAsync();
-            return isReserveBankManagerExist;
+            return await _context.ReserveBankManagers.AnyAsync(c => c.AccountId.Equals(reserveBankManagerAccountId) && c.IsActive.Equals(true));
         }
         public async Task<ReserveBankManager?> GetReserveBankManagerById(string reserveBankManagerAccountId)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Salt,HashedPassword,Role FROM ReserveBankManagers WHERE AccountId=@reserveBankManagerAccountId AND IsActive = 1";
-            command.Parameters.AddWithValue("@reserveBankManagerAccountId", reserveBankManagerAccountId);
-            await _connection.OpenAsync();
-            SqlDataReader reader = await command.ExecuteReaderAsync();
-
-            if (await reader.ReadAsync())
-            {
-                ReserveBankManager reserveBankManager = new()
-                {
-                    AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString(),
-                    Salt = (byte[])reader[2],
-                    HashedPassword = (byte[])reader[3],
-                    Role = (Roles)Convert.ToUInt16(reader[4]),
-                };
-                await reader.CloseAsync();
-                await _connection.CloseAsync();
-                return reserveBankManager;
-            }
-            else
-            {
-                await _connection.CloseAsync();
-                return null;
-            }
+            return await _context.ReserveBankManagers.FirstOrDefaultAsync(c => c.AccountId.Equals(reserveBankManagerAccountId)
+           && c.IsActive.Equals(true));
         }
         public async Task<ReserveBankManager?> GetReserveBankManagerByName(string reserveBankManagerName)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId,Name,Role FROM ReserveBankManagers WHERE Name=@reserveBankManagerName AND IsActive = 1";
-            command.Parameters.AddWithValue("@reserveBankManagerName", reserveBankManagerName);
-            await _connection.OpenAsync();
-            SqlDataReader reader = await command.ExecuteReaderAsync();
-
-            if (await reader.ReadAsync())
-            {
-                ReserveBankManager reserveBankManager = new()
-                {
-                    AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString(),
-                    Role= (Roles)Convert.ToUInt16(reader[2])
-                };
-                await reader.CloseAsync();
-                await _connection.CloseAsync();
-                return reserveBankManager;
-            }
-            else
-            {
-                await _connection.CloseAsync();
-                return null;
-            }
+            return await _context.ReserveBankManagers.FirstOrDefaultAsync(c => c.Name.Equals(reserveBankManagerName)
+            && c.IsActive.Equals(true));
         }
     }
 }

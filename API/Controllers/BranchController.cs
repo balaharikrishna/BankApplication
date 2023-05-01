@@ -3,12 +3,11 @@ using API.ViewModels.Branch;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize(Policy = "HeadManagerOnly")]
+    //  [Authorize(Policy = "HeadManagerOnly")]
     [ApiController]
     [Route("api/[controller]")]
     public class BranchController : ControllerBase
@@ -119,7 +118,7 @@ namespace API.Controllers
                     _logger.Log(LogLevel.Error, message: $"Creating a new Branch Failed");
                     return BadRequest($"An error occurred while creating Branch.,Reason: {message.ResultMessage}");
                 }
-               
+
             }
             catch (Exception)
             {

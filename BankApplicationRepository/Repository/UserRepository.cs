@@ -1,48 +1,50 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace BankApplicationRepository.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private readonly SqlConnection _connection;
-        public UserRepository(SqlConnection connection)
+        private readonly BankDBContext _context;
+        public UserRepository(BankDBContext context)
         {
-            _connection = connection;
+            _context = context;
         }
-        public async Task<AuthenticateUser> GetUserAuthenticationDetails(string accountId,string name)
+        public async Task<AuthenticateUser> GetUserAuthenticationDetails(string accountId)
         {
-            SqlCommand command = _connection.CreateCommand();
-            command.CommandText = "SELECT AccountId, Name, Role, Salt, HashedPassword FROM(SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
-            "FROM ReserveBankManagers UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
-            "FROM HeadManagers UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
-            "FROM Managers UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
-            "FROM Staffs UNION ALL SELECT AccountId, Name, Salt, HashedPassword, Role, IsActive " +
-            "FROM Customers) AS AllData WHERE IsActive = 1 AND AccountId = @accountId AND Name = @name ";
-            command.Parameters.AddWithValue("@accountId", accountId);
-            command.Parameters.AddWithValue("@name", name);
-            await _connection.OpenAsync();
-            SqlDataReader reader = await command.ExecuteReaderAsync();
+            var result = await (from reserveBankManagers in _context.ReserveBankManagers
+                                where reserveBankManagers.IsActive && reserveBankManagers.AccountId.Equals(accountId)
+                                select new { reserveBankManagers.AccountId, reserveBankManagers.Name, reserveBankManagers.Role, reserveBankManagers.Salt, reserveBankManagers.HashedPassword })
+              .Union(from headManagers in _context.HeadManagers
+                     where headManagers.IsActive && headManagers.AccountId.Equals(accountId)
+                     select new { headManagers.AccountId, headManagers.Name, headManagers.Role, headManagers.Salt, headManagers.HashedPassword })
+              .Union(from managers in _context.Managers
+                     where managers.IsActive && managers.AccountId.Equals(accountId)
+                     select new { managers.AccountId, managers.Name, managers.Role, managers.Salt, managers.HashedPassword })
+              .Union(from staffs in _context.Staffs
+                     where staffs.IsActive && staffs.AccountId.Equals(accountId)
+                     select new { staffs.AccountId, staffs.Name, staffs.Role, staffs.Salt, staffs.HashedPassword })
+              .Union(from customers in _context.Customers
+                     where customers.IsActive && customers.AccountId.Equals(accountId)
+                     select new { customers.AccountId, customers.Name, customers.Role, customers.Salt, customers.HashedPassword })
+              .FirstOrDefaultAsync();
 
-            if (await reader.ReadAsync())
+            if (result is not null)
             {
                 AuthenticateUser user = new()
                 {
-                    AccountId = reader[0].ToString(),
-                    Name = reader[1].ToString(),
-                    Role = (Roles)Convert.ToUInt16(reader[2]),
-                    Salt = (byte[])reader[3],
-                    HashedPassword = (byte[])reader[4]
+                    AccountId = result.AccountId,
+                    Name = result.Name,
+                    Role = (Roles)result.Role,
+                    Salt = result.Salt,
+                    HashedPassword = result.HashedPassword
                 };
-                await reader.CloseAsync();
-                await _connection.CloseAsync();
                 return user;
             }
             else
             {
-                await _connection.CloseAsync();
                 return null;
             }
         }

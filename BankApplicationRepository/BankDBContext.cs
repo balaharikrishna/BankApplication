@@ -45,10 +45,6 @@ namespace BankApplicationRepository
                 .HasPrecision(19, 4);
 
             modelBuilder.Entity<TransactionCharges>().HasNoKey();
-            //modelBuilder.Entity<Customer>().ToTable("Customers");
-            //modelBuilder.Entity<Staff>().ToTable("Staffs");
-            //modelBuilder.Entity<Manager>().ToTable("Managers");
-            //modelBuilder.Entity<ReserveBankManager>().ToTable("ReserveBankManagers");
         }
     }
 }

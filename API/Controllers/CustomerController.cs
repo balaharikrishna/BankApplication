@@ -3,12 +3,11 @@ using API.ViewModels.Customer;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase
@@ -24,7 +23,7 @@ namespace API.Controllers
             _customerService = customerService;
         }
 
-        [Authorize(Policy = "BranchMembersOnly")]
+        //  [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -49,7 +48,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "BranchMembersOnly")]
+        //  [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -74,7 +73,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "BranchMembersOnly")]
+        //  [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -99,7 +98,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "ManagerStaffOnly")]
+        //  [Authorize(Policy = "ManagerStaffOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -133,7 +132,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "ManagerStaffOnly")]
+        //  [Authorize(Policy = "ManagerStaffOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -167,7 +166,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "ManagerStaffOnly")]
+        //  [Authorize(Policy = "ManagerStaffOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -194,7 +193,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "CustomerOnly")]
+        //  [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -227,7 +226,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "BranchMembersOnly")]
+        //   [Authorize(Policy = "BranchMembersOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -251,7 +250,7 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "CustomerOnly")]
+        //  [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -261,7 +260,7 @@ namespace API.Controllers
         {
             try
             {
-               
+
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
@@ -285,12 +284,12 @@ namespace API.Controllers
             }
         }
 
-        [Authorize(Policy = "CustomerOnly")]
+        //  [Authorize(Policy = "CustomerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [HttpPut("transfer")] 
+        [HttpPut("transfer")]
         public async Task<ActionResult<Message>> TransferAmount([FromBody] TransferAmountViewModel transferAmountViewModel)
         {
             try

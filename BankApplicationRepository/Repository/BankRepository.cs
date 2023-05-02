@@ -1,15 +1,12 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Data.SqlClient;
-using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
     public class BankRepository : IBankRepository
     {
-         private readonly BankDBContext _context;
+        private readonly BankDBContext _context;
 
         public BankRepository(BankDBContext context)
         {
@@ -18,7 +15,7 @@ namespace BankApplicationRepository.Repository
 
         public async Task<IEnumerable<Bank>> GetAllBanks()
         {
-            return await _context.Banks.Where(b=>b.IsActive.Equals(true)).ToListAsync();
+            return await _context.Banks.Where(b => b.IsActive.Equals(true)).ToListAsync();
         }
 
         public async Task<Bank?> GetBankById(string id)
@@ -45,7 +42,12 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateBank(Bank bank)
         {
-            _context.Banks.Update(bank);
+            Bank bankObj = await GetBankById(bank.BankId);
+            if (bankObj.BankName is not null)
+            {
+                bankObj.BankName = bankObj.BankName;
+            }
+            _context.Banks.Update(bankObj);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }

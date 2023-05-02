@@ -163,7 +163,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<IEnumerable<TransactionCharges>> GetTransactionChargesAsync(string branchId)
+        public Task<IEnumerable<TransactionCharge>> GetTransactionChargesAsync(string branchId)
         {
             return _branchRepository.GetAllTransactionCharges(branchId);
         }

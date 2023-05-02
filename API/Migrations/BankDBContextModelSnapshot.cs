@@ -43,7 +43,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Branch", b =>
                 {
                     b.Property<string>("BranchId")
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<string>("BankId")
@@ -121,7 +121,7 @@ namespace API.Migrations
 
                     b.Property<string>("BranchId")
                         .IsRequired()
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<string>("DateOfBirth")
@@ -218,7 +218,7 @@ namespace API.Migrations
 
                     b.Property<string>("BranchId")
                         .IsRequired()
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<byte[]>("HashedPassword")
@@ -285,7 +285,7 @@ namespace API.Migrations
 
                     b.Property<string>("BranchId")
                         .IsRequired()
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<byte[]>("HashedPassword")
@@ -316,9 +316,11 @@ namespace API.Migrations
 
             modelBuilder.Entity("BankApplicationModels.Transaction", b =>
                 {
-                    b.Property<string>("TransactionId")
-                        .HasMaxLength(23)
-                        .HasColumnType("varchar");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AccountId")
                         .IsRequired()
@@ -345,7 +347,7 @@ namespace API.Migrations
 
                     b.Property<string>("CustomerBranchId")
                         .IsRequired()
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<decimal>("Debit")
@@ -361,7 +363,7 @@ namespace API.Migrations
                         .HasColumnType("varchar");
 
                     b.Property<string>("FromCustomerBranchId")
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<string>("ToCustomerAccountId")
@@ -373,7 +375,7 @@ namespace API.Migrations
                         .HasColumnType("varchar");
 
                     b.Property<string>("ToCustomerBranchId")
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<string>("TransactionDate")
@@ -381,21 +383,32 @@ namespace API.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("varchar");
 
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasMaxLength(23)
+                        .HasColumnType("varchar");
+
                     b.Property<short>("TransactionType")
                         .HasColumnType("Smallint");
 
-                    b.HasKey("TransactionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("BankApplicationModels.TransactionCharges", b =>
+            modelBuilder.Entity("BankApplicationModels.TransactionCharge", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("BranchId")
                         .IsRequired()
-                        .HasMaxLength(17)
+                        .HasMaxLength(18)
                         .HasColumnType("varchar");
 
                     b.Property<short>("ImpsOtherBank")
@@ -413,7 +426,10 @@ namespace API.Migrations
                     b.Property<short>("RtgsSameBank")
                         .HasColumnType("Smallint");
 
-                    b.HasIndex("BranchId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId")
+                        .IsUnique();
 
                     b.ToTable("TransactionCharges");
                 });
@@ -421,7 +437,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Branch", b =>
                 {
                     b.HasOne("BankApplicationModels.Bank", "Bank")
-                        .WithMany()
+                        .WithMany("Branches")
                         .HasForeignKey("BankId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -432,7 +448,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Currency", b =>
                 {
                     b.HasOne("BankApplicationModels.Bank", "Bank")
-                        .WithMany()
+                        .WithMany("Currencies")
                         .HasForeignKey("BankId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -443,7 +459,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Customer", b =>
                 {
                     b.HasOne("BankApplicationModels.Branch", "Branch")
-                        .WithMany()
+                        .WithMany("Customers")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -454,7 +470,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.HeadManager", b =>
                 {
                     b.HasOne("BankApplicationModels.Bank", "Bank")
-                        .WithMany()
+                        .WithMany("HeadManagers")
                         .HasForeignKey("BankId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -465,7 +481,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Manager", b =>
                 {
                     b.HasOne("BankApplicationModels.Branch", "Branch")
-                        .WithMany()
+                        .WithMany("Managers")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -476,7 +492,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Staff", b =>
                 {
                     b.HasOne("BankApplicationModels.Branch", "Branch")
-                        .WithMany()
+                        .WithMany("Staffs")
                         .HasForeignKey("BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -487,7 +503,7 @@ namespace API.Migrations
             modelBuilder.Entity("BankApplicationModels.Transaction", b =>
                 {
                     b.HasOne("BankApplicationModels.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("Transactions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -495,15 +511,40 @@ namespace API.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("BankApplicationModels.TransactionCharges", b =>
+            modelBuilder.Entity("BankApplicationModels.TransactionCharge", b =>
                 {
                     b.HasOne("BankApplicationModels.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
+                        .WithOne("TransactionCharges")
+                        .HasForeignKey("BankApplicationModels.TransactionCharge", "BranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Bank", b =>
+                {
+                    b.Navigation("Branches");
+
+                    b.Navigation("Currencies");
+
+                    b.Navigation("HeadManagers");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Branch", b =>
+                {
+                    b.Navigation("Customers");
+
+                    b.Navigation("Managers");
+
+                    b.Navigation("Staffs");
+
+                    b.Navigation("TransactionCharges");
+                });
+
+            modelBuilder.Entity("BankApplicationModels.Customer", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,8 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BankApplicationModels
 {
     [Table("TransactionCharges")]
-    public class TransactionCharges
+    public class TransactionCharge
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
         [Required]
         [Range(1,100)]
         [Column(TypeName = "Smallint")]
@@ -30,10 +34,11 @@ namespace BankApplicationModels
         public bool IsActive { get; set; }
 
         [Required]
-        [ForeignKey("Branch")]
-        [StringLength(17)]
+        [StringLength(18)]
         [Column(TypeName = "varchar")]
         public string BranchId { get; set; }
+
+        [ForeignKey("BranchId")]
         public virtual Branch Branch { get; set; }
     }
 }

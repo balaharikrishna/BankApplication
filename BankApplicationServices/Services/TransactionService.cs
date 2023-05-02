@@ -52,7 +52,7 @@ namespace BankApplicationServices.Services
             string transactionId = string.Concat("TXN", bankId.AsSpan(0, 3), customerAccountId.AsSpan(0, 3), date);
             Transaction transaction = new()
             {
-                CustomerAccountId= customerAccountId,
+                AccountId= customerAccountId,
                 CustomerBankId= bankId,
                 CustomerBranchId= branchId,
                 TransactionType = transactionType,
@@ -86,7 +86,7 @@ namespace BankApplicationServices.Services
 
             Transaction fromCustomertransaction = new()
             {   
-                CustomerAccountId = fromCustomerAccountId,
+                AccountId = fromCustomerAccountId,
                 CustomerBankId= fromBankId,
                 CustomerBranchId= fromBranchId,
                 ToCustomerAccountId = toCustomerAccountId,
@@ -102,7 +102,7 @@ namespace BankApplicationServices.Services
 
             Transaction toCustomertransaction = new()
             {
-                CustomerAccountId = toCustomerAccountId,
+                AccountId = toCustomerAccountId,
                 CustomerBankId= toBankId,
                 CustomerBranchId= toBranchId,
                 FromCustomerBankId = fromBankId,

@@ -43,7 +43,7 @@ namespace API.Migrations
                 name: "Branches",
                 columns: table => new
                 {
-                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: false),
                     BranchName = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     BranchAddress = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     BranchPhoneNumber = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
@@ -117,7 +117,7 @@ namespace API.Migrations
                     DateOfBirth = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     Gender = table.Column<short>(type: "Smallint", nullable: false),
                     PassbookIssueDate = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
-                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: false),
                     Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
@@ -140,7 +140,7 @@ namespace API.Migrations
                 columns: table => new
                 {
                     AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
-                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: false),
                     Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
@@ -163,7 +163,7 @@ namespace API.Migrations
                 columns: table => new
                 {
                     AccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
-                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    BranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: false),
                     Name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     Salt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
                     HashedPassword = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
@@ -185,15 +185,18 @@ namespace API.Migrations
                 name: "TransactionCharges",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     RtgsSameBank = table.Column<short>(type: "Smallint", nullable: false),
                     RtgsOtherBank = table.Column<short>(type: "Smallint", nullable: false),
                     ImpsSameBank = table.Column<short>(type: "Smallint", nullable: false),
                     ImpsOtherBank = table.Column<short>(type: "Smallint", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    BranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false)
+                    BranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: false)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_TransactionCharges", x => x.Id);
                     table.ForeignKey(
                         name: "FK_TransactionCharges_Branches_BranchId",
                         column: x => x.BranchId,
@@ -206,15 +209,17 @@ namespace API.Migrations
                 name: "Transactions",
                 columns: table => new
                 {
-                    TransactionId = table.Column<string>(type: "varchar(23)", maxLength: 23, nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CustomerAccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
                     CustomerBankId = table.Column<string>(type: "varchar(12)", maxLength: 12, nullable: false),
-                    CustomerBranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: false),
+                    CustomerBranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: false),
                     FromCustomerBankId = table.Column<string>(type: "varchar(12)", maxLength: 12, nullable: true),
                     ToCustomerBankId = table.Column<string>(type: "varchar(12)", maxLength: 12, nullable: true),
-                    FromCustomerBranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: true),
-                    ToCustomerBranchId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: true),
+                    FromCustomerBranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: true),
+                    ToCustomerBranchId = table.Column<string>(type: "varchar(18)", maxLength: 18, nullable: true),
                     FromCustomerAccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: true),
+                    TransactionId = table.Column<string>(type: "varchar(23)", maxLength: 23, nullable: false),
                     TransactionType = table.Column<short>(type: "Smallint", nullable: false),
                     ToCustomerAccountId = table.Column<string>(type: "varchar(17)", maxLength: 17, nullable: true),
                     TransactionDate = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
@@ -225,7 +230,7 @@ namespace API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Transactions", x => x.TransactionId);
+                    table.PrimaryKey("PK_Transactions", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Transactions_Customers_AccountId",
                         column: x => x.AccountId,
@@ -267,7 +272,8 @@ namespace API.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_TransactionCharges_BranchId",
                 table: "TransactionCharges",
-                column: "BranchId");
+                column: "BranchId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_AccountId",

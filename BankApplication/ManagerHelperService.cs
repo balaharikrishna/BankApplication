@@ -82,7 +82,7 @@ namespace BankApplication
                 case 2: //Add Transaction Charges
                     while (true)
                     {
-                        IEnumerable<TransactionCharges> transactionCharges = _branchService.GetTransactionChargesAsync(managerBranchId).Result;
+                        IEnumerable<TransactionCharge> transactionCharges = _branchService.GetTransactionChargesAsync(managerBranchId).Result;
                         if (transactionCharges is not null)
                         {
                             Console.WriteLine("Charges Already Available");
@@ -239,7 +239,7 @@ namespace BankApplication
                 case 13: //UpdateTransactionCharges
                     while (true)
                     {
-                        IEnumerable<TransactionCharges> transactionCharges = _branchService.GetTransactionChargesAsync(managerBranchId).Result;
+                        IEnumerable<TransactionCharge> transactionCharges = _branchService.GetTransactionChargesAsync(managerBranchId).Result;
                         if (transactionCharges is not null)
                         {
                             Console.WriteLine("Enter RtgsSameBank Charge in %");
@@ -356,7 +356,7 @@ namespace BankApplication
                 case 14: //DeleteTransactionCharges
                     while (true)
                     {
-                        IEnumerable<TransactionCharges> transactionCharges = _branchService.GetTransactionChargesAsync(managerBranchId).Result;
+                        IEnumerable<TransactionCharge> transactionCharges = _branchService.GetTransactionChargesAsync(managerBranchId).Result;
                         if (transactionCharges is not null)
                         {
                             message = _transactionChargeService.DeleteTransactionChargesAsync(managerBranchId).Result;

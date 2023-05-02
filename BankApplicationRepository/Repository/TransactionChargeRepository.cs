@@ -11,11 +11,11 @@ namespace BankApplicationRepository.Repository
         {
             _context = context;
         }
-        public async Task<TransactionCharges?> GetTransactionCharges(string branchId)
+        public async Task<TransactionCharge?> GetTransactionCharges(string branchId)
         {
             return _context.TransactionCharges.FirstOrDefault(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
         }
-        public async Task<bool> AddTransactionCharges(TransactionCharges transactionCharges, string branchId)
+        public async Task<bool> AddTransactionCharges(TransactionCharge transactionCharges, string branchId)
         {
             transactionCharges.BranchId = branchId;
             await _context.TransactionCharges.AddAsync(transactionCharges);
@@ -23,9 +23,9 @@ namespace BankApplicationRepository.Repository
             return rowsAffected > 0;
         }
 
-        public async Task<bool> UpdateTransactionCharges(TransactionCharges transactionCharges, string branchId)
+        public async Task<bool> UpdateTransactionCharges(TransactionCharge transactionCharges, string branchId)
         {
-            TransactionCharges transactionChargesObj = await GetTransactionCharges(branchId);
+            TransactionCharge transactionChargesObj = await GetTransactionCharges(branchId);
 
             if (transactionCharges.RtgsSameBank >= 0 && transactionCharges.RtgsSameBank <= 100)
             {
@@ -53,7 +53,7 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> DeleteTransactionCharges(string branchId)
         {
-            TransactionCharges transactionChargesObj = await GetTransactionCharges(branchId);
+            TransactionCharge transactionChargesObj = await GetTransactionCharges(branchId);
             transactionChargesObj.IsActive = false;
             _context.TransactionCharges.Update(transactionChargesObj);
             int rowsAffected = await _context.SaveChangesAsync();

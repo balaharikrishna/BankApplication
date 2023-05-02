@@ -32,8 +32,15 @@ namespace BankApplicationRepository.Repository
         {
             customer.BranchId = branchId;
             await _context.Customers.AddAsync(customer);
-            int rowsAffected = await _context.SaveChangesAsync();
-            return rowsAffected > 0;
+            try
+            {
+                int rowsAffected = await _context.SaveChangesAsync();
+            }
+            catch(Exception ex) { 
+
+            }
+            
+            return false;
         }
 
         public async Task<bool> UpdateCustomerAccount(Customer customer, string branchId)
@@ -96,6 +103,7 @@ namespace BankApplicationRepository.Repository
 
             _context.Customers.Update(customerObj);
             int rowsAffected = await _context.SaveChangesAsync();
+
             return rowsAffected > 0;
         }
 

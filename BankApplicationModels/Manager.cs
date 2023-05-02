@@ -8,10 +8,11 @@ namespace BankApplicationModels
     public class Manager : User
     {
         [Required]
-        [StringLength(17)]
+        [StringLength(18)]
         [Column(TypeName = "varchar")]
-        [ForeignKey("Branch")]
         public string BranchId { get; set; }
+
+        [ForeignKey("BranchId")]
         public virtual Branch Branch { get; set; }
     }
 }

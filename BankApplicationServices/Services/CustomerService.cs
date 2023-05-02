@@ -487,7 +487,7 @@ namespace BankApplicationServices.Services
             ushort bankInterestRate = 0;
             if (fromCustomer.Result && toCustomer.Result)
             {
-                TransactionCharges transactionCharges = await _transactionChargeService.GetTransactionCharges(branchId);
+                TransactionCharge transactionCharges = await _transactionChargeService.GetTransactionCharges(branchId);
                 if (transactionCharges is not null)
                 {
                     if (bankId.Substring(0, 3).Equals(toBankId.Substring(0, 3)))

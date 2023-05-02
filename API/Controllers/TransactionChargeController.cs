@@ -33,7 +33,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching Transaction Charges");
-                TransactionCharges transactionCharges = await _transactionChargeService.GetTransactionCharges(id);
+                TransactionCharge transactionCharges = await _transactionChargeService.GetTransactionCharges(id);
                 if (transactionCharges is null)
                 {
                     return NotFound("Transaction Charges Not Available");

@@ -12,7 +12,7 @@ namespace BankApplicationRepository
         public DbSet<Bank> Banks { get; set; }
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Currency> Currencies { get; set; }
-        public DbSet<TransactionCharges> TransactionCharges { get; set; }
+        public DbSet<TransactionCharge> TransactionCharges { get; set; }
         public DbSet<ReserveBankManager> ReserveBankManagers { get; set; }
         public DbSet<HeadManager> HeadManagers { get; set; }
         public DbSet<Manager> Managers { get; set; }
@@ -22,11 +22,10 @@ namespace BankApplicationRepository
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Currency>()
                 .Property(c => c.ExchangeRate)
-                .HasPrecision(3, 2);
+                .HasPrecision(19, 4);
 
             modelBuilder.Entity<Customer>()
                 .Property(c => c.Balance)
@@ -44,7 +43,14 @@ namespace BankApplicationRepository
             .Property(t => t.Debit)
                 .HasPrecision(19, 4);
 
-            modelBuilder.Entity<TransactionCharges>().HasNoKey();
+            //modelBuilder.Entity<TransactionCharge>()
+            //.HasOne(t => t.Branch)
+            //.WithOne(b => b.TransactionCharges)
+            //.HasForeignKey(t => t.);
+            //    modelBuilder.Entity<TransactionCharge>()
+            //.HasOne(t => t.Branch)
+            //.WithMany(b => b.TransactionCharges)
+            //.HasForeignKey(t => t.BranchId);
         }
     }
 }

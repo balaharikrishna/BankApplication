@@ -8,7 +8,7 @@ namespace BankApplicationModels
     {
         [Key]
         [Required]
-        [StringLength(17)]
+        [StringLength(18)]
         [Column(TypeName = "varchar")]
         public string BranchId { get; set; }
 
@@ -34,11 +34,16 @@ namespace BankApplicationModels
         public bool IsActive { get; set; }
 
         [Required]
-        [ForeignKey("Bank")]
         [StringLength(12)]
         [Column(TypeName = "varchar")]
         public string BankId { get; set; }
 
+        [ForeignKey("BankId")]
         public virtual Bank Bank { get; set; }
+
+        public virtual ICollection<Manager> Managers { get; set; }
+        public virtual TransactionCharge TransactionCharges { get; set; }
+        public virtual ICollection<Staff> Staffs { get; set; }
+        public virtual ICollection<Customer> Customers { get; set; }
     }
 }

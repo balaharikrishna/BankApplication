@@ -1,5 +1,4 @@
-﻿using BankApplicationModels.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankApplicationModels
@@ -10,8 +9,9 @@ namespace BankApplicationModels
         [Required]
         [StringLength(12)]
         [Column(TypeName = "varchar")]
-        [ForeignKey("Bank")]
         public string BankId { get; set; }
+
+        [ForeignKey("BankId")]
         public virtual Bank Bank { get; set; }
     }
 }

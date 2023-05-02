@@ -36,7 +36,7 @@ namespace BankApplicationServices.IServices
         /// </summary>
         /// <param name="branchId">The ID of the branch for which to get transaction charges.</param>
         /// <returns>A message about Status of Availbility of transaction charges.</returns>
-        Task<IEnumerable<TransactionCharges>> GetTransactionChargesAsync(string branchId);
+        Task<IEnumerable<TransactionCharge>> GetTransactionChargesAsync(string branchId);
 
         /// <summary>
         /// Authenticates the given branch ID for a given bank.

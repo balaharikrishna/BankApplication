@@ -11,6 +11,6 @@ namespace BankApplicationRepository.IRepository
         Task<bool> UpdateBranch(Branch branch);
         Task<bool> IsBranchExist(string branchId);
         Task<Branch?> GetBranchByName(string branchName);
-        Task<IEnumerable<TransactionCharges>> GetAllTransactionCharges(string branchId);
+        Task<IEnumerable<TransactionCharge>> GetAllTransactionCharges(string branchId);
     }
 }

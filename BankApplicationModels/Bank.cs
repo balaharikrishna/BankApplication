@@ -21,5 +21,9 @@ namespace BankApplicationModels
         [Required]
         [RegularExpression("^[01]+$")]
         public bool IsActive { get; set; }
+
+        public virtual ICollection<Branch> Branches { get; set; }
+        public virtual ICollection<Currency> Currencies { get; set; }
+        public virtual ICollection<HeadManager> HeadManagers { get; set; }
     }
 }

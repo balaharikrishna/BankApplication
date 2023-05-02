@@ -26,7 +26,8 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateCurrency(Currency currency, string bankId)
         {
-            Currency currencyToUpdate = await _context.Currencies.FirstOrDefaultAsync(c => c.BankId.Equals(bankId) && c.IsActive.Equals(true));
+            Currency currencyToUpdate = await _context.Currencies.FirstOrDefaultAsync(c => c.BankId.Equals(bankId) &&
+            c.CurrencyCode.Equals(currency.CurrencyCode) && c.IsActive.Equals(true));
 
             if (currency.CurrencyCode is not null)
             {

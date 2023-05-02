@@ -43,7 +43,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<TransactionCharges> GetTransactionCharges(string branchId)
+        public async Task<TransactionCharge> GetTransactionCharges(string branchId)
         {
             return await _transactionChargeRepository.GetTransactionCharges(branchId);
         }
@@ -54,10 +54,10 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                TransactionCharges transactionChargesObject = await GetTransactionCharges(branchId);
+                TransactionCharge transactionChargesObject = await GetTransactionCharges(branchId);
                 if (transactionChargesObject is null)
                 {
-                    TransactionCharges transactionCharges = new()
+                    TransactionCharge transactionCharges = new()
                     {
                         RtgsSameBank = rtgsSameBank,
                         RtgsOtherBank = rtgsOtherBank,
@@ -99,7 +99,7 @@ namespace BankApplicationServices.Services
             message = await ValidateTransactionChargesAsync(branchId);
             if (message.Result)
             {
-                TransactionCharges transactionCharges = new()
+                TransactionCharge transactionCharges = new()
                 {
                     RtgsSameBank = rtgsSameBank,
                     RtgsOtherBank = rtgsOtherBank,

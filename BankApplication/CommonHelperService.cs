@@ -861,10 +861,10 @@ namespace BankApplication
         {
             while (true)
             {
-                IEnumerable<TransactionCharges> transactionCharges = _branchService.GetTransactionChargesAsync(branchId).Result;
+                IEnumerable<TransactionCharge> transactionCharges = _branchService.GetTransactionChargesAsync(branchId).Result;
                 if (transactionCharges is not null)
                 {
-                    foreach (TransactionCharges charges in transactionCharges)
+                    foreach (TransactionCharge charges in transactionCharges)
                     {
                         Console.WriteLine($"{charges.RtgsSameBank},{charges.RtgsOtherBank},{charges.ImpsSameBank},{charges.ImpsOtherBank}");
                     }

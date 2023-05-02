@@ -45,15 +45,17 @@ namespace BankApplicationModels
         public Gender Gender { get; set; }
 
         [Required]
-        [StringLength(10)]
+        [StringLength(14)]
         [Column(TypeName = "varchar")]
         public string PassbookIssueDate { get; set; }
 
         [Required]
-        [StringLength(17)]
+        [StringLength(18)]
         [Column(TypeName = "varchar")]
-        [ForeignKey("Branch")]
         public string BranchId { get; set; }
+
+        [ForeignKey("BranchId")]
         public virtual Branch Branch { get; set; }
+        public virtual ICollection<Transaction> Transactions { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace BankApplicationModels
         public string CurrencyCode { get; set; }
 
         [Required]
+
         public decimal ExchangeRate { get; set; }
         
         [Required]
@@ -22,15 +23,13 @@ namespace BankApplicationModels
         [Required]
         [StringLength(12)]
         [Column(TypeName = "varchar")]
-        [ForeignKey("Bank")]
         public string BankId { get; set; }
 
+        [ForeignKey("BankId")]
         public virtual Bank Bank { get; set; }
-
 
         public string DefaultCurrencyCode = "INR";
 
         public short DefaultCurrencyExchangeRate = 1;
-
     }
 }

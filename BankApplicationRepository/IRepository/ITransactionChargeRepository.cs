@@ -9,10 +9,10 @@ namespace BankApplicationRepository.IRepository
 {
     public interface ITransactionChargeRepository
     {
-        Task<bool> AddTransactionCharges(TransactionCharges transactionCharges, string branchId);
-        Task<bool> UpdateTransactionCharges(TransactionCharges transactionCharges, string branchId);
+        Task<bool> AddTransactionCharges(TransactionCharge transactionCharges, string branchId);
+        Task<bool> UpdateTransactionCharges(TransactionCharge transactionCharges, string branchId);
         Task<bool> DeleteTransactionCharges(string branchId);
         Task<bool> IsTransactionChargesExist(string branchId);
-        Task<TransactionCharges?> GetTransactionCharges(string branchId);
+        Task<TransactionCharge?> GetTransactionCharges(string branchId);
     }
 }

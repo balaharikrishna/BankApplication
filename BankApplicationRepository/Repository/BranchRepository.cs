@@ -25,7 +25,7 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> IsBranchExist(string branchId)
         {
-            return await _context.Branches.AnyAsync(b => b.BankId.Equals(branchId) && b.IsActive.Equals(true));
+            return await _context.Branches.AnyAsync(b => b.BranchId.Equals(branchId) && b.IsActive.Equals(true));
         }
 
         public async Task<bool> AddBranch(Branch branch,string bankId)
@@ -38,7 +38,22 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateBranch(Branch branch)
         {
-            _context.Branches.Update(branch);
+            Branch branchObj = await GetBranchById(branch.BranchId);
+            if (branch.BranchName is not null)
+            {
+                branchObj.BranchName = branch.BranchName;
+            }
+
+            if (branch.BranchAddress is not null)
+            {
+                branchObj.BranchAddress = branch.BranchAddress;
+            }
+
+            if (branch.BranchPhoneNumber is not null)
+            {
+                branchObj.BranchPhoneNumber = branch.BranchPhoneNumber;
+            }
+            _context.Branches.Update(branchObj);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
@@ -57,7 +72,7 @@ namespace BankApplicationRepository.Repository
             return await _context.Branches.FirstOrDefaultAsync(b => b.BranchName.Equals(branchName) && b.IsActive.Equals(true));
         }
 
-        public async Task<IEnumerable<TransactionCharges>> GetAllTransactionCharges(string branchId)
+        public async Task<IEnumerable<TransactionCharge>> GetAllTransactionCharges(string branchId)
         {
             return await _context.TransactionCharges.Where(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true)).ToListAsync();
         }

@@ -59,7 +59,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Currerncy with Code {code}");
-                Currency currency = await _currencyService.GetCurrencyByCode(code, bankId);
+                Currency? currency = await _currencyService.GetCurrencyByCode(code, bankId);
                 if (currency is null)
                 {
                     return NotFound("currency Not Found.");
@@ -88,7 +88,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Adding a new Currency");
-                Message message = await _currencyService.AddCurrencyAsync(currencyViewModel.BankId, currencyViewModel.CurrencyCode, currencyViewModel.ExchangeRate);
+                Message message = await _currencyService.AddCurrencyAsync(currencyViewModel.BankId!, currencyViewModel.CurrencyCode!, currencyViewModel.ExchangeRate);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/currencyCode/{message.Data}", message);
@@ -121,7 +121,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Updating Currency with Code {currencyViewModel.CurrencyCode}");
-                Message message = await _currencyService.UpdateCurrencyAsync(currencyViewModel.BankId, currencyViewModel.CurrencyCode, currencyViewModel.ExchangeRate);
+                Message message = await _currencyService.UpdateCurrencyAsync(currencyViewModel.BankId!, currencyViewModel.CurrencyCode!, currencyViewModel.ExchangeRate);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

@@ -57,7 +57,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Branch with id {id}");
-                Branch branch = await _branchService.GetBranchByIdAsync(id);
+                Branch? branch = await _branchService.GetBranchByIdAsync(id);
                 if (branch is null)
                 {
                     return NotFound("Branch Not Found.");
@@ -81,7 +81,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Branch with Name {name}");
-                Branch branch = await _branchService.GetBranchByNameAsync(name);
+                Branch? branch = await _branchService.GetBranchByNameAsync(name);
                 if (branch is null)
                 {
                     return NotFound("Branch Not Found.");
@@ -109,7 +109,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Creating a new Branch");
-                Message message = await _branchService.CreateBranchAsync(addBranchViewModel.BankId, addBranchViewModel.BranchName, addBranchViewModel.BranchPhoneNumber, addBranchViewModel.BranchAddress);
+                Message message = await _branchService.CreateBranchAsync(addBranchViewModel.BankId!, addBranchViewModel.BranchName!, addBranchViewModel.BranchPhoneNumber!, addBranchViewModel.BranchAddress!);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/branchId/{message.Data}", message);
@@ -142,7 +142,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Updating Branch with Id {updateBranchViewModel.BranchId}");
-                Message message = await _branchService.UpdateBranchAsync(updateBranchViewModel.BranchId, updateBranchViewModel.BranchName, updateBranchViewModel.BranchPhoneNumber, updateBranchViewModel.BranchAddress);
+                Message message = await _branchService.UpdateBranchAsync(updateBranchViewModel.BranchId!, updateBranchViewModel.BranchName!, updateBranchViewModel.BranchPhoneNumber!, updateBranchViewModel.BranchAddress!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

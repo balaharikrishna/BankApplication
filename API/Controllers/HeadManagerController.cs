@@ -33,7 +33,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching all HeadManagers");
-                IEnumerable<HeadManager> headManagers = await _headManagerService.GetAllHeadManagersAsync(id);
+                IEnumerable<HeadManager?> headManagers = await _headManagerService.GetAllHeadManagersAsync(id);
                 if (headManagers is null || !headManagers.Any())
                 {
                     return NotFound("Managers Not Found.");
@@ -58,7 +58,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching HeadManager Account with id {id}");
-                HeadManager headManager = await _headManagerService.GetHeadManagerByIdAsync(bankId, id);
+                HeadManager? headManager = await _headManagerService.GetHeadManagerByIdAsync(bankId, id);
                 if (headManager is null)
                 {
                     return NotFound("Head Manager Not Found");
@@ -83,7 +83,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching headManager Account with Name {name}");
-                HeadManager headManager = await _headManagerService.GetHeadManagerByNameAsync(bankId, name);
+                HeadManager? headManager = await _headManagerService.GetHeadManagerByNameAsync(bankId, name);
                 if (headManager is null)
                 {
                     return NotFound("Head Manager Not Found");
@@ -112,7 +112,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Creating HeadManager Account");
-                Message message = await _headManagerService.OpenHeadManagerAccountAsync(HeadManagerViewModel.BankId, HeadManagerViewModel.HeadManagerName, HeadManagerViewModel.HeadManagerPassword);
+                Message message = await _headManagerService.OpenHeadManagerAccountAsync(HeadManagerViewModel.BankId!, HeadManagerViewModel.HeadManagerName!, HeadManagerViewModel.HeadManagerPassword!);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/accountId/{message.Data}", message);
@@ -145,8 +145,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Updating HeadManager with Account Id {updateHeadManagerViewModel.HeadManagerAccountId}");
-                Message message = await _headManagerService.UpdateHeadManagerAccountAsync(updateHeadManagerViewModel.BankId, updateHeadManagerViewModel.HeadManagerAccountId,
-                updateHeadManagerViewModel.HeadManagerName, updateHeadManagerViewModel.HeadManagerPassword);
+                Message message = await _headManagerService.UpdateHeadManagerAccountAsync(updateHeadManagerViewModel.BankId!, updateHeadManagerViewModel.HeadManagerAccountId!,
+                updateHeadManagerViewModel.HeadManagerName!, updateHeadManagerViewModel.HeadManagerPassword!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

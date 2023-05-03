@@ -24,7 +24,7 @@ namespace BankApplicationServices.Services
         public async Task<Message> IssueToken(string accountId, string password)
         {
             Message message = new();
-            AuthenticateUser user = await _userRepository.GetUserAuthenticationDetails(accountId);
+            AuthenticateUser? user = await _userRepository.GetUserAuthenticationDetails(accountId);
             if (user is not null)
             {
                 byte[] salt = user.Salt;

@@ -25,16 +25,16 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateStaffAccount(Staff staff, string branchId)
         {
-            Staff staffObj = await GetStaffById(staff.AccountId, branchId);
+            Staff? staffObj = await GetStaffById(staff.AccountId, branchId);
 
             if (staff.Name is not null)
             {
-                staffObj.Name = staff.Name;
+                staffObj!.Name = staff.Name;
             }
 
             if (staff.Salt is not null)
             {
-                staffObj.Salt = staff.Salt;
+                staffObj!.Salt = staff.Salt;
 
                 if (staff.HashedPassword is not null)
                 {
@@ -42,15 +42,15 @@ namespace BankApplicationRepository.Repository
                 }
             }
 
-            _context.Staffs.Update(staffObj);
+            _context.Staffs.Update(staffObj!);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteStaffAccount(string staffAccountId, string branchId)
         {
-            Staff staff = await GetStaffById(staffAccountId, branchId);
-            staff.IsActive = false;
+            Staff? staff = await GetStaffById(staffAccountId, branchId);
+            staff!.IsActive = false;
             _context.Staffs.Update(staff);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

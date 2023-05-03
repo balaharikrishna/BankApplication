@@ -20,14 +20,14 @@ namespace BankApplicationServices.Services
             return await _reserveBankManagerRepository.GetAllReserveBankManagers();
         }
 
-        public async Task<ReserveBankManager> GetReserveBankManagerByIdAsync(string reserveBankManagerAccountId)
+        public async Task<ReserveBankManager?> GetReserveBankManagerByIdAsync(string reserveBankManagerAccountId)
         {
-            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(reserveBankManagerAccountId);
+            ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(reserveBankManagerAccountId);
             return reserveBankManager;
         }
-        public async Task<ReserveBankManager> GetReserveBankManagerByNameAsync(string reserveBankManagerName)
+        public async Task<ReserveBankManager?> GetReserveBankManagerByNameAsync(string reserveBankManagerName)
         {
-            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
+            ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
             return reserveBankManager;
         }
 

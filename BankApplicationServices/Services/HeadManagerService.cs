@@ -18,20 +18,20 @@ namespace BankApplicationServices.Services
             _headManagerRepository = headManagerRepository;
         }
 
-        public async Task<IEnumerable<HeadManager>> GetAllHeadManagersAsync(string branchId)
+        public async Task<IEnumerable<HeadManager?>> GetAllHeadManagersAsync(string branchId)
         {
             return await _headManagerRepository.GetAllHeadManagers(branchId);
         }
 
-        public async Task<HeadManager> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId)
+        public async Task<HeadManager?> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId)
         {
-            HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
+            HeadManager? headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
             return headManager;
         }
 
-        public async Task<HeadManager> GetHeadManagerByNameAsync(string bankId, string headManagerName)
+        public async Task<HeadManager?> GetHeadManagerByNameAsync(string bankId, string headManagerName)
         {
-            HeadManager headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
+            HeadManager? headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
             return headManager;
         }
         public async Task<Message> IsHeadManagersExistAsync(string bankId)
@@ -40,7 +40,7 @@ namespace BankApplicationServices.Services
             message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                IEnumerable<HeadManager> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
+                IEnumerable<HeadManager?> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
 
                 if (headManagers.Any())
                 {
@@ -93,18 +93,18 @@ namespace BankApplicationServices.Services
             message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                IEnumerable<HeadManager> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
+                IEnumerable<HeadManager?> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
                 if (headManagers.Any())
                 {
                     byte[] salt = new byte[32];
-                    HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
+                    HeadManager? headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
                     if (headManager is not null)
                     {
                         salt = headManager.Salt;
                     }
 
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    bool isValidPassword = Convert.ToBase64String(headManager!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                     if (isValidPassword)
                     {
                         message.Result = true;
@@ -136,7 +136,7 @@ namespace BankApplicationServices.Services
             message = await _bankService.AuthenticateBankIdAsync(bankId);
             if (message.Result)
             {
-                HeadManager headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
+                HeadManager? headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
 
                 if (headManager is null)
                 {
@@ -191,9 +191,9 @@ namespace BankApplicationServices.Services
             message = await IsHeadManagerExistAsync(bankId, headManagerAccountId);
             if (message.Result)
             {
-                HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
-                byte[] salt = null;
-                byte[] hashedPassword = null;
+                HeadManager? headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
+                byte[]? salt = null;
+                byte[]? hashedPassword = null;
                 bool canContinue = true;
                 if (headManagerPassword is not null && headManager is not null)
                 {
@@ -265,7 +265,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<HeadManager> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId)
+        public async Task<HeadManager?> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId)
         {
             return await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
         }

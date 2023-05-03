@@ -57,7 +57,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Id {id}");
-                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(id);
+                ReserveBankManager? reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByIdAsync(id);
                 if (reserveBankManager is null)
                 {
                     return NotFound("Reserve Bank Manager Not Found");
@@ -81,7 +81,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Reserve Bank Manager Account with Name {name}");
-                ReserveBankManager reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByNameAsync(name);
+                ReserveBankManager? reserveBankManager = await _reserveBankManagerService.GetReserveBankManagerByNameAsync(name);
                 if (reserveBankManager is null)
                 {
                     return NotFound("Reserve Bank Manager Not Found.");

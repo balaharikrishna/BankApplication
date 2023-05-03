@@ -33,7 +33,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Managers");
-                IEnumerable<Manager> Managers = await _managerService.GetAllManagersAsync(id);
+                IEnumerable<Manager?> Managers = await _managerService.GetAllManagersAsync(id);
                 if (Managers is null || !Managers.Any())
                 {
                     return NotFound("Managers Not Found.");
@@ -58,7 +58,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching manager Account with id {id}");
-                Manager manager = await _managerService.GetManagerByIdAsync(branchId, id);
+                Manager? manager = await _managerService.GetManagerByIdAsync(branchId, id);
                 if (manager is null)
                 {
                     return NotFound("Manager Not Found");
@@ -83,7 +83,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Manager Account with Name {name}");
-                Manager manager = await _managerService.GetManagerByNameAsync(branchId, name);
+                Manager? manager = await _managerService.GetManagerByNameAsync(branchId, name);
                 if (manager is null)
                 {
                     return NotFound("Manager Not Found");
@@ -112,8 +112,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Opening manager Account");
-                Message message = await _managerService.OpenManagerAccountAsync(managerViewModel.BranchId, managerViewModel.ManagerName,
-                managerViewModel.ManagerPassword);
+                Message message = await _managerService.OpenManagerAccountAsync(managerViewModel.BranchId!, managerViewModel.ManagerName!,
+                managerViewModel.ManagerPassword!);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/accountId/{message.Data}", message);
@@ -146,8 +146,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Updating manager with Id {updatemanagerViewModel.ManagerAccountId}");
-                Message message = await _managerService.UpdateManagerAccountAsync(updatemanagerViewModel.BranchId, updatemanagerViewModel.ManagerAccountId,
-                    updatemanagerViewModel.ManagerName, updatemanagerViewModel.ManagerPassword);
+                Message message = await _managerService.UpdateManagerAccountAsync(updatemanagerViewModel.BranchId!, updatemanagerViewModel.ManagerAccountId!,
+                    updatemanagerViewModel.ManagerName!, updatemanagerViewModel.ManagerPassword!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

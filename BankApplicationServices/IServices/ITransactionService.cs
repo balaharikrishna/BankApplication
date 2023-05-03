@@ -5,7 +5,7 @@ namespace BankApplicationServices.IServices
 {
     public interface ITransactionService
     {
-        Task<Transaction> GetTransactionById(string accountId, string transactionId);
+        Task<Transaction?> GetTransactionById(string accountId, string transactionId);
         /// <summary>
         /// Checks if transactions are available for the specified customer account.
         /// </summary>

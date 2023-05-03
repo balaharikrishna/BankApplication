@@ -145,7 +145,7 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                Customer customer = await _customerRepository.GetCustomerByName(customerName, branchId);
+                Customer? customer = await _customerRepository.GetCustomerByName(customerName, branchId);
                 if (customer is null)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -242,8 +242,8 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                byte[] salt = null;
-                byte[] hashedPassword = null;
+                byte[]? salt = null;
+                byte[]? hashedPassword = null;
                 bool canContinue = true;
                 if (customerPassword is not null && customer is not null)
                 {

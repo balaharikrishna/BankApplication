@@ -2,8 +2,6 @@
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
-using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -32,28 +30,21 @@ namespace BankApplicationRepository.Repository
         {
             customer.BranchId = branchId;
             await _context.Customers.AddAsync(customer);
-            try
-            {
-                int rowsAffected = await _context.SaveChangesAsync();
-            }
-            catch(Exception ex) { 
-
-            }
-            
-            return false;
+            int rowsAffected = await _context.SaveChangesAsync();
+            return rowsAffected > 0;
         }
 
         public async Task<bool> UpdateCustomerAccount(Customer customer, string branchId)
         {
-            Customer customerObj = await GetCustomerById(customer.AccountId, branchId);
+            Customer? customerObj = await GetCustomerById(customer.AccountId, branchId);
             if (customer.Name is not null)
             {
-                customerObj.Name = customer.Name;
+                customerObj!.Name = customer.Name;
             }
 
             if (customer.Salt is not null)
             {
-                customerObj.Salt = customer.Salt;   
+                customerObj!.Salt = customer.Salt;
 
                 if (customer.HashedPassword is not null)
                 {
@@ -63,45 +54,45 @@ namespace BankApplicationRepository.Repository
 
             if (customer.Balance > 0)
             {
-                customerObj.Balance = customer.Balance;
+                customerObj!.Balance = customer.Balance;
             }
 
             if (Enum.IsDefined(typeof(Gender), customer.Gender))
             {
-                customerObj.Gender = customer.Gender;
+                customerObj!.Gender = customer.Gender;
             }
 
             if (Enum.IsDefined(typeof(AccountType), customer.AccountType))
             {
-                customerObj.AccountType = customer.AccountType;
+                customerObj!.AccountType = customer.AccountType;
             }
 
             if (customer.Address is not null)
             {
-               customerObj.Address = customer.Address;  
+                customerObj!.Address = customer.Address;
             }
 
             if (customer.DateOfBirth is not null)
             {
-                customerObj.DateOfBirth = customer.DateOfBirth;
+                customerObj!.DateOfBirth = customer.DateOfBirth;
             }
 
             if (customer.EmailId is not null)
             {
-                customerObj.EmailId = customer.EmailId;
+                customerObj!.EmailId = customer.EmailId;
             }
 
             if (customer.PhoneNumber is not null)
             {
-                customerObj.PhoneNumber = customer.PhoneNumber;
+                customerObj!.PhoneNumber = customer.PhoneNumber;
             }
 
             if (customer.PassbookIssueDate is not null)
             {
-                customerObj.PassbookIssueDate = customer.PassbookIssueDate;
+                customerObj!.PassbookIssueDate = customer.PassbookIssueDate;
             }
 
-            _context.Customers.Update(customerObj);
+            _context.Customers.Update(customerObj!);
             int rowsAffected = await _context.SaveChangesAsync();
 
             return rowsAffected > 0;
@@ -109,8 +100,8 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> DeleteCustomerAccount(string customerAccountId, string branchId)
         {
-            Customer customer = await GetCustomerById(customerAccountId, branchId);
-            customer.IsActive = false;
+            Customer? customer = await GetCustomerById(customerAccountId, branchId);
+            customer!.IsActive = false;
             _context.Customers.Update(customer);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

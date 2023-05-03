@@ -34,7 +34,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Customers");
-                IEnumerable<Customer> customers = await _customerService.GetAllCustomersAsync(id);
+                IEnumerable<Customer?> customers = await _customerService.GetAllCustomersAsync(id);
                 if (customers is null || !customers.Any())
                 {
                     return NotFound("Customers Not Found.");
@@ -113,9 +113,9 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Creating Customer Account");
-                Message message = await _customerService.OpenCustomerAccountAsync(customerViewModel.BranchId, customerViewModel.CustomerName,
-                customerViewModel.CustomerPassword, customerViewModel.CustomerPhoneNumber, customerViewModel.CustomerEmailId, customerViewModel.CustomerAccountType,
-                customerViewModel.CustomerAddress, customerViewModel.CustomerDateOfBirth, customerViewModel.CustomerGender);
+                Message message = await _customerService.OpenCustomerAccountAsync(customerViewModel.BranchId!, customerViewModel.CustomerName!,
+                customerViewModel.CustomerPassword!, customerViewModel.CustomerPhoneNumber!, customerViewModel.CustomerEmailId!, customerViewModel.CustomerAccountType,
+                customerViewModel.CustomerAddress!, customerViewModel.CustomerDateOfBirth!, customerViewModel.CustomerGender);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/accountId/{message.Data}", message);
@@ -148,9 +148,9 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Updating Customer with Id {updateCustomerViewModel.CustomerAccountId}");
-                Message message = await _customerService.UpdateCustomerAccountAsync(updateCustomerViewModel.BranchId, updateCustomerViewModel.CustomerAccountId, updateCustomerViewModel.CustomerName,
-                updateCustomerViewModel.CustomerPassword, updateCustomerViewModel.CustomerPhoneNumber, updateCustomerViewModel.CustomerEmailId, updateCustomerViewModel.CustomerAccountType,
-                updateCustomerViewModel.CustomerAddress, updateCustomerViewModel.CustomerDateOfBirth, updateCustomerViewModel.CustomerGender);
+                Message message = await _customerService.UpdateCustomerAccountAsync(updateCustomerViewModel.BranchId!, updateCustomerViewModel.CustomerAccountId, updateCustomerViewModel.CustomerName!,
+                updateCustomerViewModel.CustomerPassword!, updateCustomerViewModel.CustomerPhoneNumber!, updateCustomerViewModel.CustomerEmailId!, updateCustomerViewModel.CustomerAccountType,
+                updateCustomerViewModel.CustomerAddress!, updateCustomerViewModel.CustomerDateOfBirth!, updateCustomerViewModel.CustomerGender);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);
@@ -209,8 +209,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Adding Amount In Account with Id {depositViewModel.AccountId}");
-                Message message = await _customerService.DepositAmountAsync(depositViewModel.BankId, depositViewModel.BranchId, depositViewModel.AccountId,
-                    depositViewModel.DepositAmount, depositViewModel.CurrencyCode);
+                Message message = await _customerService.DepositAmountAsync(depositViewModel.BankId!, depositViewModel.BranchId!, depositViewModel.AccountId!,
+                    depositViewModel.DepositAmount, depositViewModel.CurrencyCode!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);
@@ -267,8 +267,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Withdraw Customer Balance with Id {withDrawViewModel.AccountId}");
-                Message message = await _customerService.WithdrawAmountAsync(withDrawViewModel.BankId, withDrawViewModel.BranchId,
-                    withDrawViewModel.AccountId, withDrawViewModel.withDrawAmount);
+                Message message = await _customerService.WithdrawAmountAsync(withDrawViewModel.BankId!, withDrawViewModel.BranchId!,
+                    withDrawViewModel.AccountId!, withDrawViewModel.withDrawAmount);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);
@@ -300,8 +300,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Transfering Customer Balance with Account Id {transferAmountViewModel.AccountId}");
-                Message message = await _customerService.TransferAmountAsync(transferAmountViewModel.BankId, transferAmountViewModel.BranchId,
-                    transferAmountViewModel.AccountId, transferAmountViewModel.ToBankId, transferAmountViewModel.ToBranchId, transferAmountViewModel.ToAccountId,
+                Message message = await _customerService.TransferAmountAsync(transferAmountViewModel.BankId!, transferAmountViewModel.BranchId!,
+                    transferAmountViewModel.AccountId!, transferAmountViewModel.ToBankId!, transferAmountViewModel.ToBranchId!, transferAmountViewModel.ToAccountId!,
                     transferAmountViewModel.TransferAmount, transferAmountViewModel.TransferMethod);
                 if (message.Result)
                 {

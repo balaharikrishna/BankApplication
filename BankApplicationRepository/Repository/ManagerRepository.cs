@@ -25,16 +25,16 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateManagerAccount(Manager manager, string branchId)
         {
-            Manager managerObj = await GetManagerById(manager.AccountId, branchId);
+            Manager? managerObj = await GetManagerById(manager.AccountId, branchId);
 
             if (manager.Name is not null)
             {
-                managerObj.Name = manager.Name;
+                managerObj!.Name = manager.Name;
             }
 
             if (manager.Salt is not null)
             {
-                managerObj.Salt = manager.Salt;
+                managerObj!.Salt = manager.Salt;
 
                 if (manager.HashedPassword is not null)
                 {
@@ -42,15 +42,15 @@ namespace BankApplicationRepository.Repository
                 }
             }
 
-            _context.Managers.Update(managerObj);
+            _context.Managers.Update(managerObj!);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteManagerAccount(string managerAccountId, string branchId)
         {
-            Manager manager = await GetManagerById(managerAccountId, branchId);
-            manager.IsActive = false;
+            Manager? manager = await GetManagerById(managerAccountId, branchId);
+            manager!.IsActive = false;
             _context.Managers.Update(manager);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

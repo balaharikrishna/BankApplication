@@ -1,8 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationRepository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
-using System.Text;
 
 namespace BankApplicationRepository.Repository
 {
@@ -15,7 +13,7 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<IEnumerable<Branch>> GetAllBranches(string bankId)
         {
-            return await _context.Branches.Where(b =>b.BankId.Equals(bankId) && b.IsActive.Equals(true)).ToListAsync();
+            return await _context.Branches.Where(b => b.BankId.Equals(bankId) && b.IsActive.Equals(true)).ToListAsync();
         }
 
         public async Task<Branch?> GetBranchById(string branchId)
@@ -28,7 +26,7 @@ namespace BankApplicationRepository.Repository
             return await _context.Branches.AnyAsync(b => b.BranchId.Equals(branchId) && b.IsActive.Equals(true));
         }
 
-        public async Task<bool> AddBranch(Branch branch,string bankId)
+        public async Task<bool> AddBranch(Branch branch, string bankId)
         {
             branch.BankId = bankId;
             await _context.Branches.AddAsync(branch);
@@ -38,30 +36,30 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateBranch(Branch branch)
         {
-            Branch branchObj = await GetBranchById(branch.BranchId);
+            Branch? branchObj = await GetBranchById(branch.BranchId);
             if (branch.BranchName is not null)
             {
-                branchObj.BranchName = branch.BranchName;
+                branchObj!.BranchName = branch.BranchName;
             }
 
             if (branch.BranchAddress is not null)
             {
-                branchObj.BranchAddress = branch.BranchAddress;
+                branchObj!.BranchAddress = branch.BranchAddress;
             }
 
             if (branch.BranchPhoneNumber is not null)
             {
-                branchObj.BranchPhoneNumber = branch.BranchPhoneNumber;
+                branchObj!.BranchPhoneNumber = branch.BranchPhoneNumber;
             }
-            _context.Branches.Update(branchObj);
+            _context.Branches.Update(branchObj!);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteBranch(string branchId)
         {
-            Branch branch = await GetBranchById(branchId);
-            branch.IsActive = false;
+            Branch? branch = await GetBranchById(branchId);
+            branch!.IsActive = false;
             _context.Branches.Update(branch);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

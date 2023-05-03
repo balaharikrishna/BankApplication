@@ -58,7 +58,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching bank with id {id}");
-                Bank bank = await _bankService.GetBankByIdAsync(id);
+                Bank? bank = await _bankService.GetBankByIdAsync(id);
                 if (bank is null)
                 {
                     return NotFound("Bank not Found");
@@ -82,7 +82,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching bank with name {name}");
-                Bank bank = await _bankService.GetBankByNameAsync(name);
+                Bank? bank = await _bankService.GetBankByNameAsync(name);
                 if (bank is null)
                 {
                     return NotFound("Bank not Found");
@@ -110,7 +110,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Creating a new bank");
-                Message message = await _bankService.CreateBankAsync(addBankViewModel.BankName);
+                Message message = await _bankService.CreateBankAsync(addBankViewModel.BankName!);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/bankId/{message.Data}", message);
@@ -142,7 +142,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Updating bank with id {updateBankViewModel.BankId}");
-                Message message = await _bankService.UpdateBankAsync(updateBankViewModel.BankId, updateBankViewModel.BankName);
+                Message message = await _bankService.UpdateBankAsync(updateBankViewModel.BankId!, updateBankViewModel.BankName!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

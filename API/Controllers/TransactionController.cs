@@ -59,7 +59,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Transaction");
-                Transaction transaction = await _transactionService.GetTransactionById(accountId, id);
+                Transaction? transaction = await _transactionService.GetTransactionById(accountId, id);
                 if (transaction is null)
                 {
                     return NotFound("Transaction Not Found.");
@@ -88,8 +88,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Adding new Transaction");
-                Message message = await _transactionService.TransactionHistoryAsync(addCustomerTransactionViewModel.CustomerBankId, addCustomerTransactionViewModel.CustomerBranchId,
-                    addCustomerTransactionViewModel.CustomerAccountId,addCustomerTransactionViewModel.Debit, addCustomerTransactionViewModel.Credit,
+                Message message = await _transactionService.TransactionHistoryAsync(addCustomerTransactionViewModel.CustomerBankId!, addCustomerTransactionViewModel.CustomerBranchId!,
+                    addCustomerTransactionViewModel.CustomerAccountId!,addCustomerTransactionViewModel.Debit, addCustomerTransactionViewModel.Credit,
                 addCustomerTransactionViewModel.Balance, addCustomerTransactionViewModel.TransactionType);
                 if (message.Result)
                 {
@@ -122,10 +122,10 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Adding new Transaction");
-                Message message = await _transactionService.TransactionHistoryFromAndToAsync(addFromAndToCustomerTransactionViewModel.FromCustomerBankId,
-                addFromAndToCustomerTransactionViewModel.FromCustomerBranchId, addFromAndToCustomerTransactionViewModel.FromCustomerAccountId,
-                addFromAndToCustomerTransactionViewModel.ToCustomerBankId, addFromAndToCustomerTransactionViewModel.ToCustomerBranchId,
-                addFromAndToCustomerTransactionViewModel.ToCustomerAccountId, addFromAndToCustomerTransactionViewModel.Debit,
+                Message message = await _transactionService.TransactionHistoryFromAndToAsync(addFromAndToCustomerTransactionViewModel.FromCustomerBankId!,
+                addFromAndToCustomerTransactionViewModel.FromCustomerBranchId!, addFromAndToCustomerTransactionViewModel.FromCustomerAccountId!,
+                addFromAndToCustomerTransactionViewModel.ToCustomerBankId!, addFromAndToCustomerTransactionViewModel.ToCustomerBranchId!,
+                addFromAndToCustomerTransactionViewModel.ToCustomerAccountId!, addFromAndToCustomerTransactionViewModel.Debit,
                 addFromAndToCustomerTransactionViewModel.Credit, addFromAndToCustomerTransactionViewModel.Balance, addFromAndToCustomerTransactionViewModel.ToCustomerBalance,
                 addFromAndToCustomerTransactionViewModel.TransactionType);
                 if (message.Result)
@@ -160,9 +160,9 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Reverting Transaction.");
-                Message message = await _transactionService.RevertTransactionAsync(revertTransactionViewModel.TransactionId, revertTransactionViewModel.FromCustomerBankId,
-                revertTransactionViewModel.FromCustomerBranchId, revertTransactionViewModel.FromCustomerAccountId, revertTransactionViewModel.ToCustomerBankId,
-                revertTransactionViewModel.ToCustomerBranchId, revertTransactionViewModel.ToCustomerAccountId);
+                Message message = await _transactionService.RevertTransactionAsync(revertTransactionViewModel.TransactionId!, revertTransactionViewModel.FromCustomerBankId!,
+                revertTransactionViewModel.FromCustomerBranchId!, revertTransactionViewModel.FromCustomerAccountId!, revertTransactionViewModel.ToCustomerBankId!,
+                revertTransactionViewModel.ToCustomerBranchId!, revertTransactionViewModel.ToCustomerAccountId!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

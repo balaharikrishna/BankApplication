@@ -22,15 +22,15 @@ namespace BankApplicationServices.Services
             return await _staffRepository.GetAllStaffs(branchId);
         }
 
-        public async Task<Staff> GetStaffByIdAsync(string branchId, string staffAccountId)
+        public async Task<Staff?> GetStaffByIdAsync(string branchId, string staffAccountId)
         {
-            Staff staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
+            Staff? staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
             return staff;
         }
 
-        public async Task<Staff> GetStaffByNameAsync(string branchId, string staffName)
+        public async Task<Staff?> GetStaffByNameAsync(string branchId, string staffName)
         {
-            Staff staff = await _staffRepository.GetStaffByName(staffName, branchId);
+            Staff? staff = await _staffRepository.GetStaffByName(staffName, branchId);
             return staff;
         }
         public async Task<Message> IsStaffExistAsync(string branchId)
@@ -71,14 +71,14 @@ namespace BankApplicationServices.Services
                 if (staffs.Any())
                 {
                     byte[] salt = new byte[32];
-                    Staff staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
+                    Staff? staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
                     if (staff is not null)
                     {
                         salt = staff.Salt;
                     }
 
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(staff.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    bool isValidPassword = Convert.ToBase64String(staff!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                     if (isValidPassword)
                     {
                         message.Result = true;
@@ -110,7 +110,7 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                Staff staff = await _staffRepository.GetStaffByName(staffName, branchId);
+                Staff? staff = await _staffRepository.GetStaffByName(staffName, branchId);
 
                 if (staff is null)
                 {
@@ -191,9 +191,9 @@ namespace BankApplicationServices.Services
             message = await IsAccountExistAsync(branchId, staffAccountId);
             if (message.Result)
             {
-                Staff staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
-                byte[] salt = null;
-                byte[] hashedPassword = null;
+                Staff? staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
+                byte[]? salt = null;
+                byte[]? hashedPassword = null;
                 bool canContinue = true;
                 if (staff is not null && staffPassword is not null)
                 {
@@ -266,7 +266,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Staff> GetStaffDetailsAsync(string branchId, string staffAccountId)
+        public async Task<Staff?> GetStaffDetailsAsync(string branchId, string staffAccountId)
         {
             return await _staffRepository.GetStaffById(staffAccountId, branchId);
         }

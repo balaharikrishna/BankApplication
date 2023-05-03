@@ -7,9 +7,9 @@ namespace BankApplicationServices.IServices
     {
         Task<IEnumerable<Staff>> GetAllStaffAsync(string branchId);
 
-        Task<Staff> GetStaffByIdAsync(string branchId, string staffAccountId);
+        Task<Staff?> GetStaffByIdAsync(string branchId, string staffAccountId);
 
-        Task<Staff> GetStaffByNameAsync(string branchId, string staffName);
+        Task<Staff?> GetStaffByNameAsync(string branchId, string staffName);
         /// <summary>
         /// Checks for staff Members account's with the given BankId and BranchId exists or not.
         /// </summary>

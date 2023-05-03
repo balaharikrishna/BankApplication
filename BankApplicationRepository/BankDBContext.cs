@@ -42,15 +42,6 @@ namespace BankApplicationRepository
             modelBuilder.Entity<Transaction>()
             .Property(t => t.Debit)
                 .HasPrecision(19, 4);
-
-            //modelBuilder.Entity<TransactionCharge>()
-            //.HasOne(t => t.Branch)
-            //.WithOne(b => b.TransactionCharges)
-            //.HasForeignKey(t => t.);
-            //    modelBuilder.Entity<TransactionCharge>()
-            //.HasOne(t => t.Branch)
-            //.WithMany(b => b.TransactionCharges)
-            //.HasForeignKey(t => t.BranchId);
         }
     }
 }

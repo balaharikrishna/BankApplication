@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -20,20 +19,20 @@ namespace BankApplicationServices.Services
             _managerRepository = managerRepository;
         }
 
-        public async Task<IEnumerable<Manager>> GetAllManagersAsync(string branchId)
+        public async Task<IEnumerable<Manager?>> GetAllManagersAsync(string branchId)
         {
             return await _managerRepository.GetAllManagers(branchId);
         }
-    
-        public async Task<Manager> GetManagerByIdAsync(string branchId, string managerAccountId)
+
+        public async Task<Manager?> GetManagerByIdAsync(string branchId, string managerAccountId)
         {
-            Manager manager = await _managerRepository.GetManagerById(managerAccountId,branchId);
+            Manager? manager = await _managerRepository.GetManagerById(managerAccountId, branchId);
             return manager;
         }
 
-        public async Task<Manager> GetManagerByNameAsync(string branchId, string managerName)
+        public async Task<Manager?> GetManagerByNameAsync(string branchId, string managerName)
         {
-            Manager manager = await _managerRepository.GetManagerByName(managerName, branchId);
+            Manager? manager = await _managerRepository.GetManagerByName(managerName, branchId);
             return manager;
         }
         public async Task<Message> IsManagersExistAsync(string branchId)
@@ -42,7 +41,7 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                IEnumerable<Manager> managers = await _managerRepository.GetAllManagers(branchId);
+                IEnumerable<Manager?> managers = await _managerRepository.GetAllManagers(branchId);
 
                 if (managers.Any())
                 {
@@ -70,18 +69,18 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                IEnumerable<Manager> managers = await _managerRepository.GetAllManagers(branchId);
+                IEnumerable<Manager?> managers = await _managerRepository.GetAllManagers(branchId);
                 if (managers.Any())
                 {
                     byte[] salt = new byte[32];
-                    Manager manager = await _managerRepository.GetManagerById(managerAccountId, branchId);
+                    Manager? manager = await _managerRepository.GetManagerById(managerAccountId, branchId);
                     if (manager is not null)
                     {
                         salt = manager.Salt;
                     }
 
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    bool isValidPassword = Convert.ToBase64String(manager!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                     if (isValidPassword)
                     {
                         message.Result = true;
@@ -113,8 +112,8 @@ namespace BankApplicationServices.Services
             message = await _branchService.AuthenticateBranchIdAsync(branchId);
             if (message.Result)
             {
-                Manager manager = await _managerRepository.GetManagerByName(managerName, branchId);
-               
+                Manager? manager = await _managerRepository.GetManagerByName(managerName, branchId);
+
                 if (manager is null)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -193,9 +192,9 @@ namespace BankApplicationServices.Services
             message = await IsAccountExistAsync(branchId, accountId);
             if (message.Result)
             {
-                Manager manager = await _managerRepository.GetManagerById(accountId, branchId);
-                byte[] salt = null;
-                byte[] hashedPassword = null;
+                Manager? manager = await _managerRepository.GetManagerById(accountId, branchId);
+                byte[]? salt = null;
+                byte[]? hashedPassword = null;
                 bool canContinue = true;
                 if (managerPassword is not null && manager is not null)
                 {
@@ -246,7 +245,7 @@ namespace BankApplicationServices.Services
         {
             Message message;
             message = await IsAccountExistAsync(branchId, accountId);
-            if (message.Result )
+            if (message.Result)
             {
                 bool isDeleted = await _managerRepository.DeleteManagerAccount(accountId, branchId);
                 if (isDeleted)

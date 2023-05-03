@@ -13,7 +13,7 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<TransactionCharge?> GetTransactionCharges(string branchId)
         {
-            return _context.TransactionCharges.FirstOrDefault(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            return await _context.TransactionCharges.FirstOrDefaultAsync(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
         }
         public async Task<bool> AddTransactionCharges(TransactionCharge transactionCharges, string branchId)
         {
@@ -25,36 +25,36 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateTransactionCharges(TransactionCharge transactionCharges, string branchId)
         {
-            TransactionCharge transactionChargesObj = await GetTransactionCharges(branchId);
+            TransactionCharge? transactionChargesObj = await GetTransactionCharges(branchId);
 
             if (transactionCharges.RtgsSameBank >= 0 && transactionCharges.RtgsSameBank <= 100)
             {
-                transactionChargesObj.RtgsSameBank = transactionCharges.RtgsSameBank;
+                transactionChargesObj!.RtgsSameBank = transactionCharges.RtgsSameBank;
             }
 
             if (transactionCharges.RtgsOtherBank >= 0 && transactionCharges.RtgsOtherBank <= 100)
             {
-                transactionChargesObj.RtgsOtherBank = transactionCharges.RtgsOtherBank;
+                transactionChargesObj!.RtgsOtherBank = transactionCharges.RtgsOtherBank;
             }
 
             if (transactionCharges.ImpsSameBank >= 0 && transactionCharges.ImpsSameBank <= 100)
             {
-                transactionChargesObj.ImpsSameBank = transactionCharges.ImpsSameBank;
+                transactionChargesObj!.ImpsSameBank = transactionCharges.ImpsSameBank;
             }
 
             if (transactionCharges.ImpsOtherBank >= 0 && transactionCharges.ImpsOtherBank <= 100)
             {
-                transactionChargesObj.ImpsOtherBank = transactionCharges.ImpsOtherBank;
+                transactionChargesObj!.ImpsOtherBank = transactionCharges.ImpsOtherBank;
             }
-            _context.TransactionCharges.Update(transactionChargesObj);
+            _context.TransactionCharges.Update(transactionChargesObj!);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteTransactionCharges(string branchId)
         {
-            TransactionCharge transactionChargesObj = await GetTransactionCharges(branchId);
-            transactionChargesObj.IsActive = false;
+            TransactionCharge? transactionChargesObj = await GetTransactionCharges(branchId);
+            transactionChargesObj!.IsActive = false;
             _context.TransactionCharges.Update(transactionChargesObj);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

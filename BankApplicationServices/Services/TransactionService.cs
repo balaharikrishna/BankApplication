@@ -20,9 +20,9 @@ namespace BankApplicationServices.Services
             return await _transactionRepository.GetAllTransactions(accountId);
         }
 
-        public async Task<Transaction> GetTransactionById(string accountId, string transactionId)
+        public async Task<Transaction?> GetTransactionById(string accountId, string transactionId)
         {
-            Transaction transaction = await _transactionRepository.GetTransactionById(accountId, transactionId);
+            Transaction? transaction = await _transactionRepository.GetTransactionById(accountId, transactionId);
             return transaction;
         }
 
@@ -136,20 +136,20 @@ namespace BankApplicationServices.Services
           string toBranchId, string toCustomerAccountId)
         {
             Message message = new();
-            Transaction fromCustomerTransaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
+            Transaction? fromCustomerTransaction = await _transactionRepository.GetTransactionById(fromCustomerAccountId, transactionId);
             if (fromCustomerTransaction is not null)
             {
-                Transaction toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId);
+                Transaction? toCustomerTransaction = await _transactionRepository.GetTransactionById(toCustomerAccountId, transactionId);
                 if (toCustomerTransaction is not null)
                 {
-                    Customer toCustomer = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
-                    Customer fromCustomer = await _customerRepository.GetCustomerById(fromCustomerAccountId, fromBranchId);
-                    decimal toCustomerAmount = toCustomer.Balance;
+                    Customer? toCustomer = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
+                    Customer? fromCustomer = await _customerRepository.GetCustomerById(fromCustomerAccountId, fromBranchId);
+                    decimal toCustomerAmount = toCustomer!.Balance;
                     if (toCustomerAmount >= fromCustomerTransaction.Debit)
                     {
                         Customer fromCustomerObject = new()
                         {
-                            Balance = fromCustomer.Balance + toCustomerTransaction.Credit,
+                            Balance = fromCustomer!.Balance + toCustomerTransaction.Credit,
                             AccountId= fromCustomerAccountId
                         };
 

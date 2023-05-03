@@ -4,11 +4,11 @@ namespace BankApplicationServices.IServices
 {
     public interface IHeadManagerService
     {
-        Task<IEnumerable<HeadManager>> GetAllHeadManagersAsync(string branchId);
+        Task<IEnumerable<HeadManager?>> GetAllHeadManagersAsync(string branchId);
 
-        Task<HeadManager> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId);
+        Task<HeadManager?> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId);
 
-        Task<HeadManager> GetHeadManagerByNameAsync(string bankId, string headManagerName);
+        Task<HeadManager?> GetHeadManagerByNameAsync(string bankId, string headManagerName);
         
         /// <summary>
         /// Checks if any Head Managers exist for the given BankId.
@@ -67,7 +67,7 @@ namespace BankApplicationServices.IServices
         /// <param name="bankId">BankId of the Bank</param>
         /// <param name="headManagerAccountId">Account Id of the Head Manager</param>
         /// <returns>Details of the Head Manager account.</returns>
-        Task<HeadManager> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId);
+        Task<HeadManager?> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId);
 
     }
 }

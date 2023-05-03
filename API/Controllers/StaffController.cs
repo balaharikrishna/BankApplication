@@ -59,7 +59,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with id {id}");
-                Staff Staff = await _StaffService.GetStaffByIdAsync(branchId, id);
+                Staff? Staff = await _StaffService.GetStaffByIdAsync(branchId, id);
                 if (Staff is null)
                 {
                     return NotFound("Staff Not Found");
@@ -84,7 +84,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Staff Account with Name {name}");
-                Staff Staff = await _StaffService.GetStaffByNameAsync(branchId, name);
+                Staff? Staff = await _StaffService.GetStaffByNameAsync(branchId, name);
                 if (Staff is null)
                 {
                     return NotFound("Staff Not Found");
@@ -113,8 +113,8 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Opening Staff Account");
-                Message message = await _StaffService.OpenStaffAccountAsync(staffViewModel.BranchId, staffViewModel.StaffName,
-                staffViewModel.StaffPassword);
+                Message message = await _StaffService.OpenStaffAccountAsync(staffViewModel.BranchId!, staffViewModel.StaffName!,
+                staffViewModel.StaffPassword!);
                 if (message.Result)
                 {
                     return Created($"{Request.Path}/accountId/{message.Data}", message);
@@ -148,8 +148,8 @@ namespace API.Controllers
                 }
 
                 _logger.Log(LogLevel.Information, message: $"Updating Staff with Id {updateStaffViewModel.StaffAccountId}");
-                Message message = await _StaffService.UpdateStaffAccountAsync(updateStaffViewModel.BranchId, updateStaffViewModel.StaffAccountId,
-                 updateStaffViewModel.StaffName, updateStaffViewModel.StaffPassword);
+                Message message = await _StaffService.UpdateStaffAccountAsync(updateStaffViewModel.BranchId!, updateStaffViewModel.StaffAccountId!,
+                 updateStaffViewModel.StaffName!, updateStaffViewModel.StaffPassword!);
                 if (message.Result)
                 {
                     return Ok(message.ResultMessage);

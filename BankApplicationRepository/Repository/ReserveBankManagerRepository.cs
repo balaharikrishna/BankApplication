@@ -24,30 +24,30 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateReserveBankManager(ReserveBankManager reserveBankManager)
         {
-            ReserveBankManager reserveBankManagerObj = await GetReserveBankManagerById(reserveBankManager.AccountId);
+            ReserveBankManager? reserveBankManagerObj = await GetReserveBankManagerById(reserveBankManager.AccountId);
             if (reserveBankManager.Name is not null)
             {
-                reserveBankManagerObj.Name = reserveBankManager.Name;
+                reserveBankManagerObj!.Name = reserveBankManager.Name;
             }
 
             if (reserveBankManager.Salt is not null)
             {
-                reserveBankManagerObj.Salt = reserveBankManager.Salt;
+                reserveBankManagerObj!.Salt = reserveBankManager.Salt;
 
                 if (reserveBankManager.HashedPassword is not null)
                 {
                     reserveBankManagerObj.HashedPassword = reserveBankManager.HashedPassword;
                 }
             }
-            _context.ReserveBankManagers.Update(reserveBankManagerObj);
+            _context.ReserveBankManagers.Update(reserveBankManagerObj!);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
 
         public async Task<bool> DeleteReserveBankManager(string reserveBankManagerAccountId)
         {
-            ReserveBankManager reserveBankManager = await GetReserveBankManagerById(reserveBankManagerAccountId);
-            reserveBankManager.IsActive = false;
+            ReserveBankManager? reserveBankManager = await GetReserveBankManagerById(reserveBankManagerAccountId);
+            reserveBankManager!.IsActive = false;
             _context.ReserveBankManagers.Update(reserveBankManager);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

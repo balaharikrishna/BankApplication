@@ -42,8 +42,8 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> UpdateBank(Bank bank)
         {
-            Bank bankObj = await GetBankById(bank.BankId);
-            if (bankObj.BankName is not null)
+            Bank? bankObj = await GetBankById(bank.BankId);
+            if (bankObj!.BankName is not null)
             {
                 bankObj.BankName = bankObj.BankName;
             }
@@ -55,8 +55,8 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> DeleteBank(string id)
         {
 
-            Bank bank = await GetBankById(id);
-            bank.IsActive = false;
+            Bank? bank = await GetBankById(id);
+            bank!.IsActive = false;
             _context.Banks.Update(bank);
             int rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;

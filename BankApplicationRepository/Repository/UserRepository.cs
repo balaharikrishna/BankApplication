@@ -12,7 +12,7 @@ namespace BankApplicationRepository.Repository
         {
             _context = context;
         }
-        public async Task<AuthenticateUser> GetUserAuthenticationDetails(string accountId)
+        public async Task<AuthenticateUser?> GetUserAuthenticationDetails(string accountId)
         {
             var result = await (from reserveBankManagers in _context.ReserveBankManagers
                                 where reserveBankManagers.IsActive && reserveBankManagers.AccountId.Equals(accountId)

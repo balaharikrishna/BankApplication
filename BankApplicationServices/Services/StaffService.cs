@@ -1,9 +1,7 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
-using System.Data;
 
 namespace BankApplicationServices.Services
 {
@@ -187,7 +185,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword, Roles staffRole)
+        public async Task<Message> UpdateStaffAccountAsync(string branchId, string staffAccountId, string staffName, string staffPassword)
         {
             Message message;
             message = await IsAccountExistAsync(branchId, staffAccountId);

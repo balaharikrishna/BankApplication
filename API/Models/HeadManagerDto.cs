@@ -7,6 +7,6 @@ namespace API.Models
         public string Name { get; set; }
 
         public string AccountId { get; set; }
-        public Roles Role { get; set; }
+      //  public Roles Role { get; set; }
     }
 }

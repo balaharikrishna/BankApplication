@@ -21,7 +21,7 @@ namespace BankApplicationServices.Services
             _userRepository = userRepository;
             _configuration = configuration;
         }
-        public async Task<Message> IssueToken(string accountId,string userName, string password)
+        public async Task<Message> IssueToken(string accountId, string password)
         {
             Message message = new();
             AuthenticateUser user = await _userRepository.GetUserAuthenticationDetails(accountId);
@@ -32,7 +32,7 @@ namespace BankApplicationServices.Services
                 bool isValidPassword = Convert.ToBase64String(user!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                 if (isValidPassword)
                 {
-                    string token = await GenerateTokenAsync(user.AccountId,user.Name, user.Role);
+                    string token = await GenerateTokenAsync(user.AccountId, user.Role);
                     message.Result = true;
                     message.ResultMessage = "User Login Successful.";
                     message.Data = token;
@@ -51,7 +51,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public async Task<string> GenerateTokenAsync(string accountId,string name, Roles role)
+        public async Task<string> GenerateTokenAsync(string accountId, Roles role)
         {
             SymmetricSecurityKey mySecurityKey = new(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
 
@@ -61,7 +61,6 @@ namespace BankApplicationServices.Services
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                   new Claim("AccountId", accountId),
-                  new Claim("Name", name),
                   new Claim("Role", role.ToString()),
                 }),
                 Expires = DateTime.UtcNow.AddDays(1),

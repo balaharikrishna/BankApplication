@@ -3,11 +3,12 @@ using API.ViewModels.Branch;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    //  [Authorize(Policy = "HeadManagerOnly")]
+    [Authorize(Policy = "HeadManagerOnly")]
     [ApiController]
     [Route("api/[controller]")]
     public class BranchController : ControllerBase

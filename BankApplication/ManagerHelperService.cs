@@ -460,7 +460,7 @@ namespace BankApplication
                                     }
                                 }
 
-                                message = _staffService.UpdateStaffAccountAsync(managerBranchId, staffAccountId, staffName, staffPassword, (Roles)staffRole).Result;
+                                message = _staffService.UpdateStaffAccountAsync(managerBranchId, staffAccountId, staffName, staffPassword).Result;
 
                                 if (message.Result)
                                 {

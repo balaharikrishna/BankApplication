@@ -1,7 +1,6 @@
 ﻿using BankApplicationModels;
 using BankApplicationModels.Enums;
 using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
 using BankApplicationServices.IServices;
 
 namespace BankApplicationServices.Services
@@ -23,7 +22,7 @@ namespace BankApplicationServices.Services
         {
             return await _headManagerRepository.GetAllHeadManagers(branchId);
         }
-     
+
         public async Task<HeadManager> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId)
         {
             HeadManager headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
@@ -138,7 +137,7 @@ namespace BankApplicationServices.Services
             if (message.Result)
             {
                 HeadManager headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
-                
+
                 if (headManager is null)
                 {
                     string date = DateTime.Now.ToString("yyyyMMddHHmmss");

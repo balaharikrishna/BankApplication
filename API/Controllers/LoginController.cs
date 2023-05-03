@@ -33,7 +33,7 @@ namespace API.Controllers
                     return BadRequest(ModelState);
                 }
                 _logger.Log(LogLevel.Information, message: $"Authenticating UserName and Password");
-                Message message = await _tokenIssueService.IssueToken(loginViewModel.AccountId, loginViewModel.UserName, loginViewModel.Password);
+                Message message = await _tokenIssueService.IssueToken(loginViewModel.AccountId, loginViewModel.Password);
                 if (message.Result)
                 {
                     return Ok(message.Data);

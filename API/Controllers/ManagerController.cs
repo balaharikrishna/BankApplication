@@ -3,6 +3,7 @@ using API.ViewModels.Manager;
 using AutoMapper;
 using BankApplicationModels;
 using BankApplicationServices.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -22,7 +23,7 @@ namespace API.Controllers
             _managerService = managerService;
         }
 
-        //   [Authorize(Policy = "ManagerHeadManagerOnly")]
+        [Authorize(Policy = "ManagerHeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -47,7 +48,7 @@ namespace API.Controllers
             }
         }
 
-        //  [Authorize(Policy = "ManagerHeadManagerOnly")]
+        [Authorize(Policy = "ManagerHeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -72,7 +73,7 @@ namespace API.Controllers
             }
         }
 
-        // [Authorize(Policy = "ManagerHeadManagerOnly")]
+        [Authorize(Policy = "ManagerHeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -97,7 +98,7 @@ namespace API.Controllers
             }
         }
 
-        //  [Authorize(Policy = "HeadManagerOnly")]
+        [Authorize(Policy = "HeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -130,7 +131,7 @@ namespace API.Controllers
             }
         }
 
-        // [Authorize(Policy = "HeadManagerOnly")]
+        [Authorize(Policy = "HeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -163,7 +164,7 @@ namespace API.Controllers
             }
         }
 
-        //  [Authorize(Policy = "HeadManagerOnly")]
+        [Authorize(Policy = "HeadManagerOnly")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

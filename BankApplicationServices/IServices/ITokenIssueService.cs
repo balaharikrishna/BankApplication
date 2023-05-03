@@ -10,6 +10,6 @@ namespace BankApplicationServices.IServices
         /// <param name="userName">user Name of User.</param>
         /// <param name="password">password of User.</param>
         /// <returns>A Message object containing information about the success or failure of the operation.</returns>
-        Task<Message> IssueToken(string accountId, string userName, string password);
+        Task<Message> IssueToken(string accountId, string password);
     }
 }

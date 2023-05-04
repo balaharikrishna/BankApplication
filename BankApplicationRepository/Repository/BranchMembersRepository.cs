@@ -1,6 +1,4 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
-using System.Linq;
+﻿using BankApplicationRepository.IRepository;
 
 namespace BankApplicationRepository.Repository
 {

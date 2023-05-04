@@ -20,6 +20,7 @@ namespace BankApplicationRepository
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 

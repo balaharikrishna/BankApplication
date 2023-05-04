@@ -94,6 +94,7 @@ builder.Services.AddScoped<ITransactionChargeRepository, TransactionChargeReposi
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITokenIssueService, TokenIssueService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBranchMembersRepository, BranchMembersRepository>();
 builder.Services.AddScoped<IBranchMembersService, BranchMembersService>();
 
 builder.Services.AddControllers();

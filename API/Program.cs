@@ -62,6 +62,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, HeadManagerOnlyHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, ManagerStaffOnlyHandler>();
 builder.Services.AddSingleton<IAuthorizationHandler, ManagerHeadManagerOnlyHandler>();
 
+
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 builder.Services.AddDbContext<BankDBContext>(options =>
@@ -93,6 +94,7 @@ builder.Services.AddScoped<ITransactionChargeRepository, TransactionChargeReposi
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITokenIssueService, TokenIssueService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBranchMembersService, BranchMembersService>();
 
 builder.Services.AddControllers();
 

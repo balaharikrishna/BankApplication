@@ -1,7 +1,7 @@
-﻿using BankApplication.IHelperServices;
-using BankApplicationHelperMethods;
-using BankApplicationServices.IServices;
-using BankApplicationServices.Services;
+﻿using BankApplication.HelperMethods;
+using BankApplication.IHelperServices;
+using BankApplication.Services.IServices;
+using BankApplication.Services.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BankApplication

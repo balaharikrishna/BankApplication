@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("ReserveBankManagers")]
     public class ReserveBankManager : User

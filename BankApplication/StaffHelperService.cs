@@ -1,6 +1,6 @@
-﻿using BankApplication.IHelperServices;
-using BankApplicationHelperMethods;
-using BankApplicationServices.IServices;
+﻿using BankApplication.HelperMethods;
+using BankApplication.IHelperServices;
+using BankApplication.Services.IServices;
 
 namespace BankApplication
 {

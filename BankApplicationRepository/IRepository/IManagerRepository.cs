@@ -1,10 +1,10 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 
-namespace BankApplicationRepository.IRepository
+namespace BankApplication.Repository.IRepository
 {
     public interface IManagerRepository
     {
-        Task<IEnumerable<Manager?>> GetAllManagers(string branchId);
+        Task<IEnumerable<Manager>> GetAllManagers(string branchId);
         Task<bool> AddManagerAccount(Manager manager, string branchId);
         Task<bool> UpdateManagerAccount(Manager manager, string branchId);
         Task<bool> DeleteManagerAccount(string managerAccountId, string branchId);

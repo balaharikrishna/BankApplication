@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("TransactionCharges")]
     public class TransactionCharge
@@ -11,22 +11,22 @@ namespace BankApplicationModels
         public int Id { get; set; }
 
         [Required]
-        [Range(1,100)]
+        [Range(1, 100)]
         [Column(TypeName = "Smallint")]
         public ushort RtgsSameBank { get; set; }
 
         [Required]
-        [Range(1,100)]
+        [Range(1, 100)]
         [Column(TypeName = "Smallint")]
         public ushort RtgsOtherBank { get; set; }
 
         [Required]
-        [Range(1,100)]
+        [Range(1, 100)]
         [Column(TypeName = "Smallint")]
         public ushort ImpsSameBank { get; set; }
 
         [Required]
-        [Range(1,100)]
+        [Range(1, 100)]
         [Column(TypeName = "Smallint")]
         public ushort ImpsOtherBank { get; set; }
 

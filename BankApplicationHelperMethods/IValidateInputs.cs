@@ -1,6 +1,6 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 
-namespace BankApplicationHelperMethods
+namespace BankApplication.HelperMethods
 {
     public interface IValidateInputs
     {

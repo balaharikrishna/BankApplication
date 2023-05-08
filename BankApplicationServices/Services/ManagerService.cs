@@ -1,9 +1,9 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class ManagerService : IManagerService
     {

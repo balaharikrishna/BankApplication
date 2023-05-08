@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("Banks")]
     public class Bank

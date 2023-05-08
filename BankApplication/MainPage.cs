@@ -1,9 +1,9 @@
 ﻿using BankApplication;
 using BankApplication.Exceptions;
+using BankApplication.HelperMethods;
 using BankApplication.IHelperServices;
-using BankApplicationHelperMethods;
-using BankApplicationModels.Enums;
-using BankApplicationServices.IServices;
+using BankApplication.Models.Enums;
+using BankApplication.Services.IServices;
 using Microsoft.Extensions.DependencyInjection;
 
 internal class MainPage

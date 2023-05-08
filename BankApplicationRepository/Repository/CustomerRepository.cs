@@ -1,9 +1,9 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class CustomerRepository : ICustomerRepository
     {
@@ -12,19 +12,43 @@ namespace BankApplicationRepository.Repository
         {
             _context = context;
         }
-        public async Task<IEnumerable<Customer?>> GetAllCustomers(string branchId)
+        public async Task<IEnumerable<Customer>> GetAllCustomers(string branchId)
         {
-            return await _context.Customers.Where(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Customer> customers = await _context.Customers.Where(c => c.BranchId.Equals(branchId) && c.IsActive).ToListAsync();
+            if (customers.Any())
+            {
+                return customers;
+            }
+            else
+            {
+                return Enumerable.Empty<Customer>();
+            }
         }
         public async Task<Customer?> GetCustomerById(string customerAccountId, string branchId)
         {
-            return await _context.Customers.FirstOrDefaultAsync(c => c.AccountId.Equals(customerAccountId)
-            && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            Customer? customer =  await _context.Customers.FirstOrDefaultAsync(c => c.AccountId.Equals(customerAccountId)
+            && c.BranchId.Equals(branchId) && c.IsActive);
+            if (customer is not null)
+            {
+                return customer;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Customer?> GetCustomerByName(string customerName, string branchId)
         {
-            return await _context.Customers.FirstOrDefaultAsync(c => c.Name.Equals(customerName)
-            && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            Customer? customer = await _context.Customers.FirstOrDefaultAsync(c => c.Name.Equals(customerName)
+            && c.BranchId.Equals(branchId) && c.IsActive);
+            if (customer is not null)
+            {
+                return customer;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<bool> AddCustomerAccount(Customer customer, string branchId)
         {
@@ -108,8 +132,7 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<bool> IsCustomerExist(string customerAccountId, string branchId)
         {
-            return await _context.Customers.AnyAsync(c => c.AccountId.Equals(customerAccountId) && c.IsActive.Equals(true));
+            return await _context.Customers.AnyAsync(c => c.AccountId.Equals(customerAccountId) && c.IsActive);
         }
-
     }
 }

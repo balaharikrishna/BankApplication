@@ -1,11 +1,11 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
 
-namespace BankApplicationServices.IServices
+namespace BankApplication.Services.IServices
 {
     public interface ICustomerService
     {
-        Task<IEnumerable<Customer?>> GetAllCustomersAsync(string branchId);
+        Task<IEnumerable<Customer>> GetAllCustomersAsync(string branchId);
 
         /// <summary>
         /// Retrieves the Customer Passbook.
@@ -13,10 +13,10 @@ namespace BankApplicationServices.IServices
         /// <param name="branchId">The unique identifier of the branch where the customer account is located.</param>
         /// <param name="customerAccountId">The unique identifier of the customer account whose passbook will be retrieved.</param>
         /// <returns>A message about status of Retreving the passbook.</returns>
-        Task<Customer> GetCustomerByIdAsync(string branchId, string customerAccountId);
+        Task<Customer?> GetCustomerByIdAsync(string branchId, string customerAccountId);
 
-        Task<Customer> GetCustomerByNameAsync(string branchId, string customerName);
-        
+        Task<Customer?> GetCustomerByNameAsync(string branchId, string customerName);
+
         /// <summary>
         /// Checks if a customer account exists in a given bank and branch.
         /// </summary>

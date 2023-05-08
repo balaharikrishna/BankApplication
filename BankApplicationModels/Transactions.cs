@@ -1,8 +1,8 @@
-﻿using BankApplicationModels.Enums;
+﻿using BankApplication.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("Transactions")]
     public class Transaction
@@ -52,7 +52,7 @@ namespace BankApplicationModels
         public string TransactionId { get; set; }
 
         [Required]
-        [Range(1,4)]
+        [Range(1, 4)]
         [Column(TypeName = "Smallint")]
         public TransactionType TransactionType { get; set; }
 

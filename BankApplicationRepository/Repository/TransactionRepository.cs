@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class TransactionRepository : ITransactionRepository
     {
@@ -13,12 +13,28 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<IEnumerable<Transaction>> GetAllTransactions(string accountId)
         {
-            return await _context.Transactions.Where(c => c.AccountId.Equals(accountId)).ToListAsync();
+            IEnumerable<Transaction> transactions = await _context.Transactions.Where(c => c.AccountId.Equals(accountId)).ToListAsync();
+            if (transactions.Any())
+            {
+                return transactions;
+            }
+            else
+            {
+                return Enumerable.Empty<Transaction>();
+            }
         }
         public async Task<Transaction?> GetTransactionById(string accountId, string transactionId)
         {
-            return await _context.Transactions.FirstOrDefaultAsync(c => c.AccountId.Equals(accountId)
+            Transaction? transaction =  await _context.Transactions.FirstOrDefaultAsync(c => c.AccountId.Equals(accountId)
             && c.TransactionId.Equals(transactionId));
+            if (transaction is not null)
+            {
+                return transaction;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<bool> IsTransactionsExist(string accountId)
         {

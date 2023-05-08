@@ -1,7 +1,7 @@
-﻿using BankApplicationServices.IServices;
+﻿using BankApplication.Services.IServices;
 using System.Security.Cryptography;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class EncryptionService : IEncryptionService
     {

@@ -1,4 +1,4 @@
-﻿namespace BankApplicationModels.Enums
+﻿namespace BankApplication.Models.Enums
 {
     public enum AccountType : short
     {

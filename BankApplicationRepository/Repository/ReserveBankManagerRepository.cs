@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class ReserveBankManagerRepository : IReserveBankManagerRepository
     {
@@ -11,9 +11,17 @@ namespace BankApplicationRepository.Repository
         {
             _context = context;
         }
-        public async Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagers()
+        public async Task<IEnumerable<ReserveBankManager>?> GetAllReserveBankManagers()
         {
-            return await _context.ReserveBankManagers.Where(c => c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<ReserveBankManager> reserveBankManagers =  await _context.ReserveBankManagers.Where(c => c.IsActive).ToListAsync();
+            if (reserveBankManagers.Any())
+            {
+                return reserveBankManagers;
+            }
+            else
+            {
+                return Enumerable.Empty<ReserveBankManager>();
+            }
         }
         public async Task<bool> AddReserveBankManager(ReserveBankManager reserveBankManager)
         {
@@ -54,17 +62,33 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<bool> IsReserveBankManagerExist(string reserveBankManagerAccountId)
         {
-            return await _context.ReserveBankManagers.AnyAsync(c => c.AccountId.Equals(reserveBankManagerAccountId) && c.IsActive.Equals(true));
+            return await _context.ReserveBankManagers.AnyAsync(c => c.AccountId.Equals(reserveBankManagerAccountId) && c.IsActive);
         }
         public async Task<ReserveBankManager?> GetReserveBankManagerById(string reserveBankManagerAccountId)
         {
-            return await _context.ReserveBankManagers.FirstOrDefaultAsync(c => c.AccountId.Equals(reserveBankManagerAccountId)
-           && c.IsActive.Equals(true));
+            ReserveBankManager? reserveBankManager =  await _context.ReserveBankManagers.FirstOrDefaultAsync(c => c.AccountId.Equals(reserveBankManagerAccountId)
+            && c.IsActive);
+            if (reserveBankManager is not null)
+            {
+                return reserveBankManager;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<ReserveBankManager?> GetReserveBankManagerByName(string reserveBankManagerName)
         {
-            return await _context.ReserveBankManagers.FirstOrDefaultAsync(c => c.Name.Equals(reserveBankManagerName)
-            && c.IsActive.Equals(true));
+            ReserveBankManager? reserveBankManager = await _context.ReserveBankManagers.FirstOrDefaultAsync(c => c.Name.Equals(reserveBankManagerName)
+            && c.IsActive);
+            if (reserveBankManager is not null)
+            {
+                return reserveBankManager;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class CustomerService : ICustomerService
     {
@@ -25,21 +25,43 @@ namespace BankApplicationServices.Services
             _transactionChargeService = transactionChargeService;
         }
 
-        public async Task<IEnumerable<Customer?>> GetAllCustomersAsync(string branchId)
+        public async Task<IEnumerable<Customer>> GetAllCustomersAsync(string branchId)
         {
-            return await _customerRepository.GetAllCustomers(branchId);
+            IEnumerable<Customer> customers =  await _customerRepository.GetAllCustomers(branchId);
+            if (customers.Any())
+            {
+                return customers;
+            }
+            else
+            {
+                return Enumerable.Empty<Customer>();
+            }
         }
 
-        public async Task<Customer> GetCustomerByIdAsync(string branchId, string customerAccountId)
+        public async Task<Customer?> GetCustomerByIdAsync(string branchId, string customerAccountId)
         {
             Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-            return customer!;
+            if (customer is not null)
+            {
+                return customer;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public async Task<Customer> GetCustomerByNameAsync(string branchId, string customerName)
+        public async Task<Customer?> GetCustomerByNameAsync(string branchId, string customerName)
         {
             Customer? customer = await _customerRepository.GetCustomerByName(customerName, branchId);
-            return customer!;
+            if (customer is not null)
+            {
+                return customer;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Message> IsCustomersExistAsync(string branchId)

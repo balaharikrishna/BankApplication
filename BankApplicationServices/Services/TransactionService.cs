@@ -1,9 +1,9 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class TransactionService : ITransactionService
     {
@@ -43,7 +43,7 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        
+
         public async Task<Message> TransactionHistoryAsync(string bankId, string branchId, string customerAccountId, decimal debitAmount,
           decimal creditAmount, decimal customerbalance, TransactionType transactionType)
         {
@@ -52,9 +52,9 @@ namespace BankApplicationServices.Services
             string transactionId = string.Concat("TXN", bankId.AsSpan(0, 3), customerAccountId.AsSpan(0, 3), date);
             Transaction transaction = new()
             {
-                AccountId= customerAccountId,
-                CustomerBankId= bankId,
-                CustomerBranchId= branchId,
+                AccountId = customerAccountId,
+                CustomerBankId = bankId,
+                CustomerBranchId = branchId,
                 TransactionType = transactionType,
                 TransactionId = transactionId,
                 Debit = debitAmount,
@@ -85,10 +85,10 @@ namespace BankApplicationServices.Services
             string transactionId = string.Concat("TXN", fromBankId.AsSpan(0, 3), fromCustomerAccountId.AsSpan(0, 3), date);
 
             Transaction fromCustomertransaction = new()
-            {   
+            {
                 AccountId = fromCustomerAccountId,
-                CustomerBankId= fromBankId,
-                CustomerBranchId= fromBranchId,
+                CustomerBankId = fromBankId,
+                CustomerBranchId = fromBranchId,
                 ToCustomerAccountId = toCustomerAccountId,
                 ToCustomerBankId = toBankId,
                 ToCustomerBranchId = toBranchId,
@@ -103,8 +103,8 @@ namespace BankApplicationServices.Services
             Transaction toCustomertransaction = new()
             {
                 AccountId = toCustomerAccountId,
-                CustomerBankId= toBankId,
-                CustomerBranchId= toBranchId,
+                CustomerBankId = toBankId,
+                CustomerBranchId = toBranchId,
                 FromCustomerBankId = fromBankId,
                 FromCustomerBranchId = fromBranchId,
                 FromCustomerAccountId = fromCustomerAccountId,
@@ -130,7 +130,7 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-        
+
 
         public async Task<Message> RevertTransactionAsync(string transactionId, string fromBankId, string fromBranchId, string fromCustomerAccountId, string toBankId,
           string toBranchId, string toCustomerAccountId)
@@ -150,7 +150,7 @@ namespace BankApplicationServices.Services
                         Customer fromCustomerObject = new()
                         {
                             Balance = fromCustomer!.Balance + toCustomerTransaction.Credit,
-                            AccountId= fromCustomerAccountId
+                            AccountId = fromCustomerAccountId
                         };
 
                         Customer toCustomerObject = new()

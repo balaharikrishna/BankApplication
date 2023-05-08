@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class CurrencyService : ICurrencyService
     {
@@ -16,7 +16,15 @@ namespace BankApplicationServices.Services
 
         public async Task<IEnumerable<Currency>> GetAllCurrenciesAsync(string bankId)
         {
-            return await _currencyRepository.GetAllCurrency(bankId);
+            IEnumerable<Currency> currencies = await _currencyRepository.GetAllCurrency(bankId);
+            if (currencies.Any())
+            {
+                return currencies;
+            }
+            else
+            {
+                return Enumerable.Empty<Currency>();
+            }
         }
         public async Task<Message> ValidateCurrencyAsync(string bankId, string currencyCode)
         {
@@ -47,7 +55,15 @@ namespace BankApplicationServices.Services
 
         public async Task<Currency?> GetCurrencyByCode(string currencyCode, string bankId)
         {
-            return await _currencyRepository.GetCurrencyByCode(currencyCode, bankId);
+            Currency? currency =  await _currencyRepository.GetCurrencyByCode(currencyCode, bankId);
+            if (currency is not null)
+            {
+                return currency;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Message> AddCurrencyAsync(string bankId, string currencyCode, decimal exchangeRate)
         {

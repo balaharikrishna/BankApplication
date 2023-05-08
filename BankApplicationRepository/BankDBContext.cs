@@ -1,7 +1,7 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository
+namespace BankApplication.Repository
 {
     public class BankDBContext : DbContext
     {

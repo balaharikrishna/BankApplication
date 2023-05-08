@@ -1,9 +1,9 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class TransactionChargeService : ITransactionChargeService
     {
@@ -83,7 +83,7 @@ namespace BankApplicationServices.Services
                     message.Result = false;
                     message.ResultMessage = "Transaction Charges already Available.";
                 }
-                
+
             }
             else
             {
@@ -105,7 +105,7 @@ namespace BankApplicationServices.Services
                     RtgsOtherBank = rtgsOtherBank,
                     ImpsSameBank = impsSameBank,
                     ImpsOtherBank = impsOtherBank,
-                    IsActive= true
+                    IsActive = true
                 };
                 bool isTransactionChargeUpdated = await _transactionChargeRepository.UpdateTransactionCharges(transactionCharges, branchId);
                 if (isTransactionChargeUpdated)

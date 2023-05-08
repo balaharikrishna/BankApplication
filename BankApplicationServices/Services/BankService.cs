@@ -1,12 +1,11 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class BankService : IBankService
     {
-
         private readonly IBankRepository _bankRepository;
         public BankService(IBankRepository bankRepository)
         {
@@ -15,15 +14,40 @@ namespace BankApplicationServices.Services
 
         public async Task<IEnumerable<Bank>> GetAllBanksAsync()
         {
-            return await _bankRepository.GetAllBanks();
+            IEnumerable<Bank>? banks =  await _bankRepository.GetAllBanks();
+            if (banks.Any())
+            {
+                return banks;
+            }
+            else
+            {
+                return Enumerable.Empty<Bank>();
+            }
         }
         public async Task<Bank?> GetBankByIdAsync(string id)
         {
-            return await _bankRepository.GetBankById(id);
+            Bank? bank =  await _bankRepository.GetBankById(id);
+            if (bank is not null)
+            {
+                return bank;
+            }
+            else
+            {
+                return null;
+            }
+            
         }
         public async Task<Bank?> GetBankByNameAsync(string name)
         {
-            return await _bankRepository.GetBankByName(name);
+            Bank? bank =  await _bankRepository.GetBankByName(name);
+            if (bank is not null)
+            {
+                return bank;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Message> AuthenticateBankIdAsync(string bankId)
@@ -81,7 +105,6 @@ namespace BankApplicationServices.Services
             }
             return message;
         }
-
 
         public async Task<Message> UpdateBankAsync(string bankId, string bankName)
         {
@@ -142,9 +165,17 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<IEnumerable<Currency>> GetExchangeRatesAsync(string bankId)
+        public async Task<IEnumerable<Currency>> GetExchangeRatesAsync(string bankId)
         {
-            return _bankRepository.GetAllCurrencies(bankId);
+            IEnumerable<Currency>? currencies = await _bankRepository.GetAllCurrencies(bankId);
+            if(currencies.Any())
+            {
+                return currencies;
+            }
+            else
+            {
+                return Enumerable.Empty<Currency>();
+            }
         }
     }
 }

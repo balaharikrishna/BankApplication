@@ -1,7 +1,7 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
 
-namespace BankApplicationServices.IServices
+namespace BankApplication.Services.IServices
 {
     public interface ITransactionService
     {

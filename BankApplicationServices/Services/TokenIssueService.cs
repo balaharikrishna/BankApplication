@@ -1,14 +1,14 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class TokenIssueService : ITokenIssueService
     {

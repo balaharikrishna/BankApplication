@@ -1,4 +1,4 @@
-﻿namespace BankApplicationServices.IServices
+﻿namespace BankApplication.Services.IServices
 {
     public interface IBranchMembersService
     {

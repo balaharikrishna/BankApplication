@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class BranchRepository : IBranchRepository
     {
@@ -13,17 +13,33 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<IEnumerable<Branch>> GetAllBranches(string bankId)
         {
-            return await _context.Branches.Where(b => b.BankId.Equals(bankId) && b.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Branch> branches =  await _context.Branches.Where(b => b.BankId.Equals(bankId) && b.IsActive).ToListAsync();
+            if (branches.Any())
+            {
+                return branches;
+            }
+            else
+            {
+              return  Enumerable.Empty<Branch>();
+            }
         }
 
         public async Task<Branch?> GetBranchById(string branchId)
         {
-            return await _context.Branches.FirstOrDefaultAsync(b => b.BranchId.Equals(branchId) && b.IsActive.Equals(true));
+            Branch? branch =  await _context.Branches.FirstOrDefaultAsync(b => b.BranchId.Equals(branchId) && b.IsActive);
+            if (branch is not null)
+            {
+                return branch;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<bool> IsBranchExist(string branchId)
         {
-            return await _context.Branches.AnyAsync(b => b.BranchId.Equals(branchId) && b.IsActive.Equals(true));
+            return await _context.Branches.AnyAsync(b => b.BranchId.Equals(branchId) && b.IsActive);
         }
 
         public async Task<bool> AddBranch(Branch branch, string bankId)
@@ -67,12 +83,28 @@ namespace BankApplicationRepository.Repository
 
         public async Task<Branch?> GetBranchByName(string branchName)
         {
-            return await _context.Branches.FirstOrDefaultAsync(b => b.BranchName.Equals(branchName) && b.IsActive.Equals(true));
+            Branch? branch =  await _context.Branches.FirstOrDefaultAsync(b => b.BranchName.Equals(branchName) && b.IsActive);
+            if (branch is not null)
+            {
+                return branch;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<IEnumerable<TransactionCharge>> GetAllTransactionCharges(string branchId)
         {
-            return await _context.TransactionCharges.Where(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<TransactionCharge> charges =  await _context.TransactionCharges.Where(c => c.BranchId.Equals(branchId) && c.IsActive).ToListAsync();
+            if (charges.Any())
+            {
+                return charges;
+            }
+            else
+            {
+                return Enumerable.Empty<TransactionCharge>();
+            }
         }
     }
 }

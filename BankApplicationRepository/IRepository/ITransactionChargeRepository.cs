@@ -1,11 +1,11 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BankApplicationRepository.IRepository
+namespace BankApplication.Repository.IRepository
 {
     public interface ITransactionChargeRepository
     {

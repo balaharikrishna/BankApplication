@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class BranchService : IBranchService
     {
@@ -14,22 +14,46 @@ namespace BankApplicationServices.Services
 
         public async Task<IEnumerable<Branch>> GetAllBranchesAsync(string bankId)
         {
-            return await _branchRepository.GetAllBranches(bankId);
+            IEnumerable<Branch>? branches = await _branchRepository.GetAllBranches(bankId);
+            if (branches.Any())
+            {
+                return branches;
+            }
+            else
+            {
+                return Enumerable.Empty<Branch>();
+            }
         }
 
         public async Task<Branch?> GetBranchByIdAsync(string id)
         {
-            return await _branchRepository.GetBranchById(id);
+            Branch? branch = await _branchRepository.GetBranchById(id);
+            if (branch is not null)
+            {
+                return branch;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Branch?> GetBranchByNameAsync(string name)
         {
-            return await _branchRepository.GetBranchByName(name);
+            Branch? branch = await _branchRepository.GetBranchByName(name);
+            if (branch is not null)
+            {
+                return branch;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Message> IsBranchesExistAsync(string bankId)
         {
-            IEnumerable<Branch> branches = await _branchRepository.GetAllBranches(bankId);
+            IEnumerable<Branch>? branches = await _branchRepository.GetAllBranches(bankId);
             Message message = new();
             if (branches.Any())
             {
@@ -163,9 +187,17 @@ namespace BankApplicationServices.Services
             return message;
         }
 
-        public Task<IEnumerable<TransactionCharge>> GetTransactionChargesAsync(string branchId)
+        public async Task<IEnumerable<TransactionCharge>> GetTransactionChargesAsync(string branchId)
         {
-            return _branchRepository.GetAllTransactionCharges(branchId);
+            IEnumerable<TransactionCharge> charges = await _branchRepository.GetAllTransactionCharges(branchId);
+            if (charges.Any())
+            {
+                return charges;
+            }
+            else
+            {
+                return Enumerable.Empty<TransactionCharge>();
+            }
         }
     }
 }

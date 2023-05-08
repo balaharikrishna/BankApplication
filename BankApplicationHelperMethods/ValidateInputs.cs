@@ -1,7 +1,7 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 using System.Text.RegularExpressions;
 
-namespace BankApplicationHelperMethods
+namespace BankApplication.HelperMethods
 {
     public class ValidateInputs : IValidateInputs
     {

@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BankApplication.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("Branches")]
     public class Branch
@@ -17,7 +18,7 @@ namespace BankApplicationModels
         [StringLength(30)]
         [Column(TypeName = "varchar")]
         public string BranchName { get; set; }
-        
+
         [Required]
         [StringLength(50)]
         [Column(TypeName = "varchar")]

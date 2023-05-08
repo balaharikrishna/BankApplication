@@ -1,15 +1,15 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 
-namespace BankApplicationServices.IServices
+namespace BankApplication.Services.IServices
 {
     public interface IHeadManagerService
     {
-        Task<IEnumerable<HeadManager?>> GetAllHeadManagersAsync(string branchId);
+        Task<IEnumerable<HeadManager>> GetAllHeadManagersAsync(string branchId);
 
         Task<HeadManager?> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId);
 
         Task<HeadManager?> GetHeadManagerByNameAsync(string bankId, string headManagerName);
-        
+
         /// <summary>
         /// Checks if any Head Managers exist for the given BankId.
         /// </summary>

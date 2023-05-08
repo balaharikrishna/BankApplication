@@ -1,6 +1,6 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 
-namespace BankApplicationRepository.IRepository
+namespace BankApplication.Repository.IRepository
 {
     public interface ICurrencyRepository
     {

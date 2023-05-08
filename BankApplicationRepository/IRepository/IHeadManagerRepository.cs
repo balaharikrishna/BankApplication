@@ -1,10 +1,10 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 
-namespace BankApplicationRepository.IRepository
+namespace BankApplication.Repository.IRepository
 {
     public interface IHeadManagerRepository
     {
-        Task<IEnumerable<HeadManager?>> GetAllHeadManagers(string bankId);
+        Task<IEnumerable<HeadManager>> GetAllHeadManagers(string bankId);
         Task<bool> AddHeadManagerAccount(HeadManager headManager, string bankId);
         Task<bool> UpdateHeadManagerAccount(HeadManager headManager, string bankId);
         Task<bool> DeleteHeadManagerAccount(string headManagerAccountId, string bankId);

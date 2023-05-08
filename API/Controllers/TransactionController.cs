@@ -1,14 +1,14 @@
 ﻿using API.Models;
 using API.ViewModels.Transactions;
 using AutoMapper;
-using BankApplicationModels;
-using BankApplicationServices.IServices;
+using BankApplication.Models;
+using BankApplication.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class TransactionController : ControllerBase

@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class HeadManagerRepository : IHeadManagerRepository
     {
@@ -11,9 +11,17 @@ namespace BankApplicationRepository.Repository
         {
             _context = context;
         }
-        public async Task<IEnumerable<HeadManager?>> GetAllHeadManagers(string bankId)
+        public async Task<IEnumerable<HeadManager>> GetAllHeadManagers(string bankId)
         {
-            return await _context.HeadManagers.Where(c => c.BankId.Equals(bankId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<HeadManager> headManagers = await _context.HeadManagers.Where(c => c.BankId.Equals(bankId) && c.IsActive).ToListAsync();
+            if (headManagers.Any())
+            {
+                return headManagers;
+            }
+            else
+            {
+                return Enumerable.Empty<HeadManager>();
+            }
         }
 
         public async Task<bool> AddHeadManagerAccount(HeadManager headManager, string bankId)
@@ -61,14 +69,29 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<HeadManager?> GetHeadManagerById(string headManagerAccountId, string bankId)
         {
-            return await _context.HeadManagers.FirstOrDefaultAsync(c => c.AccountId.Equals(headManagerAccountId)
-            && c.BankId.Equals(bankId) && c.IsActive.Equals(true));
+            HeadManager? headManager =  await _context.HeadManagers.FirstOrDefaultAsync(c => c.AccountId.Equals(headManagerAccountId)
+            && c.BankId.Equals(bankId) && c.IsActive);
+            if (headManager is not null)
+            {
+                return headManager;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<HeadManager?> GetHeadManagerByName(string headManagerName, string bankId)
         {
-            return await _context.HeadManagers.FirstOrDefaultAsync(c => c.Name.Equals(headManagerName)
-            && c.BankId.Equals(bankId) && c.IsActive.Equals(true));
-
+            HeadManager? headManager = await _context.HeadManagers.FirstOrDefaultAsync(c => c.Name.Equals(headManagerName)
+            && c.BankId.Equals(bankId) && c.IsActive);
+            if (headManager is not null)
+            {
+                return headManager;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

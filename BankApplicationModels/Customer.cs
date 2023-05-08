@@ -1,8 +1,8 @@
-﻿using BankApplicationModels.Enums;
+﻿using BankApplication.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("Customers")]
     public class Customer : User

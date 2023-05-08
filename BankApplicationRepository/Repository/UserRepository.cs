@@ -1,9 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class UserRepository : IUserRepository
     {
@@ -37,7 +36,7 @@ namespace BankApplicationRepository.Repository
                 {
                     AccountId = result.AccountId,
                     Name = result.Name,
-                    Role = (Roles)result.Role,
+                    Role = result.Role,
                     Salt = result.Salt,
                     HashedPassword = result.HashedPassword
                 };

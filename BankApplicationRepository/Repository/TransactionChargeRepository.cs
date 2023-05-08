@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class TransactionChargeRepository : ITransactionChargeRepository
     {
@@ -13,7 +13,14 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<TransactionCharge?> GetTransactionCharges(string branchId)
         {
-            return await _context.TransactionCharges.FirstOrDefaultAsync(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            TransactionCharge? transactionCharge = await _context.TransactionCharges.FirstOrDefaultAsync(c => c.BranchId.Equals(branchId) && c.IsActive);
+            if (transactionCharge is not null) { 
+                return transactionCharge;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<bool> AddTransactionCharges(TransactionCharge transactionCharges, string branchId)
         {
@@ -61,7 +68,7 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<bool> IsTransactionChargesExist(string branchId)
         {
-            return await _context.TransactionCharges.AnyAsync(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            return await _context.TransactionCharges.AnyAsync(c => c.BranchId.Equals(branchId) && c.IsActive);
         }
     }
 }

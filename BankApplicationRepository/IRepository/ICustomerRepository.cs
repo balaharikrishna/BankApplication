@@ -1,15 +1,15 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BankApplicationRepository.IRepository
+namespace BankApplication.Repository.IRepository
 {
     public interface ICustomerRepository
     {
-        Task<IEnumerable<Customer?>> GetAllCustomers(string branchId);
+        Task<IEnumerable<Customer>> GetAllCustomers(string branchId);
         Task<bool> AddCustomerAccount(Customer customer, string branchId);
         Task<bool> UpdateCustomerAccount(Customer customer, string branchId);
         Task<bool> DeleteCustomerAccount(string customerAccountId, string branchId);

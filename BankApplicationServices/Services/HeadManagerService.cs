@@ -1,9 +1,9 @@
-﻿using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class HeadManagerService : IHeadManagerService
     {
@@ -18,21 +18,43 @@ namespace BankApplicationServices.Services
             _headManagerRepository = headManagerRepository;
         }
 
-        public async Task<IEnumerable<HeadManager?>> GetAllHeadManagersAsync(string branchId)
+        public async Task<IEnumerable<HeadManager>> GetAllHeadManagersAsync(string branchId)
         {
-            return await _headManagerRepository.GetAllHeadManagers(branchId);
+            IEnumerable<HeadManager> headManagers =  await _headManagerRepository.GetAllHeadManagers(branchId);
+            if (headManagers.Any())
+            {
+                return headManagers;
+            }
+            else
+            {
+                return Enumerable.Empty<HeadManager>();
+            }
         }
 
         public async Task<HeadManager?> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId)
         {
             HeadManager? headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
-            return headManager;
+            if (headManager is not null)
+            {
+                return headManager;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<HeadManager?> GetHeadManagerByNameAsync(string bankId, string headManagerName)
         {
             HeadManager? headManager = await _headManagerRepository.GetHeadManagerByName(headManagerName, bankId);
-            return headManager;
+            if (headManager is not null)
+            {
+                return headManager;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Message> IsHeadManagersExistAsync(string bankId)
         {

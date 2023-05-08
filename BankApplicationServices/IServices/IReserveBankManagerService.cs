@@ -1,6 +1,6 @@
-﻿using BankApplicationModels;
+﻿using BankApplication.Models;
 
-namespace BankApplicationServices.IServices
+namespace BankApplication.Services.IServices
 {
     public interface IReserveBankManagerService
     {

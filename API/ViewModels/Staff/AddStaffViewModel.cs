@@ -1,6 +1,4 @@
-﻿using BankApplicationModels.Enums;
-
-namespace API.ViewModels.Staff
+﻿namespace API.ViewModels.Staff
 {
     public class AddStaffViewModel
     {

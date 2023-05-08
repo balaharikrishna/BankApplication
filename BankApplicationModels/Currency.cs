@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BankApplicationModels
+namespace BankApplication.Models
 {
     [Table("Currencies")]
     public class Currency
@@ -15,7 +15,7 @@ namespace BankApplicationModels
         [Required]
 
         public decimal ExchangeRate { get; set; }
-        
+
         [Required]
         [RegularExpression("^[01]+$")]
         public bool IsActive { get; set; }

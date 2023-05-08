@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class BankRepository : IBankRepository
     {
@@ -15,22 +15,46 @@ namespace BankApplicationRepository.Repository
 
         public async Task<IEnumerable<Bank>> GetAllBanks()
         {
-            return await _context.Banks.Where(b => b.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Bank> banks = await _context.Banks.Where(b => b.IsActive).ToListAsync();
+            if (banks.Any())
+            {
+                return banks;
+            }
+            else
+            {
+                return Enumerable.Empty<Bank>();
+            }
         }
 
         public async Task<Bank?> GetBankById(string id)
         {
-            return await _context.Banks.FirstOrDefaultAsync(b => b.BankId.Equals(id) && b.IsActive.Equals(true));
+            Bank? bank = await _context.Banks.FirstOrDefaultAsync(b => b.BankId.Equals(id) && b.IsActive);
+            if (bank is not null)
+            {
+                return bank;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Bank?> GetBankByName(string bankName)
         {
-            return await _context.Banks.FirstOrDefaultAsync(b => b.BankName.Equals(bankName) && b.IsActive.Equals(true));
+            Bank? bank = await _context.Banks.FirstOrDefaultAsync(b => b.BankName.Equals(bankName) && b.IsActive);
+            if (bank is not null)
+            {
+                return bank;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<bool> IsBankExist(string bankId)
         {
-            return await _context.Banks.AnyAsync(b => b.BankId.Equals(bankId) && b.IsActive.Equals(true));
+            return await _context.Banks.AnyAsync(b => b.BankId.Equals(bankId) && b.IsActive);
         }
 
         public async Task<bool> AddBank(Bank bank)
@@ -64,7 +88,15 @@ namespace BankApplicationRepository.Repository
 
         public async Task<IEnumerable<Currency>> GetAllCurrencies(string bankId)
         {
-            return await _context.Currencies.Where(c => c.BankId.Equals(bankId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Currency>? currencies = await _context.Currencies.Where(c => c.BankId.Equals(bankId) && c.IsActive).ToListAsync();
+            if (currencies.Any())
+            {
+                return currencies;
+            }
+            else
+            {
+                return Enumerable.Empty<Currency>();
+            }
         }
     }
 }

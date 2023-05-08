@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class ManagerRepository : IManagerRepository
     {
@@ -11,9 +11,17 @@ namespace BankApplicationRepository.Repository
         {
             _context = context;
         }
-        public async Task<IEnumerable<Manager?>> GetAllManagers(string branchId)
+        public async Task<IEnumerable<Manager>> GetAllManagers(string branchId)
         {
-            return await _context.Managers.Where(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Manager> managers = await _context.Managers.Where(c => c.BranchId.Equals(branchId) && c.IsActive).ToListAsync();
+            if (managers.Any())
+            {
+                return managers;
+            }
+            else
+            {
+                return Enumerable.Empty<Manager>();
+            }
         }
         public async Task<bool> AddManagerAccount(Manager manager, string branchId)
         {
@@ -57,17 +65,33 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<bool> IsManagerExist(string managerAccountId, string branchId)
         {
-            return await _context.Managers.AnyAsync(c => c.AccountId.Equals(managerAccountId) && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            return await _context.Managers.AnyAsync(c => c.AccountId.Equals(managerAccountId) && c.BranchId.Equals(branchId) && c.IsActive);
         }
         public async Task<Manager?> GetManagerById(string managerAccountId, string branchId)
         {
-            return await _context.Managers.FirstOrDefaultAsync(c => c.AccountId.Equals(managerAccountId)
-            && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            Manager? manager =  await _context.Managers.FirstOrDefaultAsync(c => c.AccountId.Equals(managerAccountId)
+            && c.BranchId.Equals(branchId) && c.IsActive);
+            if (manager is not null)
+            {
+                return manager;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Manager?> GetManagerByName(string managerName, string branchId)
         {
-            return await _context.Managers.FirstOrDefaultAsync(c => c.Name.Equals(managerName)
-            && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            Manager? manager = await _context.Managers.FirstOrDefaultAsync(c => c.Name.Equals(managerName)
+            && c.BranchId.Equals(branchId) && c.IsActive);
+            if (manager is not null)
+            {
+                return manager;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

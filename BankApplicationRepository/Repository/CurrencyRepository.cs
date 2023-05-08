@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class CurrencyRepository : ICurrencyRepository
     {
@@ -14,7 +14,15 @@ namespace BankApplicationRepository.Repository
 
         public async Task<IEnumerable<Currency>> GetAllCurrency(string bankId)
         {
-            return await _context.Currencies.Where(c => c.BankId.Equals(bankId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Currency> currencies = await _context.Currencies.Where(c => c.BankId.Equals(bankId) && c.IsActive).ToListAsync();
+            if (currencies.Any())
+            {
+                return currencies;
+            }
+            else
+            {
+                return Enumerable.Empty<Currency>();
+            }
         }
         public async Task<bool> AddCurrency(Currency currency, string bankId)
         {
@@ -27,7 +35,7 @@ namespace BankApplicationRepository.Repository
         public async Task<bool> UpdateCurrency(Currency currency, string bankId)
         {
             Currency? currencyToUpdate = await _context.Currencies.FirstOrDefaultAsync(c => c.BankId.Equals(bankId) &&
-            c.CurrencyCode.Equals(currency.CurrencyCode) && c.IsActive.Equals(true));
+            c.CurrencyCode.Equals(currency.CurrencyCode) && c.IsActive);
 
             if (currency.CurrencyCode is not null)
             {
@@ -41,8 +49,8 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> DeleteCurrency(string currencyCode, string bankId)
         {
-            IEnumerable<Currency> currencies = await GetAllCurrency(bankId);
-            Currency? currency = currencies.FirstOrDefault(c => c.CurrencyCode.Equals(currencyCode));
+            IEnumerable<Currency>? currencies = await GetAllCurrency(bankId);
+            Currency? currency = currencies?.FirstOrDefault(c => c.CurrencyCode.Equals(currencyCode));
             currency!.IsActive = false;
             _context.Currencies.Update(currency);
             int rowsAffected = await _context.SaveChangesAsync();
@@ -51,12 +59,20 @@ namespace BankApplicationRepository.Repository
 
         public async Task<bool> IsCurrencyExist(string currencyCode, string bankId)
         {
-            return await _context.Currencies.AnyAsync(c => c.CurrencyCode.Equals(currencyCode) && c.BankId.Equals(bankId) && c.IsActive.Equals(true));
+            return await _context.Currencies.AnyAsync(c => c.CurrencyCode.Equals(currencyCode) && c.BankId.Equals(bankId) && c.IsActive);
         }
 
         public async Task<Currency?> GetCurrencyByCode(string currencyCode, string bankId)
         {
-            return await _context.Currencies.FirstOrDefaultAsync(c => c.CurrencyCode.Equals(currencyCode) && c.IsActive.Equals(true));
+            Currency? currency =  await _context.Currencies.FirstOrDefaultAsync(c => c.CurrencyCode.Equals(currencyCode) && c.IsActive);
+            if (currency is not null)
+            {
+                return currency;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

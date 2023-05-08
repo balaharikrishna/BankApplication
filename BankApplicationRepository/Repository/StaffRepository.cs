@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationRepository.IRepository;
+﻿using BankApplication.Models;
+using BankApplication.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class StaffRepository : IStaffRepository
     {
@@ -13,7 +13,15 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<IEnumerable<Staff>> GetAllStaffs(string branchId)
         {
-            return await _context.Staffs.Where(c => c.BranchId.Equals(branchId) && c.IsActive.Equals(true)).ToListAsync();
+            IEnumerable<Staff> staff = await _context.Staffs.Where(c => c.BranchId.Equals(branchId) && c.IsActive).ToListAsync();
+            if (staff.Any())
+            {
+                return staff;
+            }
+            else
+            {
+                return Enumerable.Empty<Staff>();
+            }
         }
         public async Task<bool> AddStaffAccount(Staff staff, string branchId)
         {
@@ -57,17 +65,33 @@ namespace BankApplicationRepository.Repository
         }
         public async Task<bool> IsStaffExist(string staffAccountId, string branchId)
         {
-            return await _context.Staffs.AnyAsync(c => c.AccountId.Equals(staffAccountId) && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            return await _context.Staffs.AnyAsync(c => c.AccountId.Equals(staffAccountId) && c.BranchId.Equals(branchId) && c.IsActive);
         }
         public async Task<Staff?> GetStaffById(string staffAccountId, string branchId)
         {
-            return await _context.Staffs.FirstOrDefaultAsync(c => c.AccountId.Equals(staffAccountId)
-            && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            Staff? staff = await _context.Staffs.FirstOrDefaultAsync(c => c.AccountId.Equals(staffAccountId)
+            && c.BranchId.Equals(branchId) && c.IsActive);
+            if (staff is not null)
+            {
+                return staff;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Staff?> GetStaffByName(string staffName, string branchId)
         {
-            return await _context.Staffs.FirstOrDefaultAsync(c => c.Name.Equals(staffName)
-            && c.BranchId.Equals(branchId) && c.IsActive.Equals(true));
+            Staff? staff = await _context.Staffs.FirstOrDefaultAsync(c => c.Name.Equals(staffName)
+            && c.BranchId.Equals(branchId) && c.IsActive);
+            if (staff is not null)
+            {
+                return staff;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BankApplicationServices.IServices;
+using BankApplication.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

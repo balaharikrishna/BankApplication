@@ -1,4 +1,4 @@
-﻿using BankApplicationModels.Enums;
+﻿using BankApplication.Models.Enums;
 
 namespace API.Models
 {

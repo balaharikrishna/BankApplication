@@ -1,8 +1,4 @@
 using API.Mappings;
-using BankApplicationRepository.IRepository;
-using BankApplicationRepository.Repository;
-using BankApplicationServices.IServices;
-using BankApplicationServices.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Data.SqlClient;
@@ -17,10 +13,13 @@ using API.AuthorizationPolicies.BranchMembersOnly;
 using API.AuthorizationPolicies.MinimumHeadManager;
 using API.AuthorizationPolicies.ManagerStaffOnly;
 using API.AuthorizationPolicies.ManagerHeadManagerOnly;
-using BankApplicationRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-
+using BankApplication.Repository;
+using BankApplication.Repository.Repository;
+using BankApplication.Services.Services;
+using BankApplication.Services.IServices;
+using BankApplication.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 

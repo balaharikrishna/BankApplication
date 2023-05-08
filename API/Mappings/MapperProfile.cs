@@ -1,6 +1,6 @@
 ﻿using API.Models;
 using AutoMapper;
-using BankApplicationModels;
+using BankApplication.Models;
 
 namespace API.Mappings
 {

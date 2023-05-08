@@ -1,7 +1,7 @@
-﻿using BankApplicationRepository.IRepository;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Repository.IRepository;
+using BankApplication.Services.IServices;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class BranchMembersService : IBranchMembersService
     {
@@ -13,7 +13,15 @@ namespace BankApplicationServices.Services
 
         public async Task<IEnumerable<string>> GetAllBranchesAsync(string branchId)
         {
-            return await _branchMembersRepository.GetAllBranchMembers(branchId);
+            IEnumerable<string>? members = await _branchMembersRepository.GetAllBranchMembers(branchId);
+            if (members.Any())
+            {
+                return members;
+            }
+            else
+            {
+                return Enumerable.Empty<string>();
+            }
         }
     }
 }

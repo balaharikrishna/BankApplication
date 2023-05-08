@@ -1,4 +1,4 @@
-﻿namespace BankApplicationModels
+﻿namespace BankApplication.Models
 {
     public class Message
     {

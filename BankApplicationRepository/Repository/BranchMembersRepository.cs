@@ -1,6 +1,6 @@
-﻿using BankApplicationRepository.IRepository;
+﻿using BankApplication.Repository.IRepository;
 
-namespace BankApplicationRepository.Repository
+namespace BankApplication.Repository.Repository
 {
     public class BranchMembersRepository : IBranchMembersRepository
     {
@@ -37,7 +37,14 @@ namespace BankApplicationRepository.Repository
                                 .Concat(fullOuterJoin.Select(x => x.ManagerNames))
                                 .Distinct();
 
-            return await Task.FromResult(allNames);
+            if (allNames.Any())
+            {
+                return await Task.FromResult(allNames);
+            }
+            else
+            {
+                return Enumerable.Empty<string>();
+            }
         }
     }
 }

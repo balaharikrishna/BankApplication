@@ -1,5 +1,5 @@
-﻿using BankApplicationHelperMethods;
-using BankApplicationServices.IServices;
+﻿using BankApplication.HelperMethods;
+using BankApplication.Services.IServices;
 
 namespace BankApplication.IHelperServices
 {

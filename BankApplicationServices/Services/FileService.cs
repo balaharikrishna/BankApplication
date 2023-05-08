@@ -1,8 +1,8 @@
-﻿using BankApplicationModels;
-using BankApplicationServices.IServices;
+﻿using BankApplication.Models;
+using BankApplication.Services.IServices;
 using System.Text.Json;
 
-namespace BankApplicationServices.Services
+namespace BankApplication.Services.Services
 {
     public class FileService : IFileService
     {

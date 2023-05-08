@@ -1,8 +1,8 @@
-﻿using BankApplication.IHelperServices;
-using BankApplicationHelperMethods;
-using BankApplicationModels;
-using BankApplicationModels.Enums;
-using BankApplicationServices.IServices;
+﻿using BankApplication.HelperMethods;
+using BankApplication.IHelperServices;
+using BankApplication.Models;
+using BankApplication.Models.Enums;
+using BankApplication.Services.IServices;
 
 namespace BankApplication
 {

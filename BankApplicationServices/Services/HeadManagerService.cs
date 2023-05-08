@@ -286,10 +286,5 @@ namespace BankApplication.Services.Services
             }
             return message;
         }
-
-        public async Task<HeadManager?> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId)
-        {
-            return await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
-        }
     }
 }

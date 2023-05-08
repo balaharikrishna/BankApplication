@@ -17,13 +17,29 @@ namespace BankApplication.Services.Services
 
         public async Task<IEnumerable<Transaction>> GetAllTransactionHistory(string accountId)
         {
-            return await _transactionRepository.GetAllTransactions(accountId);
+            IEnumerable<Transaction> transaction =  await _transactionRepository.GetAllTransactions(accountId);
+            if (transaction.Any())
+            {
+                return transaction;
+            }
+            else
+            {
+                return Enumerable.Empty<Transaction>();
+            }
+
         }
 
         public async Task<Transaction?> GetTransactionById(string accountId, string transactionId)
         {
             Transaction? transaction = await _transactionRepository.GetTransactionById(accountId, transactionId);
-            return transaction;
+            if (transaction is not null)
+            {
+                return transaction;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Message> IsTransactionsAvailableAsync(string accountId)

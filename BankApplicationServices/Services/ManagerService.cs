@@ -19,21 +19,43 @@ namespace BankApplication.Services.Services
             _managerRepository = managerRepository;
         }
 
-        public async Task<IEnumerable<Manager?>> GetAllManagersAsync(string branchId)
+        public async Task<IEnumerable<Manager>> GetAllManagersAsync(string branchId)
         {
-            return await _managerRepository.GetAllManagers(branchId);
+            IEnumerable<Manager> managers = await _managerRepository.GetAllManagers(branchId);
+            if (managers.Any())
+            {
+                return managers;
+            }
+            else
+            {
+                return Enumerable.Empty<Manager>();
+            }
         }
 
         public async Task<Manager?> GetManagerByIdAsync(string branchId, string managerAccountId)
         {
             Manager? manager = await _managerRepository.GetManagerById(managerAccountId, branchId);
-            return manager;
+            if (manager is not null)
+            {
+                return manager;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Manager?> GetManagerByNameAsync(string branchId, string managerName)
         {
             Manager? manager = await _managerRepository.GetManagerByName(managerName, branchId);
-            return manager;
+            if (manager is not null)
+            {
+                return manager;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Message> IsManagersExistAsync(string branchId)
         {
@@ -80,7 +102,7 @@ namespace BankApplication.Services.Services
                     }
 
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(manager!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    bool isValidPassword = Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                     if (isValidPassword)
                     {
                         message.Result = true;

@@ -4,7 +4,7 @@ namespace BankApplication.Repository.IRepository
 {
     public interface IReserveBankManagerRepository
     {
-        Task<IEnumerable<ReserveBankManager>?> GetAllReserveBankManagers();
+        Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagers();
         Task<bool> AddReserveBankManager(ReserveBankManager reserveBankManager);
         Task<bool> UpdateReserveBankManager(ReserveBankManager reserveBankManager);
         Task<bool> DeleteReserveBankManager(string reserveBankManagerAccountId);

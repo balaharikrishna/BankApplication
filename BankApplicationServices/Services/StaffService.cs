@@ -19,19 +19,41 @@ namespace BankApplication.Services.Services
 
         public async Task<IEnumerable<Staff>> GetAllStaffAsync(string branchId)
         {
-            return await _staffRepository.GetAllStaffs(branchId);
+            IEnumerable<Staff> staff =  await _staffRepository.GetAllStaffs(branchId);
+            if (staff.Any())
+            {
+                return staff;
+            }
+            else
+            {
+                return Enumerable.Empty<Staff>();
+            }
         }
 
         public async Task<Staff?> GetStaffByIdAsync(string branchId, string staffAccountId)
         {
             Staff? staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
-            return staff;
+            if (staff is not null)
+            {
+                return staff;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Staff?> GetStaffByNameAsync(string branchId, string staffName)
         {
             Staff? staff = await _staffRepository.GetStaffByName(staffName, branchId);
-            return staff;
+            if (staff is not null)
+            {
+                return staff;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<Message> IsStaffExistAsync(string branchId)
         {
@@ -70,14 +92,14 @@ namespace BankApplication.Services.Services
                 IEnumerable<Staff> staffs = await _staffRepository.GetAllStaffs(branchId);
                 if (staffs.Any())
                 {
-                    byte[] salt = new byte[32];
+                    byte[]? salt = new byte[32];
                     Staff? staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
                     if (staff is not null)
                     {
                         salt = staff.Salt;
                     }
 
-                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
+                    byte[]? hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
                     bool isValidPassword = Convert.ToBase64String(staff!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                     if (isValidPassword)
                     {
@@ -118,8 +140,8 @@ namespace BankApplication.Services.Services
                     string UserFirstThreeCharecters = staffName.Substring(0, 3);
                     string staffAccountId = string.Concat(UserFirstThreeCharecters, date);
 
-                    byte[] salt = _encryptionService.GenerateSalt();
-                    byte[] hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
+                    byte[]? salt = _encryptionService.GenerateSalt();
+                    byte[]? hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
 
                     Staff staffObject = new()
                     {
@@ -264,11 +286,6 @@ namespace BankApplication.Services.Services
                 message.ResultMessage = $"Staff with Account Id:{staffAccountId} doesn't Exist.";
             }
             return message;
-        }
-
-        public async Task<Staff?> GetStaffDetailsAsync(string branchId, string staffAccountId)
-        {
-            return await _staffRepository.GetStaffById(staffAccountId, branchId);
         }
     }
 }

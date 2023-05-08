@@ -11,7 +11,7 @@ namespace BankApplication.Repository.Repository
         {
             _context = context;
         }
-        public async Task<IEnumerable<ReserveBankManager>?> GetAllReserveBankManagers()
+        public async Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagers()
         {
             IEnumerable<ReserveBankManager> reserveBankManagers =  await _context.ReserveBankManagers.Where(c => c.IsActive).ToListAsync();
             if (reserveBankManagers.Any())

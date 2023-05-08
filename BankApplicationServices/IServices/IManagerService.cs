@@ -4,7 +4,7 @@ namespace BankApplication.Services.IServices
 {
     public interface IManagerService
     {
-        Task<IEnumerable<Manager?>> GetAllManagersAsync(string branchId);
+        Task<IEnumerable<Manager>> GetAllManagersAsync(string branchId);
 
         /// <summary>
         /// Retrieves the details of a branch manager's Account.

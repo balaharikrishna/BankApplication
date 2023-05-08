@@ -17,18 +17,40 @@ namespace BankApplication.Services.Services
 
         public async Task<IEnumerable<ReserveBankManager>> GetAllReserveBankManagersAsync()
         {
-            return await _reserveBankManagerRepository.GetAllReserveBankManagers();
+            IEnumerable<ReserveBankManager> reserveBankManagers =  await _reserveBankManagerRepository.GetAllReserveBankManagers();
+            if (reserveBankManagers.Any())
+            {
+                return reserveBankManagers;
+            }
+            else
+            {
+                return Enumerable.Empty<ReserveBankManager>();
+            }
         }
 
         public async Task<ReserveBankManager?> GetReserveBankManagerByIdAsync(string reserveBankManagerAccountId)
         {
             ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(reserveBankManagerAccountId);
-            return reserveBankManager;
+            if (reserveBankManager is not null)
+            {
+                return reserveBankManager;
+            }
+            else
+            {
+                return null;
+            }
         }
         public async Task<ReserveBankManager?> GetReserveBankManagerByNameAsync(string reserveBankManagerName)
         {
             ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
-            return reserveBankManager;
+            if (reserveBankManager is not null)
+            {
+                return reserveBankManager;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<Message> AuthenticateManagerAccountAsync(string ReserveBankManagerAccountId, string ReserveBankManagerPassword)
@@ -38,7 +60,7 @@ namespace BankApplication.Services.Services
             if (reserveBankManagers.Any())
             {
                 byte[] salt = new byte[32];
-                ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
+                ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
                 if (reserveBankManager is not null)
                 {
                     salt = reserveBankManager.Salt;
@@ -132,14 +154,14 @@ namespace BankApplication.Services.Services
             message = await IsAccountExistAsync(ReserveBankManagerAccountId);
             if (message.Result)
             {
-                ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
-                byte[] salt = null;
-                byte[] hashedPassword = null;
+                ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
+                byte[]? salt = null;
+                byte[]? hashedPassword = null;
                 bool canContinue = true;
                 if (ReserveBankManagerPassword is not null && reserveBankManager is not null)
                 {
                     salt = reserveBankManager!.Salt;
-                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
+                    byte[]? hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
                     if (Convert.ToBase64String(reserveBankManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {
                         message.Result = false;
@@ -229,10 +251,6 @@ namespace BankApplication.Services.Services
                 message.ResultMessage = $"No Managers Available";
             }
             return message;
-        }
-        public async Task<ReserveBankManager> GetReserveBankManagerDetailsAsync(string ReserveBankManagerAccountId)
-        {
-            return await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
         }
     }
 }

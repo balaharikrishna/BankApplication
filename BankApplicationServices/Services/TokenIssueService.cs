@@ -29,7 +29,7 @@ namespace BankApplication.Services.Services
             {
                 byte[] salt = user.Salt;
                 byte[] hashedPasswordToCheck = _encryptionService.HashPassword(password, salt);
-                bool isValidPassword = Convert.ToBase64String(user!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                bool isValidPassword = Convert.ToBase64String(user.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
                 if (isValidPassword)
                 {
                     string token = await GenerateTokenAsync(user.AccountId, user.Role);

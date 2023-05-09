@@ -4,6 +4,11 @@ namespace BankApplication.Services.IServices
 {
     public interface IManagerService
     {
+        /// <summary>
+        /// Retrieves the details of All branch manager's Accounts.
+        /// </summary>
+        /// <param name="branchId">The ID of the branch.</param>
+        /// <returns>All branch manager's Account Details.</returns>
         Task<IEnumerable<Manager>> GetAllManagersAsync(string branchId);
 
         /// <summary>
@@ -14,6 +19,12 @@ namespace BankApplication.Services.IServices
         /// <returns>A string containing the details of the branch manager's account.</returns>
         Task<Manager?> GetManagerByIdAsync(string branchId, string managerAccountId);
 
+        /// <summary>
+        /// Retrieves the details of a branch manager's Account.
+        /// </summary>
+        /// <param name="branchId">The ID of the branch.</param>
+        /// <param name="managerName">The Name of the branch manager.</param>
+        /// <returns>A string containing the details of the branch manager's account.</returns>
         Task<Manager?> GetManagerByNameAsync(string branchId, string managerName);
         /// <summary>
         /// Checks for managers Existence.

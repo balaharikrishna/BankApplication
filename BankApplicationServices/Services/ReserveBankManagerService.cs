@@ -59,30 +59,33 @@ namespace BankApplication.Services.Services
             IEnumerable<ReserveBankManager> reserveBankManagers = await _reserveBankManagerRepository.GetAllReserveBankManagers();
             if (reserveBankManagers.Any())
             {
-                byte[] salt = new byte[32];
                 ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerById(ReserveBankManagerAccountId);
                 if (reserveBankManager is not null)
                 {
-                    salt = reserveBankManager.Salt;
-                }
-
-                byte[] hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
-                bool isValidPassword = Convert.ToBase64String(reserveBankManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
-                if (isValidPassword)
-                {
-                    message.Result = true;
-                    message.ResultMessage = "ReserveBankManager Validation Successful.";
+                    byte[] salt = reserveBankManager.Salt;
+                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
+                    bool isValidPassword = Convert.ToBase64String(reserveBankManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                    if (isValidPassword)
+                    {
+                        message.Result = true;
+                        message.ResultMessage = "ReserveBankManager Validation Successful.";
+                    }
+                    else
+                    {
+                        message.Result = false;
+                        message.ResultMessage = "ReserveBankManager Validation Failed.";
+                    }
                 }
                 else
                 {
                     message.Result = false;
-                    message.ResultMessage = "ReserveBankManager Validation Failed.";
+                    message.ResultMessage = $"ReserveBankManager with Acc.Id:{ReserveBankManagerAccountId} Not Found.";
                 }
             }
             else
             {
                 message.Result = false;
-                message.ResultMessage = $"No ReserveBankManagera Available.";
+                message.ResultMessage = $"No ReserveBankManagers Available.";
             }
             return message;
         }
@@ -106,8 +109,7 @@ namespace BankApplication.Services.Services
         public async Task<Message> OpenReserveBankManagerAccountAsync(string reserveBankManagerName, string reserveBankManagerPassword)
         {
             Message message = new();
-            ReserveBankManager reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
-
+            ReserveBankManager? reserveBankManager = await _reserveBankManagerRepository.GetReserveBankManagerByName(reserveBankManagerName);
 
             if (reserveBankManager is null)
             {
@@ -160,7 +162,7 @@ namespace BankApplication.Services.Services
                 bool canContinue = true;
                 if (ReserveBankManagerPassword is not null && reserveBankManager is not null)
                 {
-                    salt = reserveBankManager!.Salt;
+                    salt = reserveBankManager.Salt;
                     byte[]? hashedPasswordToCheck = _encryptionService.HashPassword(ReserveBankManagerPassword, salt);
                     if (Convert.ToBase64String(reserveBankManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {

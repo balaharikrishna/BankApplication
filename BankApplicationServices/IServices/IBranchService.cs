@@ -4,9 +4,27 @@ namespace BankApplication.Services.IServices
 {
     public interface IBranchService
     {
+        /// <summary>
+        /// Gets All Available Branches in a Bank.
+        /// </summary>
+        /// <param name="bankId">The ID of the bank.</param>
+        /// <returns>All Branches Available in a Bank</returns>
         Task<IEnumerable<Branch>> GetAllBranchesAsync(string bankId);
+
+        /// <summary>
+        /// Gets a Branch by using Branch Id.
+        /// </summary>
+        /// <param name="id">The ID of the branch.</param>
+        /// <returns>Branch with Id.</returns>
         Task<Branch?> GetBranchByIdAsync(string id);
+
+        /// <summary>
+        /// Gets a Branch by using Branch Name.
+        /// </summary>
+        /// <param name="name">The Name of the branch.</param>
+        /// <returns>Branch with Name.</returns>
         Task<Branch?> GetBranchByNameAsync(string name);
+
         /// <summary>
         /// Checks whether any branches exist for a given bank.
         /// </summary>
@@ -41,7 +59,6 @@ namespace BankApplication.Services.IServices
         /// <summary>
         /// Authenticates the given branch ID for a given bank.
         /// </summary>
-        /// <param name="bankId">The ID of the bank in which the branch exists.</param>
         /// <param name="branchId">The ID of the branch to authenticate.</param>
         /// <returns>A message about Status of Branch Authentication.</returns>
         Task<Message> AuthenticateBranchIdAsync(string branchId);
@@ -49,7 +66,6 @@ namespace BankApplication.Services.IServices
         /// <summary>
         /// Updates an existing branch for a given bank.
         /// </summary>
-        /// <param name="bankId">The ID of the bank in which the branch exists.</param>
         /// <param name="branchId">The ID of the branch to update.</param>
         /// <param name="branchName">The new name of the branch.</param>
         /// <param name="branchPhoneNumber">The new phone number of the branch.</param>

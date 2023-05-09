@@ -118,24 +118,27 @@ namespace BankApplication.Services.Services
                 IEnumerable<HeadManager?> headManagers = await _headManagerRepository.GetAllHeadManagers(bankId);
                 if (headManagers.Any())
                 {
-                    byte[] salt = new byte[32];
                     HeadManager? headManager = await _headManagerRepository.GetHeadManagerById(headManagerAccountId, bankId);
                     if (headManager is not null)
                     {
-                        salt = headManager.Salt;
-                    }
-
-                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(headManager!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
-                    if (isValidPassword)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = "Head Manager Validation Successful.";
+                        byte[] salt = headManager.Salt;
+                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
+                        bool isValidPassword = Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                        if (isValidPassword)
+                        {
+                            message.Result = true;
+                            message.ResultMessage = "Head Manager Validation Successful.";
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Head Manager Validation Failed.";
+                        }
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "Head Manager Validation Failed.";
+                        message.ResultMessage = $"Head Manager with Acc.Id:{headManagerAccountId} Not Found.";
                     }
                 }
                 else
@@ -219,7 +222,7 @@ namespace BankApplication.Services.Services
                 bool canContinue = true;
                 if (headManagerPassword is not null && headManager is not null)
                 {
-                    salt = headManager!.Salt;
+                    salt = headManager.Salt;
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(headManagerPassword, salt);
                     if (Convert.ToBase64String(headManager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {

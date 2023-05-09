@@ -1,15 +1,32 @@
 ﻿using BankApplication.Models;
-using BankApplication.Models.Enums;
 
 namespace BankApplication.Services.IServices
 {
     public interface IStaffService
     {
+        /// <summary>
+        /// Retrieves the details of All Staff Accounts.
+        /// </summary>
+        /// <param name="branchId">The BranchId of the branch to check.</param>
+        /// <returns>All Staff's Account Details.</returns>
         Task<IEnumerable<Staff>> GetAllStaffAsync(string branchId);
 
+        /// <summary>
+        /// Retrieves Reserve Bank manager's Account Details.
+        /// </summary>
+        /// <param name="branchId">The BranchId of the branch to check.</param>
+        /// <param name="staffAccountId">The account ID of Staff.</param>
+        /// <returns>Details of Staff Account.</returns>
         Task<Staff?> GetStaffByIdAsync(string branchId, string staffAccountId);
 
+        /// <summary>
+        /// Retrieves the details of a Staff Account.
+        /// </summary>
+        /// <param name="branchId">The BranchId of the branch to check.</param>
+        /// <param name="staffName">The Name of the Reserve Bank manager.</param>
+        /// <returns>Details of Staff Account.</returns>
         Task<Staff?> GetStaffByNameAsync(string branchId, string staffName);
+
         /// <summary>
         /// Checks for staff Members account's with the given BankId and BranchId exists or not.
         /// </summary>
@@ -62,12 +79,5 @@ namespace BankApplication.Services.IServices
         /// <param name="staffAccountId">The StaffAccountId of the staff account to check.</param>
         /// <returns>A message indicating status of Staff Account Existence.</returns>
         Task<Message> IsAccountExistAsync(string branchId, string staffAccountId);
-
-        /// <summary>
-        /// Retrieves the details of a staff member from a specific bank and branch using their staff account ID.
-        /// </summary>
-        /// <param name="branchId">The ID of the branch where the staff member is located.</param>
-        /// <param name="staffAccountId">The unique identifier for the staff member's account.</param>
-        /// <returns>A string containing the staff member's details, including their name, position, and contact information.</returns>
     }
 }

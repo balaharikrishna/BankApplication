@@ -4,10 +4,27 @@ namespace BankApplication.Services.IServices
 {
     public interface IHeadManagerService
     {
+        /// <summary>
+        /// Gets All Available Head Managers in a Branch by fetching with branch Id.
+        /// </summary>
+        /// <param name="branchId">The ID of the Branch.</param>
+        /// <returns>All Head Managers Available in a Branch.</returns>
         Task<IEnumerable<HeadManager>> GetAllHeadManagersAsync(string branchId);
 
+        /// <summary>
+        /// Retrieves the Customer Details using Bank Id and Head Manager Id.
+        /// </summary>
+        /// <param name="bankId">The unique identifier of the Bank where the Head manager account is located.</param>
+        /// <param name="headManagerAccountId">The unique identifier of the Head manager Account.</param>
+        /// <returns>Head Manager Details.</returns>
         Task<HeadManager?> GetHeadManagerByIdAsync(string bankId, string headManagerAccountId);
 
+        /// <summary>
+        /// Retrieves the Customer Details using Bank Id and Head Manager Name.
+        /// </summary>
+        /// <param name="bankId">The unique identifier of the Bank where the Head manager account is located.</param>
+        /// <param name="headManagerName">The Name of the Head manager.</param>
+        /// <returns>Head Manager Details.</returns>
         Task<HeadManager?> GetHeadManagerByNameAsync(string bankId, string headManagerName);
 
         /// <summary>
@@ -60,14 +77,5 @@ namespace BankApplication.Services.IServices
         /// <param name="headManagerAccountId">Account Id of the Head Manager</param>
         /// <returns>Message indicating status of account Existence.</returns>
         Task<Message> IsHeadManagerExistAsync(string bankId, string headManagerAccountId);
-
-        /// <summary>
-        /// Provides details of the Head Manager Account.
-        /// </summary>
-        /// <param name="bankId">BankId of the Bank</param>
-        /// <param name="headManagerAccountId">Account Id of the Head Manager</param>
-        /// <returns>Details of the Head Manager account.</returns>
-        Task<HeadManager?> GetHeadManagerDetailsAsync(string bankId, string headManagerAccountId);
-
     }
 }

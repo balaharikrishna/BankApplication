@@ -160,38 +160,45 @@ namespace BankApplication.Services.Services
                 {
                     Customer? toCustomer = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
                     Customer? fromCustomer = await _customerRepository.GetCustomerById(fromCustomerAccountId, fromBranchId);
-                    decimal toCustomerAmount = toCustomer!.Balance;
-                    if (toCustomerAmount >= fromCustomerTransaction.Debit)
-                    {
-                        Customer fromCustomerObject = new()
+                    if(fromCustomer is not null && toCustomer is not null) {
+                        decimal toCustomerAmount = toCustomer.Balance;
+                        if (toCustomerAmount >= fromCustomerTransaction.Debit)
                         {
-                            Balance = fromCustomer!.Balance + toCustomerTransaction.Credit,
-                            AccountId = fromCustomerAccountId
-                        };
-
-                        Customer toCustomerObject = new()
-                        {
-                            Balance = toCustomer.Balance - toCustomerTransaction.Credit,
-                            AccountId = toCustomerAccountId
-                        };
-                        bool isFromAccUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, fromBranchId);
-                        bool isToAccUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
-                        if (isFromAccUpdated && isToAccUpdated)
-                        {
-                            message = await TransactionHistoryFromAndToAsync(fromBankId, fromBranchId, fromCustomerAccountId,
-                            toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit,
-                            fromCustomer.Balance, toCustomer.Balance, TransactionType.Revert);
-                            if (message.Result)
+                            Customer fromCustomerObject = new()
                             {
-                                message.Result = true;
-                                message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromCustomer.Balance}";
+                                Balance = fromCustomer.Balance + toCustomerTransaction.Credit,
+                                AccountId = fromCustomerAccountId
+                            };
+
+                            Customer toCustomerObject = new()
+                            {
+                                Balance = toCustomer.Balance - toCustomerTransaction.Credit,
+                                AccountId = toCustomerAccountId
+                            };
+                            bool isFromAccUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, fromBranchId);
+                            bool isToAccUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
+                            if (isFromAccUpdated && isToAccUpdated)
+                            {
+                                message = await TransactionHistoryFromAndToAsync(fromBankId, fromBranchId, fromCustomerAccountId,
+                                toBankId, toBranchId, toCustomerAccountId, 0, toCustomerTransaction.Credit,
+                                fromCustomer.Balance, toCustomer.Balance, TransactionType.Revert);
+                                if (message.Result)
+                                {
+                                    message.Result = true;
+                                    message.ResultMessage = $"Account Id:{fromCustomerAccountId} Reverted with Amount :{fromCustomerTransaction.Debit} Updated Balance:{fromCustomer.Balance}";
+                                }
                             }
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "To Customer doesn't have the Required Amount to be Deducted.";
                         }
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "To Customer doesn't have the Required Amount to be Deducted.";
+                        message.ResultMessage = "Customer Account Not Found!";
                     }
                 }
                 else

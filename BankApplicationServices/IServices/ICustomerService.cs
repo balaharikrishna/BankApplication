@@ -5,16 +5,27 @@ namespace BankApplication.Services.IServices
 {
     public interface ICustomerService
     {
+        /// <summary>
+        /// Gets All Available Customers in a Branch by fetching with branch Id.
+        /// </summary>
+        /// <param name="branchId">The ID of the Branch.</param>
+        /// <returns>All Customers Available in a Branch.</returns>
         Task<IEnumerable<Customer>> GetAllCustomersAsync(string branchId);
 
         /// <summary>
-        /// Retrieves the Customer Passbook.
+        /// Retrieves the Customer Details using Branch Id and Customer Id.
         /// </summary>
         /// <param name="branchId">The unique identifier of the branch where the customer account is located.</param>
         /// <param name="customerAccountId">The unique identifier of the customer account whose passbook will be retrieved.</param>
-        /// <returns>A message about status of Retreving the passbook.</returns>
+        /// <returns>Customer Details.</returns>
         Task<Customer?> GetCustomerByIdAsync(string branchId, string customerAccountId);
 
+        /// <summary>
+        /// Retrieves the Customer Details using Branch Id and Customer Name.
+        /// </summary>
+        /// <param name="branchId">The unique identifier of the branch where the customer account is located.</param>
+        /// <param name="customerName">Name of the Customer.</param>
+        /// <returns>Customer Details.</returns>
         Task<Customer?> GetCustomerByNameAsync(string branchId, string customerName);
 
         /// <summary>

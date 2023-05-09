@@ -72,7 +72,7 @@ namespace BankApplication.Services.Services
             Message message = new();
 
             Bank? bankDetails = await _bankRepository.GetBankByName(bankName);
-            if (bankDetails != null)
+            if (bankDetails is not null)
             {
                 message.Result = false;
                 message.ResultMessage = $"BankName:{bankName} is Already Registered.";

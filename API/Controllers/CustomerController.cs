@@ -35,7 +35,7 @@ namespace API.Controllers
             {
                 _logger.Log(LogLevel.Information, message: "Fetching the Customers");
                 IEnumerable<Customer?> customers = await _customerService.GetAllCustomersAsync(id);
-                if (customers is null || !customers.Any())
+                if (customers is null || customers.Any())
                 {
                     return NotFound("Customers Not Found.");
                 }
@@ -59,7 +59,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Customer Account with id {id}");
-                Customer customer = await _customerService.GetCustomerByIdAsync(branchId, id);
+                Customer? customer = await _customerService.GetCustomerByIdAsync(branchId, id);
                 if (customer is null)
                 {
                     return NotFound("Customer Not Found");
@@ -84,7 +84,7 @@ namespace API.Controllers
             try
             {
                 _logger.Log(LogLevel.Information, message: $"Fetching Customer Account with Name {name}");
-                Customer customer = await _customerService.GetCustomerByNameAsync(branchId, name);
+                Customer? customer = await _customerService.GetCustomerByNameAsync(branchId, name);
                 if (customer is null)
                 {
                     return NotFound("Customer Not Found");

@@ -99,24 +99,27 @@ namespace BankApplication.Services.Services
                 IEnumerable<Customer?> customers = await _customerRepository.GetAllCustomers(branchId);
                 if (customers.Any())
                 {
-                    byte[] salt = new byte[32];
                     Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
                     if (customer is not null)
                     {
-                        salt = customer.Salt;
-                    }
-
-                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(customer!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
-                    if (isValidPassword)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = "Customer Validation Successful.";
+                        byte[] salt = customer.Salt;
+                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
+                        bool isValidPassword = Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                        if (isValidPassword)
+                        {
+                            message.Result = true;
+                            message.ResultMessage = "Customer Validation Successful.";
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Customer Validation Failed.";
+                        }
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "Customer Validation Failed.";
+                        message.ResultMessage = $"Customer with Acc.Id:{customerAccountId} Not Found";
                     }
                 }
                 else
@@ -269,7 +272,7 @@ namespace BankApplication.Services.Services
                 bool canContinue = true;
                 if (customerPassword is not null && customer is not null)
                 {
-                    salt = customer!.Salt;
+                    salt = customer.Salt;
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(customerPassword, salt);
                     if (Convert.ToBase64String(customer.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {
@@ -316,7 +319,6 @@ namespace BankApplication.Services.Services
                 message.Result = false;
                 message.ResultMessage = "Customer Validation Failed.";
             }
-
             return message;
         }
 
@@ -367,7 +369,15 @@ namespace BankApplication.Services.Services
                         if (message.Result)
                         {
                             Currency? currencyObject = await _currencyService.GetCurrencyByCode(currencyCode, bankId);
-                            exchangedAmount = depositAmount * currencyObject!.ExchangeRate;
+                            if(currencyObject is not null)
+                            {
+                                exchangedAmount = depositAmount * currencyObject.ExchangeRate;
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Couldn't Find Currency";
+                            }
                         }
                         else
                         {
@@ -379,26 +389,35 @@ namespace BankApplication.Services.Services
                     if (exchangedAmount > 0)
                     {
                         Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                        Customer customerObject = new()
+                        if (customer is not null)
                         {
-                            Balance = customer!.Balance + exchangedAmount,
-                            AccountId = customerAccountId
-                        };
-                        bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
-                        if (isUpdated)
-                        {
-                            message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, 0, exchangedAmount, customerObject.Balance, TransactionType.Deposit);
-                            if (message.Result)
+                            Customer customerObject = new()
                             {
-                                message.Result = true;
-                                message.ResultMessage = $"Amount:'{exchangedAmount}'INR Added Succesfully., Avl.Bal:{customerObject.Balance}INR";
-                            }
-                            else
+                                Balance = customer.Balance + exchangedAmount,
+                                AccountId = customerAccountId
+                            };
+                            bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
+                            if (isUpdated)
                             {
-                                message.Result = false;
-                                message.ResultMessage = $"Failed to Deposit Amount";
+                                message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, 0, exchangedAmount, customerObject.Balance, TransactionType.Deposit);
+                                if (message.Result)
+                                {
+                                    message.Result = true;
+                                    message.ResultMessage = $"Amount:'{exchangedAmount}'INR Added Succesfully., Avl.Bal:{customerObject.Balance}INR";
+                                }
+                                else
+                                {
+                                    message.Result = false;
+                                    message.ResultMessage = "Amount Deposited Successfully., but Failed to Load Transaction History";
+                                }
                             }
                         }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Failed to Deposit Amount";
+                        }
+                   
                     }
                     else
                     {
@@ -427,8 +446,16 @@ namespace BankApplication.Services.Services
             if (message.Result)
             {
                 Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                message.ResultMessage = $"Available Balance :{customer!.Balance} INR";
-                message.Data = $"{customer.Balance}";
+                if (customer is not null)
+                {
+                    message.ResultMessage = $"Available Balance :{customer.Balance} INR";
+                    message.Data = $"{customer.Balance}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Customer with Account Id:{customerAccountId} not Found.";
+                }
             }
             else
             {
@@ -445,8 +472,16 @@ namespace BankApplication.Services.Services
             if (message.Result)
             {
                 Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                message.ResultMessage = $"Available Balance :{customer!.Balance}";
-                message.Data = $"{customer.Balance}";
+                if (customer is not null)
+                {
+                    message.ResultMessage = $"Available Balance :{customer.Balance}";
+                    message.Data = $"{customer.Balance}";
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Customer with Account Id:{customerAccountId} not Found.";
+                }
             }
             else
             {
@@ -463,31 +498,39 @@ namespace BankApplication.Services.Services
             if (message.Result)
             {
                 Customer? customer = await _customerRepository.GetCustomerById(customerAccountId, branchId);
-                if (customer!.Balance == 0)
+                if (customer is not null)
                 {
-                    message.Result = false;
-                    message.ResultMessage = "Failed ! Account Balance: 0 Rupees";
-                }
-                else if (customer.Balance < withDrawAmount)
-                {
-                    message.Result = false;
-                    message.ResultMessage = $"Insufficient funds !! Aval.Bal is {customer.Balance} Rupees";
-                }
-                else
-                {
-                    Customer customerObject = new()
+                    if (customer.Balance == 0)
                     {
-                        Balance = customer.Balance - withDrawAmount,
-                        AccountId = customerAccountId
-                    };
-                    bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
-                    if (isUpdated)
+                        message.Result = false;
+                        message.ResultMessage = "Failed ! Account Balance: 0 Rupees";
+                    }
+                    else if (customer.Balance < withDrawAmount)
                     {
-                        message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, withDrawAmount, 0, customerObject.Balance, TransactionType.Withdraw);
-                        if (message.Result)
+                        message.Result = false;
+                        message.ResultMessage = $"Insufficient funds !! Aval.Bal is {customer.Balance} Rupees";
+                    }
+                    else
+                    {
+                        Customer customerObject = new()
                         {
-                            message.Result = true;
-                            message.ResultMessage = $"Withdrawn Amount:{withDrawAmount}INR Successful!! Aval.Bal is {customerObject.Balance}INR";
+                            Balance = customer.Balance - withDrawAmount,
+                            AccountId = customerAccountId
+                        };
+                        bool isUpdated = await _customerRepository.UpdateCustomerAccount(customerObject, branchId);
+                        if (isUpdated)
+                        {
+                            message = await _transactionService.TransactionHistoryAsync(bankId, branchId, customerAccountId, withDrawAmount, 0, customerObject.Balance, TransactionType.Withdraw);
+                            if (message.Result)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = $"Withdrawn Amount:{withDrawAmount}INR Successful!! Aval.Bal is {customerObject.Balance}INR";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = $"Withdrawn Amount:{withDrawAmount} but Failed to Load Transaction History";
+                            }
                         }
                         else
                         {
@@ -495,6 +538,11 @@ namespace BankApplication.Services.Services
                             message.ResultMessage = $"Failed to Withdraw Amount:{withDrawAmount}";
                         }
                     }
+                }
+                else
+                {
+                    message.Result = false;
+                    message.ResultMessage = $"Customer with Account Id:{customerAccountId} not Found.";
                 }
             }
             return message;
@@ -509,7 +557,7 @@ namespace BankApplication.Services.Services
             ushort bankInterestRate = 0;
             if (fromCustomer.Result && toCustomer.Result)
             {
-                TransactionCharge transactionCharges = await _transactionChargeService.GetTransactionCharges(branchId);
+                TransactionCharge? transactionCharges = await _transactionChargeService.GetTransactionCharges(branchId);
                 if (transactionCharges is not null)
                 {
                     if (bankId.Substring(0, 3).Equals(toBankId.Substring(0, 3)))
@@ -543,34 +591,42 @@ namespace BankApplication.Services.Services
                     {
                         Customer? fromCustomerData = await _customerRepository.GetCustomerById(customerAccountId, branchId);
                         Customer? toCustomerData = await _customerRepository.GetCustomerById(toCustomerAccountId, toBranchId);
-                        Customer fromCustomerObject = new()
+                        if(fromCustomerData is not null && toCustomerData is not null)
                         {
-                            Balance = fromCustomerData!.Balance - transferAmountWithInterest,
-                            AccountId = customerAccountId
-                        };
+                            Customer fromCustomerObject = new()
+                            {
+                                Balance = fromCustomerData.Balance - transferAmountWithInterest,
+                                AccountId = customerAccountId
+                            };
 
-                        Customer toCustomerObject = new()
-                        {
-                            Balance = toCustomerData!.Balance + transferAmount,
-                            AccountId = toCustomerAccountId
-                        };
+                            Customer toCustomerObject = new()
+                            {
+                                Balance = toCustomerData.Balance + transferAmount,
+                                AccountId = toCustomerAccountId
+                            };
 
-                        bool isfromCustomerUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, branchId);
-                        fromCustomerBalanace = fromCustomerObject.Balance;
+                            bool isfromCustomerUpdated = await _customerRepository.UpdateCustomerAccount(fromCustomerObject, branchId);
+                            fromCustomerBalanace = fromCustomerObject.Balance;
 
-                        bool isToCustomerUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
-                        decimal toCustomerBalance = toCustomerObject.Balance;
+                            bool isToCustomerUpdated = await _customerRepository.UpdateCustomerAccount(toCustomerObject, toBranchId);
+                            decimal toCustomerBalance = toCustomerObject.Balance;
 
-                        message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, TransactionType.Transfer);
-                        if (message.Result && isfromCustomerUpdated && isToCustomerUpdated)
-                        {
-                            message.Result = true;
-                            message.ResultMessage = $"Transfer of {transferAmount} Rupees Sucessfull.,Deducted Amout :{transferAmount + transferAmountInterest}, Avl.Bal: {fromCustomerBalanace}";
+                            message = await _transactionService.TransactionHistoryFromAndToAsync(bankId, branchId, customerAccountId, toBankId, toBranchId, toCustomerAccountId, transferAmount, 0, fromCustomerBalanace, toCustomerBalance, TransactionType.Transfer);
+                            if (message.Result && isfromCustomerUpdated && isToCustomerUpdated)
+                            {
+                                message.Result = true;
+                                message.ResultMessage = $"Transfer of {transferAmount} Rupees Sucessfull.,Deducted Amout :{transferAmount + transferAmountInterest}, Avl.Bal: {fromCustomerBalanace}";
+                            }
+                            else
+                            {
+                                message.Result = false;
+                                message.ResultMessage = "Failed to Transfer the Amount.";
+                            }
                         }
                         else
                         {
                             message.Result = false;
-                            message.ResultMessage = "Failed to Transfer the Amount.";
+                            message.ResultMessage = "Customer Not Found";
                         }
                     }
                     else

@@ -23,7 +23,9 @@ namespace BankApplication.Services.Services
         {
             using Rfc2898DeriveBytes pbkdf2 = new(password, salt, ITERATIONS);
             return pbkdf2.GetBytes(HASH_SIZE);
-        }
 
+            //using PasswordDeriveBytes pbkdf2 = new(password, salt, "HMACSHA256", ITERATIONS);
+            //return pbkdf2.GetBytes(HASH_SIZE);
+        }
     }
 }

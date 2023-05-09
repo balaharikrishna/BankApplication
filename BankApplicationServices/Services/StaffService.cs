@@ -92,24 +92,27 @@ namespace BankApplication.Services.Services
                 IEnumerable<Staff> staffs = await _staffRepository.GetAllStaffs(branchId);
                 if (staffs.Any())
                 {
-                    byte[]? salt = new byte[32];
                     Staff? staff = await _staffRepository.GetStaffById(staffAccountId, branchId);
                     if (staff is not null)
                     {
-                        salt = staff.Salt;
-                    }
-
-                    byte[]? hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(staff!.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
-                    if (isValidPassword)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = "Staff Validation Successful.";
+                        byte[] salt = staff.Salt;
+                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffAccountPassword, salt);
+                        bool isValidPassword = Convert.ToBase64String(staff.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                        if (isValidPassword)
+                        {
+                            message.Result = true;
+                            message.ResultMessage = "Staff Validation Successful.";
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Staff Validation Failed.";
+                        }
                     }
                     else
                     {
                         message.Result = false;
-                        message.ResultMessage = "Staff Validation Failed.";
+                        message.ResultMessage = $"Staff with Acc.Id:{staffAccountId} Not Found.";
                     }
                 }
                 else
@@ -140,8 +143,8 @@ namespace BankApplication.Services.Services
                     string UserFirstThreeCharecters = staffName.Substring(0, 3);
                     string staffAccountId = string.Concat(UserFirstThreeCharecters, date);
 
-                    byte[]? salt = _encryptionService.GenerateSalt();
-                    byte[]? hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
+                    byte[] salt = _encryptionService.GenerateSalt();
+                    byte[] hashedPassword = _encryptionService.HashPassword(staffPassword, salt);
 
                     Staff staffObject = new()
                     {
@@ -219,7 +222,7 @@ namespace BankApplication.Services.Services
                 bool canContinue = true;
                 if (staff is not null && staffPassword is not null)
                 {
-                    salt = staff!.Salt;
+                    salt = staff.Salt;
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(staffPassword, salt);
                     if (Convert.ToBase64String(staff.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {

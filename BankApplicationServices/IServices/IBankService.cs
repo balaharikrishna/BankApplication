@@ -5,13 +5,23 @@ namespace BankApplication.Services.IServices
     public interface IBankService
     {
         /// <summary>
-        /// Gets a banks Enumerable
+        /// Fetches all branches.
         /// </summary>
-        /// <returns>Returns an Enumerable of banks.</returns>
+        /// <returns>Returns all Banks.</returns>
         Task<IEnumerable<Bank>> GetAllBanksAsync();
 
+        /// <summary>
+        /// Fetches Bank Details.
+        /// </summary>
+        /// <param name="id">Bank Id</param>
+        /// <returns>Bank Details by given Id</returns>
         Task<Bank?> GetBankByIdAsync(string id);
 
+        /// <summary>
+        /// Fetches Bank Details.
+        /// </summary>
+        /// <param name="name">Name of the Bank</param>
+        /// <returns>Bank Detils by given Name</returns>
         Task<Bank?> GetBankByNameAsync(string name);
 
         /// <summary>

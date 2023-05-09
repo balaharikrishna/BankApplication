@@ -94,25 +94,24 @@ namespace BankApplication.Services.Services
                 IEnumerable<Manager?> managers = await _managerRepository.GetAllManagers(branchId);
                 if (managers.Any())
                 {
-                    byte[] salt = new byte[32];
                     Manager? manager = await _managerRepository.GetManagerById(managerAccountId, branchId);
                     if (manager is not null)
                     {
-                        salt = manager.Salt;
+                        byte[] salt = manager.Salt;
+                        byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
+                        bool isValidPassword = Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
+                        if (isValidPassword)
+                        {
+                            message.Result = true;
+                            message.ResultMessage = "Manager Validation Successful.";
+                        }
+                        else
+                        {
+                            message.Result = false;
+                            message.ResultMessage = "Manager Validation Failed.";
+                        }
                     }
 
-                    byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
-                    bool isValidPassword = Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck));
-                    if (isValidPassword)
-                    {
-                        message.Result = true;
-                        message.ResultMessage = "Manager Validation Successful.";
-                    }
-                    else
-                    {
-                        message.Result = false;
-                        message.ResultMessage = "Manager Validation Failed.";
-                    }
                 }
                 else
                 {
@@ -220,7 +219,7 @@ namespace BankApplication.Services.Services
                 bool canContinue = true;
                 if (managerPassword is not null && manager is not null)
                 {
-                    salt = manager!.Salt;
+                    salt = manager.Salt;
                     byte[] hashedPasswordToCheck = _encryptionService.HashPassword(managerPassword, salt);
                     if (Convert.ToBase64String(manager.HashedPassword).Equals(Convert.ToBase64String(hashedPasswordToCheck)))
                     {

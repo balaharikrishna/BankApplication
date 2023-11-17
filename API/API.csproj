@@ -23,8 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BankApplicationHelperMethods\BankApplication.HelperMethods.csproj" />
     <ProjectReference Include="..\BankApplicationModels\BankApplication.Models.csproj" />
+    <ProjectReference Include="..\BankApplicationRepository\BankApplication.Repository.csproj" />
     <ProjectReference Include="..\BankApplicationServices\BankApplication.Services.csproj" />
+    <ProjectReference Include="..\BankApplication\BankApplication.csproj" />
   </ItemGroup>
 
 </Project>
